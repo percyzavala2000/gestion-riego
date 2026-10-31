@@ -1,30 +1,55 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/v4.css}">
 </head>
 <body>
-<div th:replace=
-             "~{fragments/sidebar :: sidebar('turnos')}">
-</div>
-<main><h1>Turnos de riego</h1><a class="btn" th:href="@{/turnos/nuevo}">Crear turno</a>
-    <table>
-        <tr>
-            <th>Código</th>
-            <th>Parcela</th>
-            <th>Fecha</th>
-            <th>Horario</th>
-            <th>Estado</th>
-        </tr>
-        <tr th:each="t:${turnos}">
-            <td th:text="${t.codigo}"></td>
-            <td th:text="${t.parcela.nombre}"></td>
-            <td th:text="${t.fecha}"></td>
-            <td th:text="|${t.horaInicio} - ${t.horaFin}|">
-            </td>
-            <td th:text="${t.estado}"></td>
-        </tr>
-    </table>
-</main>
+<div th:replace="~{fragments/sidebar :: sidebar('turnos')}"></div>
+<section class="workspace">
+    <div th:replace="~{fragments/header :: header('Turnos de riego')}"></div>
+    <main><h1>Turnos de riego</h1>
+        <div class="notice ok" th:if="${exito}" th:text="${exito}"></div>
+        <div class="notice bad" th:if="${error}" th:text="${error}"></div>
+        <a class="btn" th:href="@{/turnos/nuevo}">Crear turno</a>
+        <table>
+            <tr>
+                <th>Código</th>
+                <th>Agricultor</th>
+                <th>Parcela</th>
+                <th>Fecha</th>
+                <th>Horario</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+            <tr th:each="t:${turnos}">
+                <td th:text="${t.codigo}"></td>
+                <td th:text="|${t.parcela.agricultor.nombres} ${t.parcela.agricultor.apellidos}|"></td>
+                <td th:text="${t.parcela.nombre}"></td>
+                <td th:text="${t.fecha}"></td>
+                <td th:text="|${t.horaInicio} - ${t.horaFin}|"></td>
+                <td><span class="pill" th:text="${t.estado}"></span></td>
+                <td class="actions"><a th:if="${t.estado=='PROGRAMADO' or t.estado=='PENDIENTE'}"
+                                       th:href="@{/turnos/{id}/editar(id=${t.id})}">Editar</a>
+                    <form th:if="${t.estado=='PROGRAMADO'}" th:action="@{/turnos/{id}/iniciar(id=${t.id})}"
+                          method="post">
+                        <button class="link">Iniciar</button>
+                    </form>
+                    <form th:if="${t.estado=='EN_CURSO'}" th:action="@{/turnos/{id}/completar(id=${t.id})}"
+                          method="post">
+                        <button class="link">Completar</button>
+                    </form>
+                    <form th:if="${t.estado=='PROGRAMADO' or t.estado=='PENDIENTE' or t.estado=='EN_CURSO'}"
+                          th:action="@{/turnos/{id}/cancelar(id=${t.id})}" method="post"><input name="motivo"
+                                                                                                placeholder="Motivo"
+                                                                                                required>
+                        <button class="link danger">Cancelar</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </main>
+</section>
 </body>
 </html>

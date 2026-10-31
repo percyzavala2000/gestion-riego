@@ -12,11 +12,13 @@
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/dto/ParcelaForm.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/entity/Parcela.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/repository/ParcelaRepository.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/service/ParcelaService.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/controller/TurnoRiegoWebController.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/dto/DashboardResumen.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/dto/TurnoForm.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/entity/TurnoRiego.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/repository/TurnoRiegoRepository.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/service/TurnoRiegoService.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/security/controller/LoginController.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/security/service/CustomUserDetailsService.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/security/service/UsuarioPrincipal.java
@@ -24,6 +26,7 @@
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/tesoreria/dto/PagoForm.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/tesoreria/entity/Pago.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/tesoreria/repository/PagoRepository.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/tesoreria/service/PagoService.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/entity/Rol.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/entity/Usuario.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/enums/CodigoRol.java

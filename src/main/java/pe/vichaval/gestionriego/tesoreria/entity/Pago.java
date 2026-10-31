@@ -1,4 +1,12 @@
-package pe.vichaval.gestionriego.tesoreria.entity;import jakarta.persistence.*;import java.math.*;import java.time.*;import pe.vichaval.gestionriego.agricultor.entity.Agricultor;import pe.vichaval.gestionriego.tesoreria.dto.PagoForm;
+package pe.vichaval.gestionriego.tesoreria.entity;
+
+import jakarta.persistence.*;
+
+import java.math.*;
+import java.time.*;
+
+import pe.vichaval.gestionriego.agricultor.entity.Agricultor;
+import pe.vichaval.gestionriego.tesoreria.dto.PagoForm;
 
 @Entity
 @Table(name = "pagos")
@@ -12,11 +20,11 @@ public class Pago {
     private BigDecimal monto;
     @Column(nullable = false)
     private LocalDate fecha;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String concepto;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String comprobante;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private String metodo;
     @Column(nullable = false, length = 30)
     private String estado;
@@ -35,15 +43,13 @@ public class Pago {
     protected Pago() {
     }
 
-    public Pago(String codigo, PagoForm f, Agricultor a) {
-        this.codigo = codigo;
-        actualizar(f, a);
+    public Pago(String c, PagoForm f, Agricultor a) {
+        codigo = c;
         estado = "EFECTIVO".equals(f.getMetodo()) ? "CONFIRMADO" : "PENDIENTE";
+        cargar(f, a);
     }
 
-    public void actualizar(PagoForm f, Agricultor a) {
-        if (!("BORRADOR".equals(estado) || "PENDIENTE".equals(estado) || estado == null))
-            throw new IllegalStateException("Este pago ya no puede editarse");
+    private void cargar(PagoForm f, Agricultor a) {
         monto = f.getMonto();
         fecha = f.getFecha();
         concepto = f.getConcepto();
@@ -54,22 +60,22 @@ public class Pago {
     }
 
     public void confirmar() {
-        if (!"PENDIENTE".equals(estado)) throw new IllegalStateException("Solo se confirman pagos pendientes");
+        if (!"PENDIENTE".equals(estado)) throw new IllegalStateException("Solo pagos pendientes");
         estado = "CONFIRMADO";
     }
 
-    public void rechazar(String motivo) {
-        if (!"PENDIENTE".equals(estado)) throw new IllegalStateException("Solo se rechazan pagos pendientes");
-        if (motivo == null || motivo.isBlank()) throw new IllegalArgumentException("El motivo es obligatorio");
+    public void rechazar(String m) {
+        if (!"PENDIENTE".equals(estado)) throw new IllegalStateException("Solo pagos pendientes");
+        if (m == null || m.isBlank()) throw new IllegalArgumentException("Motivo obligatorio");
         estado = "RECHAZADO";
-        motivoRechazo = motivo;
+        motivoRechazo = m;
     }
 
-    public void anular(String motivo) {
-        if (!"CONFIRMADO".equals(estado)) throw new IllegalStateException("Solo se anulan pagos confirmados");
-        if (motivo == null || motivo.isBlank()) throw new IllegalArgumentException("El motivo es obligatorio");
+    public void anular(String m) {
+        if (!"CONFIRMADO".equals(estado)) throw new IllegalStateException("Solo pagos confirmados");
+        if (m == null || m.isBlank()) throw new IllegalArgumentException("Motivo obligatorio");
         estado = "ANULADO";
-        motivoAnulacion = motivo;
+        motivoAnulacion = m;
     }
 
     public Long getId() {

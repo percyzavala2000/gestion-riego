@@ -2,8 +2,8 @@ package pe.vichaval.gestionriego.tesoreria.dto;
 
 import jakarta.validation.constraints.*;
 
-import java.math.*;
-import java.time.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class PagoForm {
     @NotNull
@@ -24,47 +24,47 @@ public class PagoForm {
         return agricultorId;
     }
 
-    public void setAgricultorId(Long x) {
-        agricultorId = x;
+    public void setAgricultorId(Long v) {
+        agricultorId = v;
     }
 
     public BigDecimal getMonto() {
         return monto;
     }
 
-    public void setMonto(BigDecimal x) {
-        monto = x;
+    public void setMonto(BigDecimal v) {
+        monto = v;
     }
 
     public LocalDate getFecha() {
         return fecha;
     }
 
-    public void setFecha(LocalDate x) {
-        fecha = x;
+    public void setFecha(LocalDate v) {
+        fecha = v;
     }
 
     public String getConcepto() {
         return concepto;
     }
 
-    public void setConcepto(String x) {
-        concepto = x;
+    public void setConcepto(String v) {
+        concepto = v;
     }
 
     public String getComprobante() {
         return comprobante;
     }
 
-    public void setComprobante(String x) {
-        comprobante = x;
+    public void setComprobante(String v) {
+        comprobante = v;
     }
 
     public String getMetodo() {
         return metodo;
     }
 
-    public void setMetodo(String x) {
-        metodo = x;
+    public void setMetodo(String v) {
+        metodo = v;
     }
 }
