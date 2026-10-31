@@ -1,13 +1,16 @@
 package pe.vichaval.gestionriego.riego.controller;
 
 import jakarta.validation.Valid;
-
 import java.time.Duration;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.vichaval.gestionriego.parcela.repository.ParcelaRepository;
 import pe.vichaval.gestionriego.riego.dto.TurnoForm;
@@ -17,90 +20,305 @@ import pe.vichaval.gestionriego.riego.service.TurnoRiegoService;
 @Controller
 @RequestMapping("/turnos")
 public class TurnoRiegoWebController {
-    private final TurnoRiegoRepository r;
-    private final ParcelaRepository p;
-    private final TurnoRiegoService s;
 
-    public TurnoRiegoWebController(TurnoRiegoRepository r, ParcelaRepository p, TurnoRiegoService s) {
-        this.r = r;
-        this.p = p;
-        this.s = s;
+    private final TurnoRiegoRepository turnoRepository;
+    private final ParcelaRepository parcelaRepository;
+    private final TurnoRiegoService turnoService;
+
+    public TurnoRiegoWebController(
+            TurnoRiegoRepository turnoRepository,
+            ParcelaRepository parcelaRepository,
+            TurnoRiegoService turnoService
+    ) {
+        this.turnoRepository = turnoRepository;
+        this.parcelaRepository = parcelaRepository;
+        this.turnoService = turnoService;
     }
 
     @GetMapping
-    String listar(Model m) {
-        s.actualizarVencidos();
-        m.addAttribute("turnos", r.findAll());
+    public String listar(Model model) {
+
+        turnoService.actualizarVencidos();
+
+        model.addAttribute(
+                "turnos",
+                turnoRepository.findAll()
+        );
+
         return "riego/list";
     }
 
     @GetMapping("/nuevo")
-    String nuevo(Model m) {
-        m.addAttribute("form", new TurnoForm());
-        m.addAttribute("id", null);
-        cargar(m);
+    public String mostrarFormularioNuevo(Model model) {
+
+        model.addAttribute(
+                "form",
+                new TurnoForm()
+        );
+
+        model.addAttribute("id", null);
+
+        cargarParcelasActivas(model);
+
         return "riego/form";
     }
 
     @GetMapping("/{id}/editar")
-    String editar(@PathVariable Long id, Model m) {
-        var x = s.get(id);
-        var f = new TurnoForm();
-        f.setParcelaId(x.getParcela().getId());
-        f.setFecha(x.getFecha());
-        f.setHoraInicio(x.getHoraInicio());
-        f.setDuracionMinutos((int) Duration.between(x.getHoraInicio(), x.getHoraFin()).toMinutes());
-        f.setObservaciones(x.getObservaciones());
-        m.addAttribute("form", f);
-        m.addAttribute("id", id);
-        cargar(m);
-        return "riego/form";
+    public String mostrarFormularioEditar(
+            @PathVariable Long id,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            var turno = turnoService.get(id);
+
+            if (
+                    !"PROGRAMADO".equals(turno.getEstado())
+                            && !"PENDIENTE".equals(turno.getEstado())
+            ) {
+                redirectAttributes.addFlashAttribute(
+                        "error",
+                        "Solo pueden editarse turnos pendientes "
+                                + "o programados."
+                );
+
+                return "redirect:/turnos";
+            }
+
+            TurnoForm form = crearFormularioDesdeTurno(
+                    turno
+            );
+
+            model.addAttribute("form", form);
+            model.addAttribute("id", id);
+
+            cargarParcelasActivas(model);
+
+            return "riego/form";
+
+        } catch (RuntimeException exception) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    exception.getMessage()
+            );
+
+            return "redirect:/turnos";
+        }
+    }
+
+    @GetMapping("/{id}/reprogramar")
+    public String reprogramar(
+            @PathVariable Long id,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            var turno = turnoService.get(id);
+
+            if (
+                    !"CANCELADO".equals(turno.getEstado())
+                            && !"VENCIDO".equals(turno.getEstado())
+            ) {
+                redirectAttributes.addFlashAttribute(
+                        "error",
+                        "Solo pueden reprogramarse turnos "
+                                + "cancelados o vencidos."
+                );
+
+                return "redirect:/turnos";
+            }
+
+            TurnoForm form = new TurnoForm();
+
+            form.setParcelaId(
+                    turno.getParcela().getId()
+            );
+
+            form.setDuracionMinutos(
+                    calcularDuracion(turno)
+            );
+
+            form.setObservaciones(
+                    "Reprogramación del turno "
+                            + turno.getCodigo()
+            );
+
+            /*
+             * La fecha y la hora quedan vacías para obligar
+             * a seleccionar una nueva programación.
+             */
+            form.setFecha(null);
+            form.setHoraInicio(null);
+
+            model.addAttribute("form", form);
+
+            /*
+             * id nulo significa que se creará un turno nuevo.
+             * No se sobrescribe el turno cancelado o vencido.
+             */
+            model.addAttribute("id", null);
+
+            cargarParcelasActivas(model);
+
+            return "riego/form";
+
+        } catch (RuntimeException exception) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    exception.getMessage()
+            );
+
+            return "redirect:/turnos";
+        }
     }
 
     @PostMapping("/guardar")
-    String guardar(@RequestParam(required = false) Long id, @Valid @ModelAttribute("form") TurnoForm f, BindingResult b, Model m, RedirectAttributes ra) {
-        m.addAttribute("id", id);
-        if (b.hasErrors()) {
-            cargar(m);
+    public String guardar(
+            @RequestParam(required = false) Long id,
+            @Valid @ModelAttribute("form") TurnoForm form,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        model.addAttribute("id", id);
+
+        if (bindingResult.hasErrors()) {
+            cargarParcelasActivas(model);
             return "riego/form";
         }
+
         try {
-            s.guardar(f, id);
-            ra.addFlashAttribute("exito", "Turno guardado");
+            turnoService.guardar(form, id);
+
+            redirectAttributes.addFlashAttribute(
+                    "exito",
+                    id == null
+                            ? "Turno registrado correctamente."
+                            : "Turno actualizado correctamente."
+            );
+
             return "redirect:/turnos";
-        } catch (RuntimeException e) {
-            b.reject("negocio", e.getMessage());
-            cargar(m);
+
+        } catch (RuntimeException exception) {
+
+            bindingResult.reject(
+                    "errorNegocio",
+                    exception.getMessage()
+            );
+
+            cargarParcelasActivas(model);
+
             return "riego/form";
         }
     }
 
     @PostMapping("/{id}/iniciar")
-    String iniciar(@PathVariable Long id, RedirectAttributes ra) {
-        return ejecutar(() -> s.iniciar(id), ra, "Turno iniciado");
+    public String iniciar(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes
+    ) {
+        return ejecutarOperacion(
+                () -> turnoService.iniciar(id),
+                redirectAttributes,
+                "Turno iniciado correctamente."
+        );
     }
 
     @PostMapping("/{id}/completar")
-    String completar(@PathVariable Long id, RedirectAttributes ra) {
-        return ejecutar(() -> s.completar(id), ra, "Turno completado");
+    public String completar(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes
+    ) {
+        return ejecutarOperacion(
+                () -> turnoService.completar(id),
+                redirectAttributes,
+                "Turno completado correctamente."
+        );
     }
 
     @PostMapping("/{id}/cancelar")
-    String cancelar(@PathVariable Long id, @RequestParam String motivo, RedirectAttributes ra) {
-        return ejecutar(() -> s.cancelar(id, motivo), ra, "Turno cancelado");
+    public String cancelar(
+            @PathVariable Long id,
+            @RequestParam String motivo,
+            RedirectAttributes redirectAttributes
+    ) {
+        return ejecutarOperacion(
+                () -> turnoService.cancelar(id, motivo),
+                redirectAttributes,
+                "Turno cancelado correctamente."
+        );
     }
 
-    private String ejecutar(Runnable x, RedirectAttributes ra, String ok) {
+    private TurnoForm crearFormularioDesdeTurno(
+            pe.vichaval.gestionriego.riego.entity.TurnoRiego turno
+    ) {
+        TurnoForm form = new TurnoForm();
+
+        form.setParcelaId(
+                turno.getParcela().getId()
+        );
+
+        form.setFecha(
+                turno.getFecha()
+        );
+
+        form.setHoraInicio(
+                turno.getHoraInicio()
+        );
+
+        form.setDuracionMinutos(
+                calcularDuracion(turno)
+        );
+
+        form.setObservaciones(
+                turno.getObservaciones()
+        );
+
+        return form;
+    }
+
+    private int calcularDuracion(
+            pe.vichaval.gestionriego.riego.entity.TurnoRiego turno
+    ) {
+        return (int) Duration
+                .between(
+                        turno.getHoraInicio(),
+                        turno.getHoraFin()
+                )
+                .toMinutes();
+    }
+
+    private String ejecutarOperacion(
+            Runnable operacion,
+            RedirectAttributes redirectAttributes,
+            String mensajeExito
+    ) {
         try {
-            x.run();
-            ra.addFlashAttribute("exito", ok);
-        } catch (RuntimeException e) {
-            ra.addFlashAttribute("error", e.getMessage());
+            operacion.run();
+
+            redirectAttributes.addFlashAttribute(
+                    "exito",
+                    mensajeExito
+            );
+
+        } catch (RuntimeException exception) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    exception.getMessage()
+            );
         }
+
         return "redirect:/turnos";
     }
 
-    private void cargar(Model m) {
-        m.addAttribute("parcelas", p.findByEstadoOrderByCodigo("ACTIVA"));
+    private void cargarParcelasActivas(Model model) {
+        model.addAttribute(
+                "parcelas",
+                parcelaRepository
+                        .findByEstadoOrderByCodigo("ACTIVA")
+        );
     }
 }

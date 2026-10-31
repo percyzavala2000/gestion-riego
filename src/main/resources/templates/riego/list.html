@@ -1,55 +1,222 @@
-<!doctype html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
+
     <meta charset="UTF-8">
-    <link rel="stylesheet" th:href="@{/css/app.css}">
-    <link rel="stylesheet" th:href="@{/css/v4.css}">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Turnos de riego</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/app.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/v4.css}">
+
 </head>
+
 <body>
-<div th:replace="~{fragments/sidebar :: sidebar('turnos')}"></div>
+
+<div th:replace=
+             "~{fragments/sidebar :: sidebar('turnos')}">
+</div>
+
 <section class="workspace">
-    <div th:replace="~{fragments/header :: header('Turnos de riego')}"></div>
-    <main><h1>Turnos de riego</h1>
-        <div class="notice ok" th:if="${exito}" th:text="${exito}"></div>
-        <div class="notice bad" th:if="${error}" th:text="${error}"></div>
-        <a class="btn" th:href="@{/turnos/nuevo}">Crear turno</a>
-        <table>
-            <tr>
-                <th>Código</th>
-                <th>Agricultor</th>
-                <th>Parcela</th>
-                <th>Fecha</th>
-                <th>Horario</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-            <tr th:each="t:${turnos}">
-                <td th:text="${t.codigo}"></td>
-                <td th:text="|${t.parcela.agricultor.nombres} ${t.parcela.agricultor.apellidos}|"></td>
-                <td th:text="${t.parcela.nombre}"></td>
-                <td th:text="${t.fecha}"></td>
-                <td th:text="|${t.horaInicio} - ${t.horaFin}|"></td>
-                <td><span class="pill" th:text="${t.estado}"></span></td>
-                <td class="actions"><a th:if="${t.estado=='PROGRAMADO' or t.estado=='PENDIENTE'}"
-                                       th:href="@{/turnos/{id}/editar(id=${t.id})}">Editar</a>
-                    <form th:if="${t.estado=='PROGRAMADO'}" th:action="@{/turnos/{id}/iniciar(id=${t.id})}"
-                          method="post">
-                        <button class="link">Iniciar</button>
-                    </form>
-                    <form th:if="${t.estado=='EN_CURSO'}" th:action="@{/turnos/{id}/completar(id=${t.id})}"
-                          method="post">
-                        <button class="link">Completar</button>
-                    </form>
-                    <form th:if="${t.estado=='PROGRAMADO' or t.estado=='PENDIENTE' or t.estado=='EN_CURSO'}"
-                          th:action="@{/turnos/{id}/cancelar(id=${t.id})}" method="post"><input name="motivo"
-                                                                                                placeholder="Motivo"
-                                                                                                required>
-                        <button class="link danger">Cancelar</button>
-                    </form>
-                </td>
-            </tr>
-        </table>
+
+    <div th:replace=
+                 "~{fragments/header :: header('Turnos de riego')}">
+    </div>
+
+    <main class="content">
+
+        <header class="page-title">
+
+            <div>
+                <h1>Turnos de riego</h1>
+
+                <p>
+                    Programa, inicia, completa, cancela
+                    y reprograma turnos.
+                </p>
+            </div>
+
+            <a class="btn primary"
+               th:href="@{/turnos/nuevo}">
+                Crear turno
+            </a>
+
+        </header>
+
+        <!-- Mensajes -->
+
+        <div class="notice ok"
+             th:if="${exito}"
+             th:text="${exito}">
+            Operación realizada correctamente.
+        </div>
+
+        <div class="notice bad"
+             th:if="${error}"
+             th:text="${error}">
+            No fue posible completar la operación.
+        </div>
+
+        <section class="table-section">
+
+            <div class="table-responsive">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>Código</th>
+                        <th>Agricultor</th>
+                        <th>Parcela</th>
+                        <th>Fecha</th>
+                        <th>Horario</th>
+                        <th>Estado</th>
+                        <th class="actions-column">
+                            Acciones
+                        </th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:if="${#lists.isEmpty(turnos)}">
+
+                        <td colspan="7"
+                            class="empty-state">
+                            No existen turnos registrados.
+                        </td>
+
+                    </tr>
+
+                    <tr th:each="turno : ${turnos}">
+
+                        <td th:text="${turno.codigo}">
+                            TR-0001
+                        </td>
+
+                        <td th:text="|${turno.parcela.agricultor.nombres} ${turno.parcela.agricultor.apellidos}|">
+                            Agricultor
+                        </td>
+
+                        <td th:text="${turno.parcela.nombre}">
+                            Parcela
+                        </td>
+
+                        <td th:text="${turno.fecha}">
+                            2026-10-31
+                        </td>
+
+                        <td th:text="|${turno.horaInicio} - ${turno.horaFin}|">
+                            08:00 - 09:00
+                        </td>
+
+                        <td>
+                            <span class="pill"
+                                  th:text="${turno.estado}">
+                                PROGRAMADO
+                            </span>
+                        </td>
+
+                        <td class="actions">
+
+                            <!-- Editar -->
+
+                            <a th:if="${turno.estado == 'PENDIENTE'
+                                or turno.estado == 'PROGRAMADO'}"
+                               th:href="@{/turnos/{id}/editar(id=${turno.id})}">
+                                Editar
+                            </a>
+
+                            <!-- Iniciar -->
+
+                            <form th:if="${turno.estado == 'PROGRAMADO'}"
+                                  th:action="@{/turnos/{id}/iniciar(id=${turno.id})}"
+                                  method="post">
+
+                                <button type="submit"
+                                        class="link positive">
+                                    Iniciar
+                                </button>
+
+                            </form>
+
+                            <!-- Completar -->
+
+                            <form th:if="${turno.estado == 'EN_CURSO'}"
+                                  th:action="@{/turnos/{id}/completar(id=${turno.id})}"
+                                  method="post">
+
+                                <button type="submit"
+                                        class="link positive">
+                                    Completar
+                                </button>
+
+                            </form>
+
+                            <!-- Cancelar -->
+
+                            <form th:if="${turno.estado == 'PENDIENTE'
+                                or turno.estado == 'PROGRAMADO'
+                                or turno.estado == 'EN_CURSO'}"
+                                  th:action="@{/turnos/{id}/cancelar(id=${turno.id})}"
+                                  method="post"
+                                  class="action-form">
+
+                                <input type="text"
+                                       name="motivo"
+                                       maxlength="500"
+                                       placeholder="Motivo"
+                                       required>
+
+                                <button type="submit"
+                                        class="link danger">
+                                    Cancelar
+                                </button>
+
+                            </form>
+
+                            <!-- Reprogramar -->
+
+                            <a th:if="${turno.estado == 'CANCELADO'
+                                or turno.estado == 'VENCIDO'}"
+                               th:href="@{/turnos/{id}/reprogramar(id=${turno.id})}">
+                                Reprogramar
+                            </a>
+
+                            <!-- Estado terminal -->
+
+                            <span th:if="${turno.estado == 'COMPLETADO'}"
+                                  class="action-status">
+                                Turno finalizado
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
     </main>
+
 </section>
+
 </body>
+
 </html>
