@@ -1,67 +1,433 @@
-<!doctype html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <link rel="stylesheet" th:href="@{/css/app.css}">
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Tesorería</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/app.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/v4.css}">
+
 </head>
+
 <body>
+
 <div th:replace=
              "~{fragments/sidebar :: sidebar('tesoreria')}">
 </div>
-<main><h1>Tesorería</h1>
-    <h2>S/ <span th:text="${total}">0</span></h2>
-    <form class="form" th:object="${form}" th:action="@{/tesoreria}" method="post">
-        <select id="agricultorId"
-                th:field="*{agricultorId}">
 
-            <option value="">
-                Selecciona un agricultor
-            </option>
+<section class="workspace">
 
-            <option th:each="agricultor : ${agricultores}"
-                    th:value="${agricultor.id}"
-                    th:text="|${agricultor.nombres} ${agricultor.apellidos}|">
-                Agricultor
-            </option>
+    <div th:replace=
+                 "~{fragments/header :: header('Tesorería')}">
+    </div>
 
-        </select>
-        <input type="number" step=".01" th:field="*{monto}" placeholder="Monto">
-        <input type="date" th:field="*{fecha}">
-        <input th:field="*{concepto}" placeholder="Concepto">
-        <input th:field="*{comprobante}" placeholder="Comprobante">
-        <select id="metodo"
-                th:field="*{metodo}">
-            <option value="">
-                Selecciona el método
-            </option>
-            <option value="EFECTIVO">
-                Efectivo
-            </option>
-            <option value="TRANSFERENCIA">
-                Transferencia bancaria
-            </option>
-            <option value="YAPE">
-                Yape
-            </option>
-            <option value="PLIN">
-                Plin
-            </option>
-        </select>
-        <button>Registrar pago</button>
-    </form>
-    <table>
-        <tr>
-            <th>Fecha</th>
-            <th>Agricultor</th>
-            <th>Monto</th>
-            <th>Método</th>
-        </tr>
-        <tr th:each="p:${pagos}">
-            <td th:text="${p.fecha}"></td>
-            <td th:text="${p.agricultor.nombres+' '+p.agricultor.apellidos}"></td>
-            <td th:text="${p.monto}"></td>
-            <td th:text="${p.metodo}"></td>
-        </tr>
-    </table>
-</main>
+    <main class="content">
+
+        <header class="page-title">
+
+            <div>
+                <h1>Tesorería</h1>
+
+                <p>
+                    Registra, confirma, rechaza y anula
+                    operaciones financieras.
+                </p>
+            </div>
+
+        </header>
+
+        <!-- Indicador financiero -->
+
+        <section class="financial-summary">
+
+            <span>Ingresos confirmados</span>
+
+            <strong>
+                S/
+                <span th:text="${total}">
+                    0.00
+                </span>
+            </strong>
+
+        </section>
+
+        <!-- Mensajes generales -->
+
+        <div class="notice ok"
+             th:if="${exito}"
+             th:text="${exito}">
+            Operación realizada correctamente.
+        </div>
+
+        <div class="notice bad"
+             th:if="${error}"
+             th:text="${error}">
+            No se pudo completar la operación.
+        </div>
+
+        <!-- Formulario de pago -->
+
+        <section class="treasury-form-container">
+
+            <h2>Registrar pago</h2>
+
+            <form class="form"
+                  th:object="${form}"
+                  th:action="@{/tesoreria/pagos/guardar}"
+                  method="post">
+
+                <!-- Errores generales -->
+
+                <div class="notice bad"
+                     th:if="${#fields.hasGlobalErrors()}">
+
+                    <p th:each="error : ${#fields.globalErrors()}"
+                       th:text="${error}">
+                        No fue posible registrar el pago.
+                    </p>
+
+                </div>
+
+                <!-- Agricultor -->
+
+                <div class="form-group">
+
+                    <label for="agricultorId">
+                        Agricultor
+                    </label>
+
+                    <select id="agricultorId"
+                            th:field="*{agricultorId}">
+
+                        <option value="">
+                            Selecciona un agricultor activo
+                        </option>
+
+                        <option th:each="agricultor : ${agricultores}"
+                                th:value="${agricultor.id}"
+                                th:text="|${agricultor.nombres} ${agricultor.apellidos}|">
+                            Agricultor
+                        </option>
+
+                    </select>
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('agricultorId')}"
+                           th:errors="*{agricultorId}">
+                        Selecciona un agricultor.
+                    </small>
+
+                </div>
+
+                <!-- Monto -->
+
+                <div class="form-group">
+
+                    <label for="monto">
+                        Monto
+                    </label>
+
+                    <input id="monto"
+                           type="number"
+                           min="0.01"
+                           step="0.01"
+                           th:field="*{monto}"
+                           placeholder="Ejemplo: 150.00">
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('monto')}"
+                           th:errors="*{monto}">
+                        El monto debe ser mayor que cero.
+                    </small>
+
+                </div>
+
+                <!-- Fecha -->
+
+                <div class="form-group">
+
+                    <label for="fecha">
+                        Fecha del pago
+                    </label>
+
+                    <input id="fecha"
+                           type="date"
+                           th:field="*{fecha}">
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('fecha')}"
+                           th:errors="*{fecha}">
+                        La fecha es obligatoria.
+                    </small>
+
+                </div>
+
+                <!-- Concepto -->
+
+                <div class="form-group">
+
+                    <label for="concepto">
+                        Concepto
+                    </label>
+
+                    <input id="concepto"
+                           type="text"
+                           maxlength="150"
+                           th:field="*{concepto}"
+                           placeholder="Ejemplo: Cuota de riego">
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('concepto')}"
+                           th:errors="*{concepto}">
+                        El concepto es obligatorio.
+                    </small>
+
+                </div>
+
+                <!-- Comprobante -->
+
+                <div class="form-group">
+
+                    <label for="comprobante">
+                        Comprobante u operación
+                    </label>
+
+                    <input id="comprobante"
+                           type="text"
+                           maxlength="50"
+                           th:field="*{comprobante}"
+                           placeholder="Ejemplo: REC-0002">
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('comprobante')}"
+                           th:errors="*{comprobante}">
+                        El comprobante es obligatorio.
+                    </small>
+
+                </div>
+
+                <!-- Método -->
+
+                <div class="form-group">
+
+                    <label for="metodo">
+                        Método de pago
+                    </label>
+
+                    <select id="metodo"
+                            th:field="*{metodo}">
+
+                        <option value="EFECTIVO">
+                            Efectivo
+                        </option>
+
+                        <option value="TRANSFERENCIA">
+                            Transferencia bancaria
+                        </option>
+
+                        <option value="YAPE">
+                            Yape
+                        </option>
+
+                        <option value="PLIN">
+                            Plin
+                        </option>
+
+                    </select>
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('metodo')}"
+                           th:errors="*{metodo}">
+                        El método es obligatorio.
+                    </small>
+
+                </div>
+
+                <button type="submit"
+                        class="btn primary full-width">
+                    Registrar pago
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- Historial -->
+
+        <section class="table-section">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Historial de pagos</h2>
+
+                    <p>
+                        Los pagos confirmados forman parte
+                        del total de ingresos.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>Código</th>
+                        <th>Fecha</th>
+                        <th>Agricultor</th>
+                        <th>Concepto</th>
+                        <th>Monto</th>
+                        <th>Método</th>
+                        <th>Estado</th>
+                        <th class="actions-column">
+                            Acciones
+                        </th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:if="${#lists.isEmpty(pagos)}">
+
+                        <td colspan="8"
+                            class="empty-state">
+                            No existen pagos registrados.
+                        </td>
+
+                    </tr>
+
+                    <tr th:each="pago : ${pagos}">
+
+                        <td th:text="${pago.codigo}">
+                            PG-000001
+                        </td>
+
+                        <td th:text="${pago.fecha}">
+                            2026-10-31
+                        </td>
+
+                        <td th:text="|${pago.agricultor.nombres} ${pago.agricultor.apellidos}|">
+                            Agricultor
+                        </td>
+
+                        <td th:text="${pago.concepto}">
+                            Cuota de riego
+                        </td>
+
+                        <td th:text="|S/ ${pago.monto}|">
+                            S/ 0.00
+                        </td>
+
+                        <td th:text="${pago.metodo}">
+                            EFECTIVO
+                        </td>
+
+                        <td>
+                            <span class="pill"
+                                  th:text="${pago.estado}">
+                                PENDIENTE
+                            </span>
+                        </td>
+
+                        <td class="actions">
+
+                            <!-- Confirmar pago pendiente -->
+
+                            <form th:if="${pago.estado == 'PENDIENTE'}"
+                                  th:action="@{/tesoreria/pagos/{id}/confirmar(id=${pago.id})}"
+                                  method="post">
+
+                                <button type="submit"
+                                        class="link positive">
+                                    Confirmar
+                                </button>
+
+                            </form>
+
+                            <!-- Rechazar pago pendiente -->
+
+                            <form th:if="${pago.estado == 'PENDIENTE'}"
+                                  th:action="@{/tesoreria/pagos/{id}/rechazar(id=${pago.id})}"
+                                  method="post"
+                                  class="action-form">
+
+                                <input type="text"
+                                       name="motivo"
+                                       maxlength="500"
+                                       placeholder="Motivo"
+                                       required>
+
+                                <button type="submit"
+                                        class="link danger">
+                                    Rechazar
+                                </button>
+
+                            </form>
+
+                            <!-- Anular pago confirmado -->
+
+                            <form th:if="${pago.estado == 'CONFIRMADO'}"
+                                  th:action="@{/tesoreria/pagos/{id}/anular(id=${pago.id})}"
+                                  method="post"
+                                  class="action-form">
+
+                                <input type="text"
+                                       name="motivo"
+                                       maxlength="500"
+                                       placeholder="Motivo"
+                                       required>
+
+                                <button type="submit"
+                                        class="link danger">
+                                    Anular
+                                </button>
+
+                            </form>
+
+                            <!-- Estados sin acciones -->
+
+                            <span class="action-status"
+                                  th:if="${pago.estado == 'RECHAZADO'}">
+                                Pago rechazado
+                            </span>
+
+                            <span class="action-status"
+                                  th:if="${pago.estado == 'ANULADO'}">
+                                Pago anulado
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</section>
+
 </body>
+
 </html>
