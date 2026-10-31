@@ -1,1 +1,301 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><title>Conceptos de cobro</title><link rel="stylesheet" th:href="@{/css/app.css}"><link rel="stylesheet" th:href="@{/css/v6.css}"></head><body><div th:replace="~{fragments/sidebar :: sidebar('tesoreria')}"></div><section class="workspace"><div th:replace="~{fragments/header :: header('Conceptos de cobro')}"></div><main class="content"><div class="notice ok" th:if="${exito}" th:text="${exito}"></div><section class="finance-card"><form class="form" th:object="${form}" method="post"><div class="notice bad" th:if="${#fields.hasGlobalErrors()}"><p th:each="e:${#fields.globalErrors()}" th:text="${e}"></p></div><label>Código</label><input th:field="*{codigo}"><label>Nombre</label><input th:field="*{nombre}"><label>Descripción</label><textarea th:field="*{descripcion}"></textarea><label><input type="checkbox" th:field="*{activo}"> Activo</label><button class="btn primary">Crear concepto</button></form></section><table><tr><th>Código</th><th>Nombre</th><th>Estado</th></tr><tr th:each="c:${conceptos}"><td th:text="${c.codigo}"></td><td th:text="${c.nombre}"></td><td th:text="${c.activo?'ACTIVO':'INACTIVO'}"></td></tr></table><a class="btn secondary" th:href="@{/tesoreria/cuentas}">Volver</a></main></section></body></html>
+<!DOCTYPE html>
+
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Conceptos de cobro</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/app.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/v4.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/v6.css}">
+
+</head>
+
+<body>
+
+<div th:replace=
+             "~{fragments/sidebar :: sidebar('cuentas')}">
+</div>
+
+<section class="workspace">
+
+    <div th:replace=
+                 "~{fragments/header :: header('Conceptos de cobro')}">
+    </div>
+
+    <main class="content">
+
+        <header class="page-title">
+
+            <div>
+
+                <h1>Conceptos de cobro</h1>
+
+                <p>
+                    Define los conceptos utilizados para emitir
+                    cuentas por cobrar a los agricultores.
+                </p>
+
+            </div>
+
+            <a class="btn secondary"
+               th:href="@{/tesoreria/cuentas}">
+                Volver a cuentas
+            </a>
+
+        </header>
+
+        <!-- Aviso satisfactorio -->
+
+        <div class="notice ok"
+             th:if="${exito}"
+             th:text="${exito}">
+            Concepto creado correctamente.
+        </div>
+
+        <!-- Aviso general -->
+
+        <div class="notice bad"
+             th:if="${error}"
+             th:text="${error}">
+            No fue posible completar la operación.
+        </div>
+
+        <section class="finance-layout">
+
+            <!-- Formulario -->
+
+            <article class="finance-card concept-form-card">
+
+                <h2>Crear concepto</h2>
+
+                <p class="section-description">
+                    El código se convertirá automáticamente
+                    a mayúsculas.
+                </p>
+
+                <form class="form"
+                      th:object="${form}"
+                      th:action="@{/tesoreria/conceptos}"
+                      method="post">
+
+                    <!-- Errores generales -->
+
+                    <div class="notice bad"
+                         th:if="${#fields.hasGlobalErrors()}">
+
+                        <p th:each="error : ${#fields.globalErrors()}"
+                           th:text="${error}">
+                            No fue posible crear el concepto.
+                        </p>
+
+                    </div>
+
+                    <!-- Código -->
+
+                    <div class="form-group">
+
+                        <label for="codigo">
+                            Código
+                        </label>
+
+                        <input id="codigo"
+                               type="text"
+                               maxlength="30"
+                               th:field="*{codigo}"
+                               placeholder="Ejemplo: DERECHO"
+                               autocomplete="off">
+
+                        <small class="field-help">
+                            Usa letras, números, guion o guion bajo.
+                        </small>
+
+                        <small class="field-error"
+                               th:if="${#fields.hasErrors('codigo')}"
+                               th:errors="*{codigo}">
+                            Error en el código.
+                        </small>
+
+                    </div>
+
+                    <!-- Nombre -->
+
+                    <div class="form-group">
+
+                        <label for="nombre">
+                            Nombre
+                        </label>
+
+                        <input id="nombre"
+                               type="text"
+                               maxlength="120"
+                               th:field="*{nombre}"
+                               placeholder="Ejemplo: Derecho de uso">
+
+                        <small class="field-error"
+                               th:if="${#fields.hasErrors('nombre')}"
+                               th:errors="*{nombre}">
+                            Error en el nombre.
+                        </small>
+
+                    </div>
+
+                    <!-- Descripción -->
+
+                    <div class="form-group">
+
+                        <label for="descripcion">
+                            Descripción
+                        </label>
+
+                        <textarea id="descripcion"
+                                  rows="4"
+                                  maxlength="500"
+                                  th:field="*{descripcion}"
+                                  placeholder="Descripción del concepto de cobro"></textarea>
+
+                        <small class="field-help">
+                            Máximo 500 caracteres.
+                        </small>
+
+                        <small class="field-error"
+                               th:if="${#fields.hasErrors('descripcion')}"
+                               th:errors="*{descripcion}">
+                            Error en la descripción.
+                        </small>
+
+                    </div>
+
+                    <!-- Estado -->
+
+                    <label class="checkbox-row">
+
+                        <input type="checkbox"
+                               th:field="*{activo}">
+
+                        <span>
+                            Concepto activo
+                        </span>
+
+                    </label>
+
+                    <button type="submit"
+                            class="btn primary full-width">
+                        Crear concepto
+                    </button>
+
+                </form>
+
+            </article>
+
+            <!-- Tabla -->
+
+            <article class="concept-list-card">
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2>Conceptos registrados</h2>
+
+                        <p>
+                            Los conceptos activos pueden utilizarse
+                            al emitir nuevas cuentas.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Estado</th>
+                        </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <tr th:if="${#lists.isEmpty(conceptos)}">
+
+                            <td colspan="4"
+                                class="empty-state">
+                                No existen conceptos registrados.
+                            </td>
+
+                        </tr>
+
+                        <tr th:each="concepto : ${conceptos}">
+
+                            <td>
+
+                                <strong th:text="${concepto.codigo}">
+                                    RIEGO
+                                </strong>
+
+                            </td>
+
+                            <td th:text="${concepto.nombre}">
+                                Cuota de riego
+                            </td>
+
+                            <td th:text="${concepto.descripcion != null
+                                    and !concepto.descripcion.isBlank()
+                                    ? concepto.descripcion
+                                    : 'Sin descripción'}">
+                                Descripción
+                            </td>
+
+                            <td>
+
+                                <span class="pill"
+                                      th:classappend="${concepto.activo}
+                                          ? ' active-pill'
+                                          : ' inactive-pill'"
+                                      th:text="${concepto.activo}
+                                          ? 'ACTIVO'
+                                          : 'INACTIVO'">
+                                    ACTIVO
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </article>
+
+        </section>
+
+    </main>
+
+</section>
+
+</body>
+
+</html>
