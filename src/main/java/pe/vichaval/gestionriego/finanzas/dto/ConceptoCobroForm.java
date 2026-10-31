@@ -1,0 +1,3 @@
+package pe.vichaval.gestionriego.finanzas.dto;
+import jakarta.validation.constraints.NotBlank;import jakarta.validation.constraints.Size;
+public class ConceptoCobroForm{@NotBlank private String codigo;@NotBlank private String nombre;@Size(max=500)private String descripcion;private boolean activo=true;public String getCodigo(){return codigo;}public void setCodigo(String v){codigo=v;}public String getNombre(){return nombre;}public void setNombre(String v){nombre=v;}public String getDescripcion(){return descripcion;}public void setDescripcion(String v){descripcion=v;}public boolean isActivo(){return activo;}public void setActivo(boolean v){activo=v;}}

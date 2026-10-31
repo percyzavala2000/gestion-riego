@@ -8,6 +8,16 @@
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/config/SecurityConfig.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/dashboard/controller/DashboardController.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/dashboard/service/DashboardService.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/controller/ConceptoCobroWebController.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/controller/FinanzasWebController.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/dto/ConceptoCobroForm.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/dto/CuentaCobrarForm.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/dto/PagoCuentaForm.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/entity/ConceptoCobro.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/entity/CuentaCobrar.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/repository/ConceptoCobroRepository.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/repository/CuentaCobrarRepository.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/service/FinanzasService.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/controller/ParcelaWebController.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/dto/ParcelaForm.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/entity/Parcela.java
