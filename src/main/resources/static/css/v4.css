@@ -213,3 +213,112 @@ table td:last-child {
         max-width: none;
     }
 }
+.history-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border: 1px solid #ced9d5;
+    border-radius: 14px;
+    background: #f3f7f5;
+    color: #5f6f68;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.history-label::before {
+    content: "●";
+    color: #8a9993;
+    font-size: 7px;
+}
+
+.actions a {
+    color: #075d49;
+}
+
+.actions .danger {
+    color: #a12626;
+}
+.turn-form-container {
+    max-width: 760px;
+    padding: 28px;
+    border: 1px solid #cbd9d3;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.form {
+    display: grid;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group label {
+    color: #263a32;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #c7d6d0;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #172720;
+    font: inherit;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #075d49;
+    outline: 2px solid rgba(7, 93, 73, 0.12);
+}
+
+.field-help {
+    color: #64736d;
+    font-size: 12px;
+}
+
+.field-error {
+    color: #a12626;
+    font-size: 12px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 18px;
+    border-top: 1px solid #d6e0dc;
+}
+
+@media (max-width: 760px) {
+
+    .turn-form-container {
+        padding: 20px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+}

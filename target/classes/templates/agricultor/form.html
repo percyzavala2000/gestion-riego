@@ -73,7 +73,7 @@
                      th:if="${#fields.hasGlobalErrors()}">
 
                     <p th:each="error : ${#fields.globalErrors()}"
-                       th:text="${error.defaultMessage}">
+                       th:text="${error}">
                         Error de validación.
                     </p>
 
