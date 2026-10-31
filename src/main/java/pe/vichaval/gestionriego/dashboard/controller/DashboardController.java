@@ -1,1 +1,33 @@
-package pe.vichaval.gestionriego.dashboard.controller;import java.time.LocalDate;import org.springframework.stereotype.Controller;import org.springframework.ui.Model;import org.springframework.web.bind.annotation.GetMapping;import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;import pe.vichaval.gestionriego.parcela.repository.ParcelaRepository;import pe.vichaval.gestionriego.riego.repository.TurnoRiegoRepository;import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;@Controller public class DashboardController{private final AgricultorRepository a;private final ParcelaRepository p;private final TurnoRiegoRepository t;private final PagoRepository g;public DashboardController(AgricultorRepository a,ParcelaRepository p,TurnoRiegoRepository t,PagoRepository g){this.a=a;this.p=p;this.t=t;this.g=g;}@GetMapping({"/","/dashboard"})String dashboard(Model m){m.addAttribute("agricultores",a.countByEstado("ACTIVO"));m.addAttribute("parcelas",p.count());m.addAttribute("turnos",t.countByFecha(LocalDate.now()));m.addAttribute("ingresos",g.total());return "dashboard/index";}}
+package pe.vichaval.gestionriego.dashboard.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import pe.vichaval.gestionriego.dashboard.service.DashboardService;
+
+@Controller
+public class DashboardController {
+
+    private final DashboardService dashboardService;
+
+    public DashboardController(
+            DashboardService dashboardService
+    ) {
+        this.dashboardService = dashboardService;
+    }
+
+    @GetMapping({
+            "/",
+            "/dashboard"
+    })
+    public String mostrarDashboard(Model model) {
+
+        model.addAttribute(
+                "resumen",
+                dashboardService.obtenerResumen()
+        );
+
+        return "dashboard/index";
+    }
+}

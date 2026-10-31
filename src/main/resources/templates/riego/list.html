@@ -5,7 +5,7 @@
 </head>
 <body>
 <div th:replace=
-             "~{fragments/sidebar :: sidebar('parcelas')}">
+             "~{fragments/sidebar :: sidebar('turnos')}">
 </div>
 <main><h1>Turnos de riego</h1><a class="btn" th:href="@{/turnos/nuevo}">Crear turno</a>
     <table>
@@ -20,7 +20,8 @@
             <td th:text="${t.codigo}"></td>
             <td th:text="${t.parcela.nombre}"></td>
             <td th:text="${t.fecha}"></td>
-            <td th:text="${t.horaInicio+' - '+t.horaFin}"></td>
+            <td th:text="|${t.horaInicio} - ${t.horaFin}|">
+            </td>
             <td th:text="${t.estado}"></td>
         </tr>
     </table>

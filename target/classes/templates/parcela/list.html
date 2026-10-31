@@ -19,8 +19,12 @@
         <tr th:each="p:${parcelas}">
             <td th:text="${p.codigo}"></td>
             <td th:text="${p.nombre}"></td>
-            <td th:text="${p.agricultor.nombres+' '+p.agricultor.apellidos}"></td>
-            <td th:text="${p.hectareas}"></td>
+            <td th:text="|${p.agricultor.nombres}
+               ${p.agricultor.apellidos}|">
+            </td>
+            <td th:text="|${p.hectareas} ha|">
+                0.00 ha
+            </td>
             <td th:text="${p.cultivo}"></td>
         </tr>
     </table>

@@ -7,11 +7,13 @@
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/config/InitialUserConfig.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/config/SecurityConfig.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/dashboard/controller/DashboardController.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/dashboard/service/DashboardService.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/controller/ParcelaWebController.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/dto/ParcelaForm.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/entity/Parcela.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/repository/ParcelaRepository.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/controller/TurnoRiegoWebController.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/dto/DashboardResumen.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/dto/TurnoForm.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/entity/TurnoRiego.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/repository/TurnoRiegoRepository.java

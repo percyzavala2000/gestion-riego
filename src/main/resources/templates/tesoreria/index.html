@@ -9,16 +9,43 @@
 </div>
 <main><h1>Tesorería</h1>
     <h2>S/ <span th:text="${total}">0</span></h2>
-    <form class="form" th:object="${form}" th:action="@{/tesoreria}" method="post"><select th:field="*{agricultorId}">
-        <option value="">Agricultor</option>
-        <option th:each="a:${agricultores}" th:value="${a.id}" th:text="${a.nombres+' '+a.apellidos}"></option>
-    </select><input type="number" step=".01" th:field="*{monto}" placeholder="Monto"><input type="date"
-                                                                                            th:field="*{fecha}"><input
-            th:field="*{concepto}" placeholder="Concepto"><input th:field="*{comprobante}"
-                                                                 placeholder="Comprobante"><select th:field="*{metodo}">
-        <option>EFECTIVO</option>
-        <option>TRANSFERENCIA</option>
-    </select>
+    <form class="form" th:object="${form}" th:action="@{/tesoreria}" method="post">
+        <select id="agricultorId"
+                th:field="*{agricultorId}">
+
+            <option value="">
+                Selecciona un agricultor
+            </option>
+
+            <option th:each="agricultor : ${agricultores}"
+                    th:value="${agricultor.id}"
+                    th:text="|${agricultor.nombres} ${agricultor.apellidos}|">
+                Agricultor
+            </option>
+
+        </select>
+        <input type="number" step=".01" th:field="*{monto}" placeholder="Monto">
+        <input type="date" th:field="*{fecha}">
+        <input th:field="*{concepto}" placeholder="Concepto">
+        <input th:field="*{comprobante}" placeholder="Comprobante">
+        <select id="metodo"
+                th:field="*{metodo}">
+            <option value="">
+                Selecciona el método
+            </option>
+            <option value="EFECTIVO">
+                Efectivo
+            </option>
+            <option value="TRANSFERENCIA">
+                Transferencia bancaria
+            </option>
+            <option value="YAPE">
+                Yape
+            </option>
+            <option value="PLIN">
+                Plin
+            </option>
+        </select>
         <button>Registrar pago</button>
     </form>
     <table>

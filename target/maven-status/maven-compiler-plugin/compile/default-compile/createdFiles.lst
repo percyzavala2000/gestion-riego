@@ -12,6 +12,7 @@ pe/vichaval/gestionriego/usuario/repository/RolRepository.class
 pe/vichaval/gestionriego/config/SecurityConfig.class
 pe/vichaval/gestionriego/usuario/enums/CodigoRol.class
 pe/vichaval/gestionriego/security/controller/LoginController.class
+pe/vichaval/gestionriego/dashboard/dto/DashboardResumen.class
 pe/vichaval/gestionriego/agricultor/entity/Agricultor.class
 pe/vichaval/gestionriego/tesoreria/dto/PagoForm.class
 pe/vichaval/gestionriego/riego/repository/TurnoRiegoRepository.class
@@ -25,5 +26,6 @@ pe/vichaval/gestionriego/agricultor/repository/AgricultorRepository.class
 pe/vichaval/gestionriego/usuario/repository/UsuarioRepository.class
 pe/vichaval/gestionriego/security/service/UsuarioPrincipal.class
 pe/vichaval/gestionriego/riego/entity/TurnoRiego.class
+pe/vichaval/gestionriego/dashboard/service/DashboardService.class
 pe/vichaval/gestionriego/agricultor/dto/AgricultorForm.class
 pe/vichaval/gestionriego/riego/controller/TurnoRiegoWebController.class

@@ -12,12 +12,132 @@
                  "~{fragments/header :: header('Dashboard')}">
     </div>
 <main><h1>Dashboard</h1>
-    <div class="cards">
-        <article>Turnos hoy<strong th:text="${turnos}">0</strong></article>
-        <article>Agricultores<strong th:text="${agricultores}">0</strong></article>
-        <article>Parcelas<strong th:text="${parcelas}">0</strong></article>
-        <article>Ingresos<strong>S/ <span th:text="${ingresos}">0</span></strong></article>
-    </div>
+    <section sec:authorize="hasRole('ADMINISTRADOR')">
+
+        <div class="cards">
+
+            <article class="dashboard-card">
+                <span>Turnos de hoy</span>
+
+                <strong th:text="${resumen.turnosHoy}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Agricultores activos</span>
+
+                <strong th:text="${resumen.agricultoresActivos}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Parcelas registradas</span>
+
+                <strong th:text="${resumen.parcelasRegistradas}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Ingresos</span>
+
+                <strong>
+                    S/
+                    <span th:text="${resumen.totalIngresos}">
+                    0.00
+                </span>
+                </strong>
+            </article>
+
+        </div>
+
+    </section>
+    <section sec:authorize="hasRole('OPERADOR')">
+
+        <div class="cards">
+
+            <article class="dashboard-card">
+                <span>Turnos de hoy</span>
+
+                <strong th:text="${resumen.turnosHoy}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Turnos programados</span>
+
+                <strong th:text="${resumen.turnosProgramados}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Agricultores activos</span>
+
+                <strong th:text="${resumen.agricultoresActivos}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Parcelas registradas</span>
+
+                <strong th:text="${resumen.parcelasRegistradas}">
+                    0
+                </strong>
+            </article>
+
+        </div>
+
+    </section>
+    <section sec:authorize="hasRole('TESORERIA')">
+
+        <div class="cards">
+
+            <article class="dashboard-card">
+                <span>Ingresos registrados</span>
+
+                <strong>
+                    S/
+                    <span th:text="${resumen.totalIngresos}">
+                    0.00
+                </span>
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Pagos registrados</span>
+
+                <strong th:text="${resumen.cantidadPagos}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Deuda pendiente</span>
+
+                <strong>
+                    S/
+                    <span th:text="${resumen.totalDeuda}">
+                    0.00
+                </span>
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Agricultores con deuda</span>
+
+                <strong th:text="${resumen.agricultoresConDeuda}">
+                    0
+                </strong>
+            </article>
+
+        </div>
+
+    </section>
 </main>
 </section>
 </body>

@@ -5,7 +5,7 @@
 </head>
 <body>
 <div th:replace=
-             "~{fragments/sidebar :: sidebar('parcelas')}">
+             "~{fragments/sidebar :: sidebar('turnos')}">
 </div>
 <main><h1>Crear turno</h1>
     <form class="form" th:object="${form}" th:action="@{/turnos}" method="post">
