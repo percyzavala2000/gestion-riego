@@ -1,0 +1,1624 @@
+===== POM =====
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.1</version>
+        <relativePath/>
+    </parent>
+    <groupId>pe.vichaval</groupId>
+    <artifactId>gestion-riego</artifactId>
+    <version>0.0.3-SNAPSHOT</version>
+    <name>gestion-riego</name>
+    <description>Vichayal Riego Web - monolito modular</description>
+    <properties>
+        <java.version>21</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <!-- Migraciones de base de datos -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
+        </dependency>
+
+        <!-- Soporte específico de Flyway para PostgreSQL -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
+        <!-- Controlador JDBC de PostgreSQL -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-docker-compose</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+===== APPLICATION PROPERTIES =====
+src/main/resources/application-dev.properties
+spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/gestion_riego}
+spring.datasource.username=${DB_USERNAME:gestion_user}
+spring.datasource.password=${DB_PASSWORD:gestion_password}
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.hikari.maximum-pool-size=10
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.thymeleaf.cache=false
+logging.level.pe.vichaval.gestionriego=DEBUG
+src/main/resources/application-prod.properties
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.hikari.maximum-pool-size=${DB_POOL_MAX_SIZE:20}
+spring.jpa.show-sql=false
+spring.thymeleaf.cache=true
+server.servlet.session.cookie.secure=true
+logging.level.root=INFO
+src/main/resources/application.properties
+spring.application.name=gestion-riego
+spring.profiles.default=dev
+server.port=${SERVER_PORT:8080}
+server.servlet.encoding.charset=UTF-8
+server.servlet.encoding.enabled=true
+server.servlet.encoding.force=true
+server.servlet.session.timeout=30m
+server.servlet.session.cookie.name=VICHAYAL_SESSION
+server.servlet.session.cookie.http-only=true
+server.servlet.session.cookie.same-site=lax
+spring.jpa.open-in-view=false
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.properties.hibernate.jdbc.time_zone=UTC
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration
+spring.flyway.validate-on-migrate=true
+spring.flyway.clean-disabled=true
+spring.thymeleaf.encoding=UTF-8
+spring.thymeleaf.cache=true
+management.endpoints.web.exposure.include=health,info
+management.endpoint.health.show-details=when-authorized
+
+===== PAGO ENTITY =====
+package pe.vichaval.gestionriego.tesoreria.entity;
+
+import jakarta.persistence.*;
+
+import java.math.*;
+import java.time.*;
+
+import pe.vichaval.gestionriego.agricultor.entity.Agricultor;
+import pe.vichaval.gestionriego.tesoreria.dto.PagoForm;
+
+@Entity
+@Table(name = "pagos")
+public class Pago {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false, unique = true, length = 30)
+    private String codigo;
+    @Column(nullable = false)
+    private BigDecimal monto;
+    @Column(nullable = false)
+    private LocalDate fecha;
+    @Column(nullable = false, length = 150)
+    private String concepto;
+    @Column(nullable = false, unique = true, length = 50)
+    private String comprobante;
+    @Column(nullable = false, length = 30)
+    private String metodo;
+    @Column(nullable = false, length = 30)
+    private String estado;
+    @Column(name = "motivo_rechazo", length = 500)
+    private String motivoRechazo;
+    @Column(name = "motivo_anulacion", length = 500)
+    private String motivoAnulacion;
+    @Column(name = "fecha_creacion", nullable = false)
+    private OffsetDateTime fechaCreacion = OffsetDateTime.now();
+    @Column(name = "fecha_actualizacion", nullable = false)
+    private OffsetDateTime fechaActualizacion = OffsetDateTime.now();
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "agricultor_id", nullable = false)
+    private Agricultor agricultor;
+
+    protected Pago() {
+    }
+
+    public Pago(String c, PagoForm f, Agricultor a) {
+        codigo = c;
+        estado = "EFECTIVO".equals(f.getMetodo()) ? "CONFIRMADO" : "PENDIENTE";
+        cargar(f, a);
+    }
+
+    private void cargar(PagoForm f, Agricultor a) {
+        monto = f.getMonto();
+        fecha = f.getFecha();
+        concepto = f.getConcepto();
+        comprobante = f.getComprobante();
+        metodo = f.getMetodo();
+        agricultor = a;
+        fechaActualizacion = OffsetDateTime.now();
+    }
+
+    public void confirmar() {
+        if (!"PENDIENTE".equals(estado)) throw new IllegalStateException("Solo pagos pendientes");
+        estado = "CONFIRMADO";
+    }
+
+    public void rechazar(String m) {
+        if (!"PENDIENTE".equals(estado)) throw new IllegalStateException("Solo pagos pendientes");
+        if (m == null || m.isBlank()) throw new IllegalArgumentException("Motivo obligatorio");
+        estado = "RECHAZADO";
+        motivoRechazo = m;
+    }
+
+    public void anular(String m) {
+        if (!"CONFIRMADO".equals(estado)) throw new IllegalStateException("Solo pagos confirmados");
+        if (m == null || m.isBlank()) throw new IllegalArgumentException("Motivo obligatorio");
+        estado = "ANULADO";
+        motivoAnulacion = m;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public BigDecimal getMonto() {
+        return monto;
+    }
+
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public String getConcepto() {
+        return concepto;
+    }
+
+    public String getComprobante() {
+        return comprobante;
+    }
+
+    public String getMetodo() {
+        return metodo;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public Agricultor getAgricultor() {
+        return agricultor;
+    }
+}
+
+===== PAGO FORM =====
+package pe.vichaval.gestionriego.tesoreria.dto;
+
+import jakarta.validation.constraints.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+public class PagoForm {
+    @NotNull
+    private Long agricultorId;
+    @NotNull
+    @DecimalMin("0.01")
+    private BigDecimal monto;
+    @NotNull
+    private LocalDate fecha = LocalDate.now();
+    @NotBlank
+    private String concepto;
+    @NotBlank
+    private String comprobante;
+    @NotBlank
+    private String metodo = "EFECTIVO";
+
+    public Long getAgricultorId() {
+        return agricultorId;
+    }
+
+    public void setAgricultorId(Long v) {
+        agricultorId = v;
+    }
+
+    public BigDecimal getMonto() {
+        return monto;
+    }
+
+    public void setMonto(BigDecimal v) {
+        monto = v;
+    }
+
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDate v) {
+        fecha = v;
+    }
+
+    public String getConcepto() {
+        return concepto;
+    }
+
+    public void setConcepto(String v) {
+        concepto = v;
+    }
+
+    public String getComprobante() {
+        return comprobante;
+    }
+
+    public void setComprobante(String v) {
+        comprobante = v;
+    }
+
+    public String getMetodo() {
+        return metodo;
+    }
+
+    public void setMetodo(String v) {
+        metodo = v;
+    }
+}
+
+===== PAGO REPOSITORY =====
+package pe.vichaval.gestionriego.tesoreria.repository;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.*;
+import pe.vichaval.gestionriego.tesoreria.entity.Pago;
+
+public interface PagoRepository extends JpaRepository<Pago, Long> {
+    boolean existsByComprobante(String c);
+
+    long countByAgricultorId(Long id);
+
+    @Query("select coalesce(sum(p.monto),0) from Pago p where p.estado='CONFIRMADO'")
+    BigDecimal total();
+
+    long countByEstado(String e);
+
+    @Override
+    @EntityGraph(attributePaths = "agricultor")
+    List<Pago> findAll();
+}
+
+===== PAGO SERVICE =====
+package pe.vichaval.gestionriego.tesoreria.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;
+import pe.vichaval.gestionriego.tesoreria.dto.PagoForm;
+import pe.vichaval.gestionriego.tesoreria.entity.Pago;
+import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
+
+@Service
+@Transactional
+public class PagoService {
+    private final PagoRepository p;
+    private final AgricultorRepository a;
+
+    public PagoService(PagoRepository p, AgricultorRepository a) {
+        this.p = p;
+        this.a = a;
+    }
+
+    public Pago get(Long id) {
+        return p.findById(id).orElseThrow(() -> new IllegalArgumentException("Pago no encontrado"));
+    }
+
+    public void registrar(PagoForm f) {
+        if (p.existsByComprobante(f.getComprobante())) throw new IllegalArgumentException("Comprobante duplicado");
+        var ag = a.findById(f.getAgricultorId()).orElseThrow();
+        p.save(new Pago("PG-%06d".formatted(p.count() + 1), f, ag));
+    }
+
+    public void confirmar(Long id) {
+        get(id).confirmar();
+    }
+
+    public void rechazar(Long id, String m) {
+        get(id).rechazar(m);
+    }
+
+    public void anular(Long id, String m) {
+        get(id).anular(m);
+    }
+}
+
+===== TESORERIA CONTROLLER =====
+package pe.vichaval.gestionriego.tesoreria.controller;
+
+import jakarta.validation.Valid;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;
+import pe.vichaval.gestionriego.tesoreria.dto.PagoForm;
+import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
+import pe.vichaval.gestionriego.tesoreria.service.PagoService;
+
+@Controller
+@RequestMapping("/tesoreria")
+public class TesoreriaWebController {
+
+    private final PagoRepository pagoRepository;
+    private final AgricultorRepository agricultorRepository;
+    private final PagoService pagoService;
+
+    public TesoreriaWebController(
+            PagoRepository pagoRepository,
+            AgricultorRepository agricultorRepository,
+            PagoService pagoService
+    ) {
+        this.pagoRepository = pagoRepository;
+        this.agricultorRepository = agricultorRepository;
+        this.pagoService = pagoService;
+    }
+
+    @GetMapping
+    public String mostrarTesoreria(Model model) {
+
+        cargarDatos(model);
+
+        if (!model.containsAttribute("form")) {
+            model.addAttribute(
+                    "form",
+                    new PagoForm()
+            );
+        }
+
+        return "tesoreria/index";
+    }
+
+    @PostMapping("/pagos/guardar")
+    public String registrarPago(
+            @Valid @ModelAttribute("form") PagoForm form,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        /*
+         * Si existe algún error de validación, se vuelve a mostrar
+         * el formulario conservando los valores ingresados.
+         */
+        if (bindingResult.hasErrors()) {
+            cargarDatos(model);
+            return "tesoreria/index";
+        }
+
+        try {
+            pagoService.registrar(form);
+
+            redirectAttributes.addFlashAttribute(
+                    "exito",
+                    "Pago registrado correctamente."
+            );
+
+            return "redirect:/tesoreria";
+
+        } catch (RuntimeException exception) {
+
+            bindingResult.reject(
+                    "errorNegocio",
+                    exception.getMessage()
+            );
+
+            cargarDatos(model);
+
+            return "tesoreria/index";
+        }
+    }
+
+    @PostMapping("/pagos/{id}/confirmar")
+    public String confirmarPago(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes
+    ) {
+        return ejecutarOperacion(
+                () -> pagoService.confirmar(id),
+                redirectAttributes,
+                "Pago confirmado correctamente."
+        );
+    }
+
+    @PostMapping("/pagos/{id}/rechazar")
+    public String rechazarPago(
+            @PathVariable Long id,
+            @RequestParam String motivo,
+            RedirectAttributes redirectAttributes
+    ) {
+        return ejecutarOperacion(
+                () -> pagoService.rechazar(id, motivo),
+                redirectAttributes,
+                "Pago rechazado correctamente."
+        );
+    }
+
+    @PostMapping("/pagos/{id}/anular")
+    public String anularPago(
+            @PathVariable Long id,
+            @RequestParam String motivo,
+            RedirectAttributes redirectAttributes
+    ) {
+        return ejecutarOperacion(
+                () -> pagoService.anular(id, motivo),
+                redirectAttributes,
+                "Pago anulado correctamente."
+        );
+    }
+
+    private String ejecutarOperacion(
+            Runnable operacion,
+            RedirectAttributes redirectAttributes,
+            String mensajeExito
+    ) {
+        try {
+            operacion.run();
+
+            redirectAttributes.addFlashAttribute(
+                    "exito",
+                    mensajeExito
+            );
+
+        } catch (RuntimeException exception) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/tesoreria";
+    }
+
+    private void cargarDatos(Model model) {
+
+        model.addAttribute(
+                "pagos",
+                pagoRepository.findAll()
+        );
+
+        model.addAttribute(
+                "total",
+                pagoRepository.total()
+        );
+
+        model.addAttribute(
+                "agricultores",
+                agricultorRepository
+                        .findAll()
+                        .stream()
+                        .filter(agricultor ->
+                                "ACTIVO".equals(
+                                        agricultor.getEstado()
+                                )
+                        )
+                        .toList()
+        );
+    }
+}
+===== TESORERIA TEMPLATE =====
+<!DOCTYPE html>
+
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Tesorería</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/app.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/v4.css}">
+
+</head>
+
+<body>
+
+<div th:replace=
+             "~{fragments/sidebar :: sidebar('tesoreria')}">
+</div>
+
+<section class="workspace">
+
+    <div th:replace=
+                 "~{fragments/header :: header('Tesorería')}">
+    </div>
+
+    <main class="content">
+
+        <header class="page-title">
+
+            <div>
+                <h1>Tesorería</h1>
+
+                <p>
+                    Registra, confirma, rechaza y anula
+                    operaciones financieras.
+                </p>
+            </div>
+
+        </header>
+
+        <!-- Indicador financiero -->
+
+        <section class="financial-summary">
+
+            <span>Ingresos confirmados</span>
+
+            <strong>
+                S/
+                <span th:text="${total}">
+                    0.00
+                </span>
+            </strong>
+
+        </section>
+
+        <!-- Mensajes generales -->
+
+        <div class="notice ok"
+             th:if="${exito}"
+             th:text="${exito}">
+            Operación realizada correctamente.
+        </div>
+
+        <div class="notice bad"
+             th:if="${error}"
+             th:text="${error}">
+            No se pudo completar la operación.
+        </div>
+
+        <!-- Formulario de pago -->
+
+        <section class="treasury-form-container">
+
+            <h2>Registrar pago</h2>
+
+            <form class="form"
+                  th:object="${form}"
+                  th:action="@{/tesoreria/pagos/guardar}"
+                  method="post">
+
+                <!-- Errores generales -->
+
+                <div class="notice bad"
+                     th:if="${#fields.hasGlobalErrors()}">
+
+                    <p th:each="error : ${#fields.globalErrors()}"
+                       th:text="${error}">
+                        No fue posible registrar el pago.
+                    </p>
+
+                </div>
+
+                <!-- Agricultor -->
+
+                <div class="form-group">
+
+                    <label for="agricultorId">
+                        Agricultor
+                    </label>
+
+                    <select id="agricultorId"
+                            th:field="*{agricultorId}">
+
+                        <option value="">
+                            Selecciona un agricultor activo
+                        </option>
+
+                        <option th:each="agricultor : ${agricultores}"
+                                th:value="${agricultor.id}"
+                                th:text="|${agricultor.nombres} ${agricultor.apellidos}|">
+                            Agricultor
+                        </option>
+
+                    </select>
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('agricultorId')}"
+                           th:errors="*{agricultorId}">
+                        Selecciona un agricultor.
+                    </small>
+
+                </div>
+
+                <!-- Monto -->
+
+                <div class="form-group">
+
+                    <label for="monto">
+                        Monto
+                    </label>
+
+                    <input id="monto"
+                           type="number"
+                           min="0.01"
+                           step="0.01"
+                           th:field="*{monto}"
+                           placeholder="Ejemplo: 150.00">
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('monto')}"
+                           th:errors="*{monto}">
+                        El monto debe ser mayor que cero.
+                    </small>
+
+                </div>
+
+                <!-- Fecha -->
+
+                <div class="form-group">
+
+                    <label for="fecha">
+                        Fecha del pago
+                    </label>
+
+                    <input id="fecha"
+                           type="date"
+                           th:field="*{fecha}">
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('fecha')}"
+                           th:errors="*{fecha}">
+                        La fecha es obligatoria.
+                    </small>
+
+                </div>
+
+                <!-- Concepto -->
+
+                <div class="form-group">
+
+                    <label for="concepto">
+                        Concepto
+                    </label>
+
+                    <input id="concepto"
+                           type="text"
+                           maxlength="150"
+                           th:field="*{concepto}"
+                           placeholder="Ejemplo: Cuota de riego">
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('concepto')}"
+                           th:errors="*{concepto}">
+                        El concepto es obligatorio.
+                    </small>
+
+                </div>
+
+                <!-- Comprobante -->
+
+                <div class="form-group">
+
+                    <label for="comprobante">
+                        Comprobante u operación
+                    </label>
+
+                    <input id="comprobante"
+                           type="text"
+                           maxlength="50"
+                           th:field="*{comprobante}"
+                           placeholder="Ejemplo: REC-0002">
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('comprobante')}"
+                           th:errors="*{comprobante}">
+                        El comprobante es obligatorio.
+                    </small>
+
+                </div>
+
+                <!-- Método -->
+
+                <div class="form-group">
+
+                    <label for="metodo">
+                        Método de pago
+                    </label>
+
+                    <select id="metodo"
+                            th:field="*{metodo}">
+
+                        <option value="EFECTIVO">
+                            Efectivo
+                        </option>
+
+                        <option value="TRANSFERENCIA">
+                            Transferencia bancaria
+                        </option>
+
+                        <option value="YAPE">
+                            Yape
+                        </option>
+
+                        <option value="PLIN">
+                            Plin
+                        </option>
+
+                    </select>
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('metodo')}"
+                           th:errors="*{metodo}">
+                        El método es obligatorio.
+                    </small>
+
+                </div>
+
+                <button type="submit"
+                        class="btn primary full-width">
+                    Registrar pago
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- Historial -->
+
+        <section class="table-section">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Historial de pagos</h2>
+
+                    <p>
+                        Los pagos confirmados forman parte
+                        del total de ingresos.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>Código</th>
+                        <th>Fecha</th>
+                        <th>Agricultor</th>
+                        <th>Concepto</th>
+                        <th>Monto</th>
+                        <th>Método</th>
+                        <th>Estado</th>
+                        <th class="actions-column">
+                            Acciones
+                        </th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:if="${#lists.isEmpty(pagos)}">
+
+                        <td colspan="8"
+                            class="empty-state">
+                            No existen pagos registrados.
+                        </td>
+
+                    </tr>
+
+                    <tr th:each="pago : ${pagos}">
+
+                        <td th:text="${pago.codigo}">
+                            PG-000001
+                        </td>
+
+                        <td th:text="${pago.fecha}">
+                            2026-10-31
+                        </td>
+
+                        <td th:text="|${pago.agricultor.nombres} ${pago.agricultor.apellidos}|">
+                            Agricultor
+                        </td>
+
+                        <td th:text="${pago.concepto}">
+                            Cuota de riego
+                        </td>
+
+                        <td th:text="|S/ ${pago.monto}|">
+                            S/ 0.00
+                        </td>
+
+                        <td th:text="${pago.metodo}">
+                            EFECTIVO
+                        </td>
+
+                        <td>
+                            <span class="pill"
+                                  th:text="${pago.estado}">
+                                PENDIENTE
+                            </span>
+                        </td>
+
+                        <td class="actions">
+
+                            <!-- Confirmar pago pendiente -->
+
+                            <form th:if="${pago.estado == 'PENDIENTE'}"
+                                  th:action="@{/tesoreria/pagos/{id}/confirmar(id=${pago.id})}"
+                                  method="post">
+
+                                <button type="submit"
+                                        class="link positive">
+                                    Confirmar
+                                </button>
+
+                            </form>
+
+                            <!-- Rechazar pago pendiente -->
+
+                            <form th:if="${pago.estado == 'PENDIENTE'}"
+                                  th:action="@{/tesoreria/pagos/{id}/rechazar(id=${pago.id})}"
+                                  method="post"
+                                  class="action-form">
+
+                                <input type="text"
+                                       name="motivo"
+                                       maxlength="500"
+                                       placeholder="Motivo"
+                                       required>
+
+                                <button type="submit"
+                                        class="link danger">
+                                    Rechazar
+                                </button>
+
+                            </form>
+
+                            <!-- Anular pago confirmado -->
+
+                            <form th:if="${pago.estado == 'CONFIRMADO'}"
+                                  th:action="@{/tesoreria/pagos/{id}/anular(id=${pago.id})}"
+                                  method="post"
+                                  class="action-form">
+
+                                <input type="text"
+                                       name="motivo"
+                                       maxlength="500"
+                                       placeholder="Motivo"
+                                       required>
+
+                                <button type="submit"
+                                        class="link danger">
+                                    Anular
+                                </button>
+
+                            </form>
+
+                            <!-- Estados sin acciones -->
+
+                            <span class="action-status"
+                                  th:if="${pago.estado == 'RECHAZADO'}">
+                                Pago rechazado
+                            </span>
+
+                            <span class="action-status"
+                                  th:if="${pago.estado == 'ANULADO'}">
+                                Pago anulado
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</section>
+
+</body>
+
+</html>
+===== AGRICULTOR ENTITY =====
+package pe.vichaval.gestionriego.agricultor.entity;
+import jakarta.persistence.*; import pe.vichaval.gestionriego.agricultor.dto.AgricultorForm;
+@Entity @Table(name="agricultores") public class Agricultor {
+ @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
+ @Column(nullable=false,unique=true,length=8) private String dni; @Column(nullable=false,length=100) private String nombres; @Column(nullable=false,length=120) private String apellidos; @Column(length=20) private String telefono; @Column(nullable=false,length=30) private String sector; @Column(nullable=false,length=20) private String estado="ACTIVO";
+ protected Agricultor(){} public Agricultor(AgricultorForm f){actualizar(f);} public void actualizar(AgricultorForm f){dni=f.getDni().trim();nombres=f.getNombres().trim();apellidos=f.getApellidos().trim();telefono=f.getTelefono()==null?null:f.getTelefono().trim();sector=f.getSector();estado=f.getEstado();} public void activar(){estado="ACTIVO";} public void desactivar(){estado="INACTIVO";}
+ public Long getId(){return id;} public String getDni(){return dni;} public String getNombres(){return nombres;} public String getApellidos(){return apellidos;} public String getTelefono(){return telefono;} public String getSector(){return sector;} public String getEstado(){return estado;}
+}
+===== AGRICULTOR REPOSITORY =====
+package pe.vichaval.gestionriego.agricultor.repository;
+import org.springframework.data.domain.*; import org.springframework.data.jpa.repository.*; import org.springframework.data.repository.query.Param; import pe.vichaval.gestionriego.agricultor.entity.Agricultor;
+public interface AgricultorRepository extends JpaRepository<Agricultor,Long>{ @Query("select a from Agricultor a where :q='' or lower(concat(a.nombres,' ',a.apellidos)) like lower(concat('%',:q,'%')) or a.dni like concat('%',:q,'%')") Page<Agricultor> buscar(@Param("q")String q,Pageable p); boolean existsByDni(String d); boolean existsByDniAndIdNot(String d,Long id); long countByEstado(String e); }
+
+===== DASHBOARD CONTROLLER =====
+src/main/java/pe/vichaval/gestionriego/dashboard/controller/DashboardController.java
+----- INICIO: src/main/java/pe/vichaval/gestionriego/dashboard/controller/DashboardController.java -----
+package pe.vichaval.gestionriego.dashboard.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import pe.vichaval.gestionriego.dashboard.service.DashboardService;
+
+@Controller
+public class DashboardController {
+
+    private final DashboardService dashboardService;
+
+    public DashboardController(
+            DashboardService dashboardService
+    ) {
+        this.dashboardService = dashboardService;
+    }
+
+    @GetMapping({
+            "/",
+            "/dashboard"
+    })
+    public String mostrarDashboard(Model model) {
+
+        model.addAttribute(
+                "resumen",
+                dashboardService.obtenerResumen()
+        );
+
+        return "dashboard/index";
+    }
+}
+----- FIN: src/main/java/pe/vichaval/gestionriego/dashboard/controller/DashboardController.java -----
+src/main/java/pe/vichaval/gestionriego/dashboard/service/DashboardService.java
+----- INICIO: src/main/java/pe/vichaval/gestionriego/dashboard/service/DashboardService.java -----
+package pe.vichaval.gestionriego.dashboard.service;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;
+import pe.vichaval.gestionriego.dashboard.dto.DashboardResumen;
+import pe.vichaval.gestionriego.parcela.repository.ParcelaRepository;
+import pe.vichaval.gestionriego.riego.repository.TurnoRiegoRepository;
+import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
+
+@Service
+public class DashboardService {
+
+    private final AgricultorRepository agricultorRepository;
+    private final ParcelaRepository parcelaRepository;
+    private final TurnoRiegoRepository turnoRepository;
+    private final PagoRepository pagoRepository;
+
+    public DashboardService(
+            AgricultorRepository agricultorRepository,
+            ParcelaRepository parcelaRepository,
+            TurnoRiegoRepository turnoRepository,
+            PagoRepository pagoRepository
+    ) {
+        this.agricultorRepository = agricultorRepository;
+        this.parcelaRepository = parcelaRepository;
+        this.turnoRepository = turnoRepository;
+        this.pagoRepository = pagoRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public DashboardResumen obtenerResumen() {
+
+        LocalDate fechaActual = LocalDate.now();
+
+        long turnosHoy =
+                turnoRepository.countByFecha(fechaActual);
+
+        long turnosProgramados =
+                turnoRepository.countByFechaAndEstado(
+                        fechaActual,
+                        "PROGRAMADO"
+                );
+
+        long agricultoresActivos =
+                agricultorRepository.countByEstado("ACTIVO");
+
+        long parcelasRegistradas =
+                parcelaRepository.count();
+
+        BigDecimal totalIngresos =
+                pagoRepository.total();
+
+        long cantidadPagos =
+                pagoRepository.count();
+
+        /*
+         * Estos valores serán sustituidos cuando se implemente
+         * la entidad CuentaPorCobrar o Deuda.
+         */
+        BigDecimal totalDeuda =
+                BigDecimal.ZERO;
+
+        long agricultoresConDeuda =
+                0L;
+
+        return new DashboardResumen(
+                turnosHoy,
+                turnosProgramados,
+                agricultoresActivos,
+                parcelasRegistradas,
+                totalIngresos,
+                cantidadPagos,
+                totalDeuda,
+                agricultoresConDeuda
+        );
+    }
+}
+----- FIN: src/main/java/pe/vichaval/gestionriego/dashboard/service/DashboardService.java -----
+
+===== DASHBOARD TEMPLATE =====
+src/main/resources/templates/dashboard/index.html
+----- INICIO: src/main/resources/templates/dashboard/index.html -----
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <title>Dashboard</title></head>
+<body>
+<div th:replace=
+             "~{fragments/sidebar :: sidebar('dashboard')}">
+</div>
+<section class="workspace">
+    <div th:replace=
+                 "~{fragments/header :: header('Dashboard')}">
+    </div>
+<main><h1>Dashboard</h1>
+    <section sec:authorize="hasRole('ADMINISTRADOR')">
+
+        <div class="cards">
+
+            <article class="dashboard-card">
+                <span>Turnos de hoy</span>
+
+                <strong th:text="${resumen.turnosHoy}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Agricultores activos</span>
+
+                <strong th:text="${resumen.agricultoresActivos}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Parcelas registradas</span>
+
+                <strong th:text="${resumen.parcelasRegistradas}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Ingresos</span>
+
+                <strong>
+                    S/
+                    <span th:text="${resumen.totalIngresos}">
+                    0.00
+                </span>
+                </strong>
+            </article>
+
+        </div>
+
+    </section>
+    <section sec:authorize="hasRole('OPERADOR')">
+
+        <div class="cards">
+
+            <article class="dashboard-card">
+                <span>Turnos de hoy</span>
+
+                <strong th:text="${resumen.turnosHoy}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Turnos programados</span>
+
+                <strong th:text="${resumen.turnosProgramados}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Agricultores activos</span>
+
+                <strong th:text="${resumen.agricultoresActivos}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Parcelas registradas</span>
+
+                <strong th:text="${resumen.parcelasRegistradas}">
+                    0
+                </strong>
+            </article>
+
+        </div>
+
+    </section>
+    <section sec:authorize="hasRole('TESORERIA')">
+
+        <div class="cards">
+
+            <article class="dashboard-card">
+                <span>Ingresos registrados</span>
+
+                <strong>
+                    S/
+                    <span th:text="${resumen.totalIngresos}">
+                    0.00
+                </span>
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Pagos registrados</span>
+
+                <strong th:text="${resumen.cantidadPagos}">
+                    0
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Deuda pendiente</span>
+
+                <strong>
+                    S/
+                    <span th:text="${resumen.totalDeuda}">
+                    0.00
+                </span>
+                </strong>
+            </article>
+
+            <article class="dashboard-card">
+                <span>Agricultores con deuda</span>
+
+                <strong th:text="${resumen.agricultoresConDeuda}">
+                    0
+                </strong>
+            </article>
+
+        </div>
+
+    </section>
+</main>
+</section>
+</body>
+</html>
+
+----- FIN: src/main/resources/templates/dashboard/index.html -----
+
+===== SECURITY CONFIG =====
+package pe.vichaval.gestionriego.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http
+    ) throws Exception {
+
+        http.authorizeHttpRequests(authorize -> authorize
+
+                // Recursos públicos
+                .requestMatchers(
+                        "/login",
+                        "/error",
+                        "/error/**",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/icons/**",
+                        "/favicon.ico",
+                        "/actuator/health"
+                ).permitAll()
+
+                // Acceso compartido al dashboard
+                .requestMatchers(
+                        "/",
+                        "/dashboard"
+                ).hasAnyRole(
+                        "ADMINISTRADOR",
+                        "OPERADOR",
+                        "TESORERIA"
+                )
+
+                // Gestión operativa
+                .requestMatchers(
+                        "/agricultores/**",
+                        "/parcelas/**",
+                        "/turnos/**"
+                ).hasAnyRole(
+                        "ADMINISTRADOR",
+                        "OPERADOR"
+                )
+
+                // Gestión económica
+                .requestMatchers(
+                        "/tesoreria/**"
+                ).hasAnyRole(
+                        "ADMINISTRADOR",
+                        "TESORERIA"
+                )
+
+                // Reportes financieros
+                .requestMatchers(
+                        "/reportes/financieros/**"
+                ).hasAnyRole(
+                        "ADMINISTRADOR",
+                        "TESORERIA"
+                )
+
+                // Reportes operativos e inteligencia
+                .requestMatchers(
+                        "/reportes/**",
+                        "/inteligencia/**"
+                ).hasAnyRole(
+                        "ADMINISTRADOR",
+                        "OPERADOR"
+                )
+
+                // Administración de cuentas y roles
+                .requestMatchers(
+                        "/usuarios/**",
+                        "/roles/**"
+                ).hasRole(
+                        "ADMINISTRADOR"
+                )
+
+                // Cualquier otra ruta exige autenticación
+                .anyRequest()
+                .authenticated()
+        );
+
+        http.formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/dashboard", true)
+                .failureUrl("/login?error")
+                .permitAll()
+        );
+
+        http.logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("VICHAYAL_SESSION")
+                .permitAll()
+        );
+
+        http.exceptionHandling(exception -> exception
+                .accessDeniedPage("/error/403")
+        );
+
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories
+                .createDelegatingPasswordEncoder();
+    }
+}
+===== SIDEBAR =====
+<!DOCTYPE html>
+
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+
+<body>
+
+<aside th:fragment="sidebar(active)"
+       class="sidebar">
+
+    <div class="sidebar-brand">
+
+        <div class="brand-logo">
+            <span>♧</span>
+        </div>
+
+        <div>
+            <strong>Vichayal</strong>
+            <small>Riego Web</small>
+        </div>
+
+    </div>
+
+    <div class="sidebar-organization">
+        <small>COMISIÓN DE REGANTES</small>
+        <span>Vichayal · Piura</span>
+    </div>
+
+    <p class="sidebar-title">
+        GESTIÓN DE RIEGO
+    </p>
+
+    <nav class="sidebar-nav">
+
+        <!-- Todos los usuarios -->
+        <a th:href="@{/dashboard}"
+           th:classappend="${active == 'dashboard'} ? ' active' : ''">
+
+            <span class="nav-icon">▦</span>
+            <span>Dashboard</span>
+
+        </a>
+
+        <!-- Administrador y operador -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')"
+           th:href="@{/turnos}"
+           th:classappend="${active == 'turnos'} ? ' active' : ''">
+
+            <span class="nav-icon">▣</span>
+            <span>Turnos de riego</span>
+
+        </a>
+
+        <!-- Administrador y operador -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')"
+           th:href="@{/agricultores}"
+           th:classappend="${active == 'agricultores'} ? ' active' : ''">
+
+            <span class="nav-icon">♙</span>
+            <span>Agricultores</span>
+
+        </a>
+
+        <!-- Administrador y operador -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')"
+           th:href="@{/parcelas}"
+           th:classappend="${active == 'parcelas'} ? ' active' : ''">
+
+            <span class="nav-icon">◇</span>
+            <span>Parcelas</span>
+
+        </a>
+
+        <!-- Administrador y tesorería -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','TESORERIA')"
+           th:href="@{/tesoreria}"
+           th:classappend="${active == 'tesoreria'} ? ' active' : ''">
+
+            <span class="nav-icon">▤</span>
+            <span>Tesorería</span>
+
+        </a>
+
+        <!-- Administrador, operador y tesorería -->
+        <a sec:authorize="
+            hasAnyRole('ADMINISTRADOR','OPERADOR','TESORERIA')"
+           th:href="@{/reportes}"
+           th:classappend="${active == 'reportes'} ? ' active' : ''">
+
+            <span class="nav-icon">▥</span>
+            <span>Reportes</span>
+
+        </a>
+
+        <!-- Administrador y operador -->
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')"
+           th:href="@{/inteligencia}"
+           th:classappend="${active == 'inteligencia'} ? ' active' : ''">
+
+            <span class="nav-icon">✦</span>
+            <span>Inteligencia Artificial</span>
+
+        </a>
+
+        <!-- Solo administrador -->
+        <a sec:authorize="hasRole('ADMINISTRADOR')"
+           th:href="@{/usuarios}"
+           th:classappend="${active == 'usuarios'} ? ' active' : ''">
+
+            <span class="nav-icon">⚙</span>
+            <span>Usuarios y roles</span>
+
+        </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+
+        <div class="sidebar-user">
+
+            <div class="sidebar-avatar"
+                 sec:authentication="principal.iniciales">
+                AD
+            </div>
+
+            <div>
+                <strong sec:authentication=
+                                "principal.nombreCompleto">
+                    Usuario
+                </strong>
+
+                <small sec:authentication=
+                               "principal.rolLegible">
+                    Rol
+                </small>
+            </div>
+
+        </div>
+
+        <form th:action="@{/logout}"
+              method="post">
+
+            <button type="submit"
+                    class="logout-button">
+
+                <span>↪</span>
+                <span>Cerrar sesión</span>
+
+            </button>
+
+        </form>
+
+        <small class="version">
+            Vichayal Riego Web · v1.0
+        </small>
+
+    </div>
+
+</aside>
+
+</body>
+</html>
+===== MIGRACIONES =====
+src/main/resources/db/migration/V2__v4_estados_y_trazabilidad.sql
+----- INICIO: src/main/resources/db/migration/V2__v4_estados_y_trazabilidad.sql -----
+ALTER TABLE parcelas ADD COLUMN IF NOT EXISTS estado VARCHAR(30) NOT NULL DEFAULT 'ACTIVA';
+
+ALTER TABLE turnos_riego ADD COLUMN IF NOT EXISTS motivo_cancelacion VARCHAR(500);
+ALTER TABLE turnos_riego ADD COLUMN IF NOT EXISTS fecha_cancelacion TIMESTAMPTZ;
+ALTER TABLE turnos_riego ADD COLUMN IF NOT EXISTS fecha_actualizacion TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;
+UPDATE turnos_riego SET estado = 'VENCIDO'
+WHERE estado = 'PROGRAMADO' AND (fecha + hora_fin) < CURRENT_TIMESTAMP;
+
+ALTER TABLE pagos ADD COLUMN IF NOT EXISTS codigo VARCHAR(30);
+ALTER TABLE pagos ADD COLUMN IF NOT EXISTS estado VARCHAR(30) NOT NULL DEFAULT 'CONFIRMADO';
+ALTER TABLE pagos ADD COLUMN IF NOT EXISTS motivo_rechazo VARCHAR(500);
+ALTER TABLE pagos ADD COLUMN IF NOT EXISTS motivo_anulacion VARCHAR(500);
+ALTER TABLE pagos ADD COLUMN IF NOT EXISTS fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE pagos ADD COLUMN IF NOT EXISTS fecha_actualizacion TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;
+UPDATE pagos SET codigo = 'PG-' || LPAD(id::text, 6, '0') WHERE codigo IS NULL;
+ALTER TABLE pagos ALTER COLUMN codigo SET NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uk_pagos_codigo ON pagos(codigo);
+CREATE INDEX IF NOT EXISTS idx_parcelas_estado ON parcelas(estado);
+CREATE INDEX IF NOT EXISTS idx_turnos_estado_fecha ON turnos_riego(estado, fecha);
+CREATE INDEX IF NOT EXISTS idx_pagos_estado_fecha ON pagos(estado, fecha);
+
+----- FIN: src/main/resources/db/migration/V2__v4_estados_y_trazabilidad.sql -----
+src/main/resources/db/migration/V1__schema.sql
+----- INICIO: src/main/resources/db/migration/V1__schema.sql -----
+CREATE TABLE roles(id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,codigo VARCHAR(30) NOT NULL UNIQUE,nombre VARCHAR(80) NOT NULL);
+CREATE TABLE usuarios(id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,username VARCHAR(50) NOT NULL UNIQUE,password_hash VARCHAR(255) NOT NULL,nombres VARCHAR(100) NOT NULL,apellidos VARCHAR(120) NOT NULL,activo BOOLEAN NOT NULL DEFAULT TRUE,rol_id BIGINT NOT NULL REFERENCES roles(id),fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP);
+INSERT INTO roles(codigo,nombre) VALUES('ADMINISTRADOR','Administrador'),('TESORERIA','Tesorería'),('OPERADOR','Operador de riego');
+CREATE TABLE agricultores(id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,dni VARCHAR(8) NOT NULL UNIQUE,nombres VARCHAR(100) NOT NULL,apellidos VARCHAR(120) NOT NULL,telefono VARCHAR(20),sector VARCHAR(30) NOT NULL,estado VARCHAR(20) NOT NULL);
+CREATE TABLE parcelas(id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,codigo VARCHAR(30) NOT NULL UNIQUE,nombre VARCHAR(100) NOT NULL,hectareas NUMERIC(10,2) NOT NULL,cultivo VARCHAR(100),agricultor_id BIGINT NOT NULL REFERENCES agricultores(id));
+CREATE TABLE turnos_riego(id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,codigo VARCHAR(30) NOT NULL UNIQUE,fecha DATE NOT NULL,hora_inicio TIME NOT NULL,hora_fin TIME NOT NULL,estado VARCHAR(20) NOT NULL,observaciones VARCHAR(255),parcela_id BIGINT NOT NULL REFERENCES parcelas(id));
+CREATE TABLE pagos(id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,monto NUMERIC(12,2) NOT NULL,fecha DATE NOT NULL,concepto VARCHAR(150) NOT NULL,comprobante VARCHAR(50) NOT NULL UNIQUE,metodo VARCHAR(30) NOT NULL,agricultor_id BIGINT NOT NULL REFERENCES agricultores(id));
+
+----- FIN: src/main/resources/db/migration/V1__schema.sql -----
