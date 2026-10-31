@@ -1,15 +1,18 @@
 pe/vichaval/gestionriego/tesoreria/service/PagoService.class
 pe/vichaval/gestionriego/usuario/entity/Usuario.class
+pe/vichaval/gestionriego/usuario/dto/UsuarioForm.class
 pe/vichaval/gestionriego/tesoreria/entity/Pago.class
 pe/vichaval/gestionriego/parcela/repository/ParcelaRepository.class
 pe/vichaval/gestionriego/parcela/controller/ParcelaWebController.class
 pe/vichaval/gestionriego/config/InitialUserConfig.class
 pe/vichaval/gestionriego/usuario/entity/Rol.class
+pe/vichaval/gestionriego/usuario/controller/UsuarioWebController.class
 pe/vichaval/gestionriego/usuario/repository/RolRepository.class
 pe/vichaval/gestionriego/config/SecurityConfig.class
 pe/vichaval/gestionriego/security/controller/LoginController.class
 pe/vichaval/gestionriego/agricultor/service/AgricultorService.class
 pe/vichaval/gestionriego/security/service/CustomUserDetailsService.class
+pe/vichaval/gestionriego/usuario/dto/CambioPasswordForm.class
 pe/vichaval/gestionriego/parcela/dto/ParcelaForm.class
 pe/vichaval/gestionriego/tesoreria/controller/TesoreriaWebController.class
 pe/vichaval/gestionriego/riego/dto/TurnoForm.class
@@ -31,4 +34,5 @@ pe/vichaval/gestionriego/security/service/UsuarioPrincipal.class
 pe/vichaval/gestionriego/riego/entity/TurnoRiego.class
 pe/vichaval/gestionriego/dashboard/service/DashboardService.class
 pe/vichaval/gestionriego/agricultor/dto/AgricultorForm.class
+pe/vichaval/gestionriego/usuario/service/UsuarioService.class
 pe/vichaval/gestionriego/riego/controller/TurnoRiegoWebController.class
