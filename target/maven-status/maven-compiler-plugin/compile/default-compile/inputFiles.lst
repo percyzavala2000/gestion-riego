@@ -27,8 +27,12 @@
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/tesoreria/entity/Pago.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/tesoreria/repository/PagoRepository.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/tesoreria/service/PagoService.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/controller/UsuarioWebController.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/dto/CambioPasswordForm.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/dto/UsuarioForm.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/entity/Rol.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/entity/Usuario.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/enums/CodigoRol.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/repository/RolRepository.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/repository/UsuarioRepository.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/usuario/service/UsuarioService.java
