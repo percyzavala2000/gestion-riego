@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+
+<body>
+
+<header th:fragment="header(title)"
+        class="topbar">
+
+  <div class="breadcrumb-container">
+
+    <span>Gestión</span>
+    <span class="breadcrumb-separator">›</span>
+
+    <strong th:text="${title}">
+      Dashboard
+    </strong>
+
+  </div>
+
+  <div class="topbar-actions">
+
+        <span class="current-date"
+              th:text="${#temporals.format(
+                  #temporals.createNow(),
+                  'dd/MM/yyyy'
+              )}">
+            30/10/2026
+        </span>
+
+    <button type="button"
+            class="notification-button"
+            aria-label="Notificaciones">
+      ♧
+    </button>
+
+    <div class="current-user">
+
+      <div class="user-avatar"
+           sec:authentication="principal.iniciales">
+        AD
+      </div>
+
+      <div class="user-information">
+
+        <strong sec:authentication=
+                        "principal.nombreCompleto">
+          Administrador Vichayal
+        </strong>
+
+        <small sec:authentication=
+                       "principal.rolLegible">
+          Administrador
+        </small>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</header>
+
+</body>
+</html>

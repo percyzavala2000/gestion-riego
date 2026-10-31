@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace=
+             "~{fragments/sidebar :: sidebar('parcelas')}">
+</div>
+<main><h1>Parcelas</h1><a class="btn" th:href="@{/parcelas/nueva}">Nueva parcela</a>
+    <table>
+        <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Agricultor</th>
+            <th>Área</th>
+            <th>Cultivo</th>
+        </tr>
+        <tr th:each="p:${parcelas}">
+            <td th:text="${p.codigo}"></td>
+            <td th:text="${p.nombre}"></td>
+            <td th:text="${p.agricultor.nombres+' '+p.agricultor.apellidos}"></td>
+            <td th:text="${p.hectareas}"></td>
+            <td th:text="${p.cultivo}"></td>
+        </tr>
+    </table>
+</main>
+</body>
+</html>

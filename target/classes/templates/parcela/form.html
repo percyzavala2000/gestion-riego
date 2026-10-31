@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace=
+             "~{fragments/sidebar :: sidebar('parcelas')}">
+</div>
+<main><h1>Nueva parcela</h1>
+    <form class="form" th:object="${form}" th:action="@{/parcelas}" method="post"><input th:field="*{codigo}"
+                                                                                         placeholder="Código"><small
+            th:errors="*{codigo}"></small><input th:field="*{nombre}" placeholder="Nombre"><input type="number"
+                                                                                                  step=".01"
+                                                                                                  th:field="*{hectareas}"
+                                                                                                  placeholder="Hectáreas"><input
+            th:field="*{cultivo}" placeholder="Cultivo"><select th:field="*{agricultorId}">
+        <option value="">Agricultor</option>
+        <option th:each="a:${agricultores}" th:value="${a.id}" th:text="${a.nombres+' '+a.apellidos}"></option>
+    </select>
+        <button>Guardar</button>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,1 @@
+package pe.vichaval.gestionriego.tesoreria.repository;import java.math.*;import org.springframework.data.jpa.repository.*;import pe.vichaval.gestionriego.tesoreria.entity.Pago;public interface PagoRepository extends JpaRepository<Pago,Long>{boolean existsByComprobante(String c);@Query("select coalesce(sum(p.monto),0) from Pago p")BigDecimal total();}

@@ -1,0 +1,1 @@
+package pe.vichaval.gestionriego.parcela.repository;import org.springframework.data.jpa.repository.*;import pe.vichaval.gestionriego.parcela.entity.Parcela;public interface ParcelaRepository extends JpaRepository<Parcela,Long>{boolean existsByCodigoIgnoreCase(String c);long countByAgricultorId(Long id);}
