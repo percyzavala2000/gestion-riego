@@ -122,6 +122,19 @@
             </span>
 
         </a>
+        <!-- Caja: administrador y tesorería -->
+
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','TESORERIA')"
+           th:href="@{/tesoreria/caja}"
+           th:classappend="${active == 'caja'} ? ' active' : ''">
+
+            <span class="nav-icon">▨</span>
+
+            <span>
+        Caja
+    </span>
+
+        </a>
 
         <!--
             REPORTES SEGÚN EL ROL
@@ -246,7 +259,7 @@
         </form>
 
         <small class="version">
-            Vichayal Riego Web · v7.0
+            Vichayal Riego Web · v8.0
         </small>
 
     </div>
