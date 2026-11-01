@@ -1,3 +1,70 @@
 package pe.vichaval.gestionriego.finanzas.dto;
-import jakarta.validation.constraints.*;import java.math.BigDecimal;import java.time.LocalDate;
-public class CuentaCobrarForm{@NotNull private Long agricultorId;@NotNull private Long conceptoId;@NotNull@DecimalMin("0.01")private BigDecimal montoTotal;@NotNull private LocalDate fechaEmision=LocalDate.now();@NotNull private LocalDate fechaVencimiento;@Size(max=500)private String observaciones;public Long getAgricultorId(){return agricultorId;}public void setAgricultorId(Long v){agricultorId=v;}public Long getConceptoId(){return conceptoId;}public void setConceptoId(Long v){conceptoId=v;}public BigDecimal getMontoTotal(){return montoTotal;}public void setMontoTotal(BigDecimal v){montoTotal=v;}public LocalDate getFechaEmision(){return fechaEmision;}public void setFechaEmision(LocalDate v){fechaEmision=v;}public LocalDate getFechaVencimiento(){return fechaVencimiento;}public void setFechaVencimiento(LocalDate v){fechaVencimiento=v;}public String getObservaciones(){return observaciones;}public void setObservaciones(String v){observaciones=v;}}
+
+import jakarta.validation.constraints.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+public class CuentaCobrarForm {
+    @NotNull
+    private Long agricultorId;
+    @NotNull
+    private Long conceptoId;
+    @NotNull
+    @DecimalMin("0.01")
+    private BigDecimal montoTotal;
+    @NotNull
+    private LocalDate fechaEmision = LocalDate.now();
+    @NotNull
+    private LocalDate fechaVencimiento;
+    @Size(max = 500)
+    private String observaciones;
+
+    public Long getAgricultorId() {
+        return agricultorId;
+    }
+
+    public void setAgricultorId(Long v) {
+        agricultorId = v;
+    }
+
+    public Long getConceptoId() {
+        return conceptoId;
+    }
+
+    public void setConceptoId(Long v) {
+        conceptoId = v;
+    }
+
+    public BigDecimal getMontoTotal() {
+        return montoTotal;
+    }
+
+    public void setMontoTotal(BigDecimal v) {
+        montoTotal = v;
+    }
+
+    public LocalDate getFechaEmision() {
+        return fechaEmision;
+    }
+
+    public void setFechaEmision(LocalDate v) {
+        fechaEmision = v;
+    }
+
+    public LocalDate getFechaVencimiento() {
+        return fechaVencimiento;
+    }
+
+    public void setFechaVencimiento(LocalDate v) {
+        fechaVencimiento = v;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String v) {
+        observaciones = v;
+    }
+}

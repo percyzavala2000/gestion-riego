@@ -2,6 +2,8 @@ pe/vichaval/gestionriego/tesoreria/service/PagoService.class
 pe/vichaval/gestionriego/usuario/entity/Usuario.class
 pe/vichaval/gestionriego/usuario/dto/UsuarioForm.class
 pe/vichaval/gestionriego/tesoreria/entity/Pago.class
+pe/vichaval/gestionriego/reporte/controller/ReporteWebController.class
+pe/vichaval/gestionriego/reporte/dto/ResumenReportes.class
 pe/vichaval/gestionriego/parcela/repository/ParcelaRepository.class
 pe/vichaval/gestionriego/parcela/controller/ParcelaWebController.class
 pe/vichaval/gestionriego/config/InitialUserConfig.class
@@ -16,6 +18,7 @@ pe/vichaval/gestionriego/agricultor/service/AgricultorService.class
 pe/vichaval/gestionriego/security/service/CustomUserDetailsService.class
 pe/vichaval/gestionriego/usuario/dto/CambioPasswordForm.class
 pe/vichaval/gestionriego/finanzas/repository/ConceptoCobroRepository.class
+pe/vichaval/gestionriego/reporte/service/ReporteExcelService.class
 pe/vichaval/gestionriego/finanzas/controller/ConceptoCobroWebController.class
 pe/vichaval/gestionriego/finanzas/controller/FinanzasWebController.class
 pe/vichaval/gestionriego/parcela/dto/ParcelaForm.class
@@ -25,6 +28,7 @@ pe/vichaval/gestionriego/finanzas/repository/CuentaCobrarRepository.class
 pe/vichaval/gestionriego/riego/dto/TurnoForm.class
 pe/vichaval/gestionriego/dashboard/controller/DashboardController.class
 pe/vichaval/gestionriego/riego/service/TurnoRiegoService.class
+pe/vichaval/gestionriego/reporte/service/ReportePdfService.class
 pe/vichaval/gestionriego/usuario/enums/CodigoRol.class
 pe/vichaval/gestionriego/dashboard/dto/DashboardResumen.class
 pe/vichaval/gestionriego/agricultor/entity/Agricultor.class
@@ -38,7 +42,9 @@ pe/vichaval/gestionriego/agricultor/controller/AgricultorWebController.class
 pe/vichaval/gestionriego/finanzas/entity/ConceptoCobro.class
 pe/vichaval/gestionriego/GestionRiegoApplication.class
 pe/vichaval/gestionriego/finanzas/entity/CuentaCobrar.class
+pe/vichaval/gestionriego/reporte/dto/ReporteFiltro.class
 pe/vichaval/gestionriego/agricultor/repository/AgricultorRepository.class
+pe/vichaval/gestionriego/reporte/service/ReporteService.class
 pe/vichaval/gestionriego/usuario/repository/UsuarioRepository.class
 pe/vichaval/gestionriego/security/service/UsuarioPrincipal.class
 pe/vichaval/gestionriego/riego/entity/TurnoRiego.class

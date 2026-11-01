@@ -23,6 +23,12 @@
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/entity/Parcela.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/repository/ParcelaRepository.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/service/ParcelaService.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/reporte/controller/ReporteWebController.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/reporte/dto/ReporteFiltro.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/reporte/dto/ResumenReportes.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/reporte/service/ReporteExcelService.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/reporte/service/ReportePdfService.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/reporte/service/ReporteService.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/controller/TurnoRiegoWebController.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/dto/DashboardResumen.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/riego/dto/TurnoForm.java

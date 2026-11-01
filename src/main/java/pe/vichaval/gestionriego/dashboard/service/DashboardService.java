@@ -1,3 +1,37 @@
 package pe.vichaval.gestionriego.dashboard.service;
-import java.math.BigDecimal;import java.time.LocalDate;import org.springframework.stereotype.Service;import org.springframework.transaction.annotation.Transactional;import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;import pe.vichaval.gestionriego.dashboard.dto.DashboardResumen;import pe.vichaval.gestionriego.finanzas.repository.CuentaCobrarRepository;import pe.vichaval.gestionriego.parcela.repository.ParcelaRepository;import pe.vichaval.gestionriego.riego.repository.TurnoRiegoRepository;import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
-@Service public class DashboardService{private final AgricultorRepository agricultores;private final ParcelaRepository parcelas;private final TurnoRiegoRepository turnos;private final PagoRepository pagos;private final CuentaCobrarRepository cuentas;public DashboardService(AgricultorRepository a,ParcelaRepository p,TurnoRiegoRepository t,PagoRepository pagos,CuentaCobrarRepository c){agricultores=a;parcelas=p;turnos=t;this.pagos=pagos;cuentas=c;}@Transactional(readOnly=true)public DashboardResumen obtenerResumen(){LocalDate hoy=LocalDate.now();BigDecimal deuda=cuentas.totalDeuda();return new DashboardResumen(turnos.countByFecha(hoy),turnos.countByFechaAndEstado(hoy,"PROGRAMADO"),agricultores.countByEstado("ACTIVO"),parcelas.count(),pagos.total(),pagos.count(),deuda,cuentas.agricultoresConDeuda());}}
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;
+import pe.vichaval.gestionriego.dashboard.dto.DashboardResumen;
+import pe.vichaval.gestionriego.finanzas.repository.CuentaCobrarRepository;
+import pe.vichaval.gestionriego.parcela.repository.ParcelaRepository;
+import pe.vichaval.gestionriego.riego.repository.TurnoRiegoRepository;
+import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
+
+@Service
+public class DashboardService {
+    private final AgricultorRepository agricultores;
+    private final ParcelaRepository parcelas;
+    private final TurnoRiegoRepository turnos;
+    private final PagoRepository pagos;
+    private final CuentaCobrarRepository cuentas;
+
+    public DashboardService(AgricultorRepository a, ParcelaRepository p, TurnoRiegoRepository t, PagoRepository pagos, CuentaCobrarRepository c) {
+        agricultores = a;
+        parcelas = p;
+        turnos = t;
+        this.pagos = pagos;
+        cuentas = c;
+    }
+
+    @Transactional(readOnly = true)
+    public DashboardResumen obtenerResumen() {
+        LocalDate hoy = LocalDate.now();
+        BigDecimal deuda = cuentas.totalDeuda();
+        return new DashboardResumen(turnos.countByFecha(hoy), turnos.countByFechaAndEstado(hoy, "PROGRAMADO"), agricultores.countByEstado("ACTIVO"), parcelas.count(), pagos.total(), pagos.count(), deuda, cuentas.agricultoresConDeuda());
+    }
+}
