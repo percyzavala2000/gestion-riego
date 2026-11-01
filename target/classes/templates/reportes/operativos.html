@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reportes operativos</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/v7.css}">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar :: sidebar('reportes')}"></div>
+<section class="workspace">
+    <div th:replace="~{fragments/header :: header('Reportes operativos')}"></div>
+    <main class="content"><a class="btn secondary" th:href="@{/reportes}">Volver</a>
+        <h2>Agricultores</h2>
+        <table>
+            <tr>
+                <th>DNI</th>
+                <th>Nombre</th>
+                <th>Sector</th>
+                <th>Estado</th>
+            </tr>
+            <tr th:each="a:${agricultores}">
+                <td th:text="${a.dni}"></td>
+                <td th:text="|${a.nombres} ${a.apellidos}|"></td>
+                <td th:text="${a.sector}"></td>
+                <td th:text="${a.estado}"></td>
+            </tr>
+        </table>
+        <h2>Parcelas</h2>
+        <table>
+            <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Agricultor</th>
+                <th>Cultivo</th>
+                <th>Estado</th>
+            </tr>
+            <tr th:each="p:${parcelas}">
+                <td th:text="${p.codigo}"></td>
+                <td th:text="${p.nombre}"></td>
+                <td th:text="|${p.agricultor.nombres} ${p.agricultor.apellidos}|"></td>
+                <td th:text="${p.cultivo}"></td>
+                <td th:text="${p.estado}"></td>
+            </tr>
+        </table>
+        <h2>Turnos</h2>
+        <table>
+            <tr>
+                <th>Código</th>
+                <th>Fecha</th>
+                <th>Parcela</th>
+                <th>Horario</th>
+                <th>Estado</th>
+            </tr>
+            <tr th:each="t:${turnos}">
+                <td th:text="${t.codigo}"></td>
+                <td th:text="${t.fecha}"></td>
+                <td th:text="${t.parcela.nombre}"></td>
+                <td th:text="|${t.horaInicio} - ${t.horaFin}|"></td>
+                <td th:text="${t.estado}"></td>
+            </tr>
+        </table>
+    </main>
+</section>
+</body>
+</html>

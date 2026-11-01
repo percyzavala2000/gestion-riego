@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reportes financieros</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/v7.css}">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar :: sidebar('reportes')}"></div>
+<section class="workspace">
+    <div th:replace="~{fragments/header :: header('Reportes financieros')}"></div>
+    <main class="content">
+        <header class="page-title">
+            <div><h1>Reportes financieros</h1>
+                <p>Filtra pagos y cuentas por cobrar.</p></div>
+            <a class="btn secondary" th:href="@{/reportes}">Volver</a></header>
+        <form class="report-filter" th:object="${filtro}" method="get"><label>Desde<input type="date"
+                                                                                          th:field="*{desde}"></label><label>Hasta<input
+                type="date" th:field="*{hasta}"></label><label>Agricultor<select th:field="*{agricultorId}">
+            <option value="">Todos</option>
+            <option th:each="a:${agricultores}" th:value="${a.id}" th:text="|${a.nombres} ${a.apellidos}|"></option>
+        </select></label><label>Estado<input th:field="*{estado}" placeholder="CONFIRMADO, VENCIDA..."></label>
+            <button class="btn primary">Filtrar</button>
+        </form>
+        <div class="export-bar"><a class="btn secondary"
+                                   th:href="@{/reportes/financieros/pagos.xlsx(desde=${filtro.desde},hasta=${filtro.hasta},estado=${filtro.estado},agricultorId=${filtro.agricultorId})}">Pagos
+            Excel</a><a class="btn secondary"
+                        th:href="@{/reportes/financieros/pagos.pdf(desde=${filtro.desde},hasta=${filtro.hasta},estado=${filtro.estado},agricultorId=${filtro.agricultorId})}">Pagos
+            PDF</a><a class="btn secondary"
+                      th:href="@{/reportes/financieros/cuentas.xlsx(desde=${filtro.desde},hasta=${filtro.hasta},estado=${filtro.estado},agricultorId=${filtro.agricultorId})}">Cuentas
+            Excel</a><a class="btn secondary"
+                        th:href="@{/reportes/financieros/cuentas.pdf(desde=${filtro.desde},hasta=${filtro.hasta},estado=${filtro.estado},agricultorId=${filtro.agricultorId})}">Cuentas
+            PDF</a></div>
+        <h2>Pagos</h2>
+        <table>
+            <tr>
+                <th>Código</th>
+                <th>Fecha</th>
+                <th>Agricultor</th>
+                <th>Monto</th>
+                <th>Método</th>
+                <th>Estado</th>
+            </tr>
+            <tr th:each="p:${pagos}">
+                <td th:text="${p.codigo}"></td>
+                <td th:text="${p.fecha}"></td>
+                <td th:text="|${p.agricultor.nombres} ${p.agricultor.apellidos}|"></td>
+                <td th:text="|S/ ${p.monto}|"></td>
+                <td th:text="${p.metodo}"></td>
+                <td th:text="${p.estado}"></td>
+            </tr>
+        </table>
+        <h2>Cuentas por cobrar</h2>
+        <table>
+            <tr>
+                <th>Código</th>
+                <th>Agricultor</th>
+                <th>Total</th>
+                <th>Pagado</th>
+                <th>Saldo</th>
+                <th>Estado</th>
+            </tr>
+            <tr th:each="c:${cuentas}">
+                <td th:text="${c.codigo}"></td>
+                <td th:text="|${c.agricultor.nombres} ${c.agricultor.apellidos}|"></td>
+                <td th:text="|S/ ${c.montoTotal}|"></td>
+                <td th:text="|S/ ${c.montoPagado}|"></td>
+                <td th:text="|S/ ${c.saldoPendiente}|"></td>
+                <td th:text="${c.estado}"></td>
+            </tr>
+        </table>
+    </main>
+</section>
+</body>
+</html>
