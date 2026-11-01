@@ -1,0 +1,1 @@
+package pe.vichaval.gestionriego.caja.repository;import java.time.LocalDate;import java.util.*;import org.springframework.data.jpa.repository.JpaRepository;import pe.vichaval.gestionriego.caja.entity.CierreCaja;public interface CierreCajaRepository extends JpaRepository<CierreCaja,Long>{boolean existsByFecha(LocalDate f);List<CierreCaja>findAllByOrderByFechaDesc();}
