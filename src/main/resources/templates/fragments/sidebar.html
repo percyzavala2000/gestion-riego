@@ -189,7 +189,7 @@
 
         </a>
 
-        <!-- Inteligencia artificial: administrador y operador -->
+        <!-- Inteligencia operativa: administrador y operador -->
 
         <a sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')"
            th:href="@{/inteligencia}"
@@ -197,9 +197,19 @@
 
             <span class="nav-icon">✦</span>
 
-            <span>
-                Inteligencia Artificial
-            </span>
+            <span>Inteligencia operativa</span>
+
+        </a>
+
+        <!-- Inteligencia financiera: tesorería -->
+
+        <a sec:authorize="hasRole('TESORERIA')"
+           th:href="@{/inteligencia/financiera}"
+           th:classappend="${active == 'inteligencia'} ? ' active' : ''">
+
+            <span class="nav-icon">✦</span>
+
+            <span>Inteligencia financiera</span>
 
         </a>
 
@@ -259,7 +269,7 @@
         </form>
 
         <small class="version">
-            Vichayal Riego Web · v8.0
+            Vichayal Riego Web · v9.0
         </small>
 
     </div>
