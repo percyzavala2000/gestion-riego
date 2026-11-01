@@ -14,8 +14,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(
-                        "/login", "/error", "/error/**", "/css/**", "/js/**",
+                .requestMatchers("/login", "/error", "/error/**", "/css/**", "/js/**",
                         "/images/**", "/icons/**", "/favicon.ico", "/actuator/health")
                 .permitAll()
                 .requestMatchers("/", "/dashboard")
@@ -32,7 +31,7 @@ public class SecurityConfig {
                 .hasAnyRole("ADMINISTRADOR", "TESORERIA")
                 .requestMatchers("/inteligencia/**")
                 .hasAnyRole("ADMINISTRADOR", "OPERADOR")
-                .requestMatchers("/usuarios/**", "/roles/**")
+                .requestMatchers("/auditoria/**", "/usuarios/**", "/roles/**")
                 .hasRole("ADMINISTRADOR")
                 .anyRequest().authenticated());
 
@@ -50,6 +49,17 @@ public class SecurityConfig {
                 .clearAuthentication(true)
                 .deleteCookies("VICHAYAL_SESSION")
                 .permitAll());
+
+        http.sessionManagement(session -> session
+                .sessionFixation(fixation -> fixation.migrateSession())
+                .maximumSessions(3));
+
+        http.headers(headers -> headers
+                .contentTypeOptions(options -> {})
+                .frameOptions(frame -> frame.deny())
+                .referrerPolicy(referrer -> referrer.policy(
+                        org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN))
+                .permissionsPolicyHeader(policy -> policy.policy("camera=(), microphone=(), geolocation=()")));
 
         http.exceptionHandling(exception -> exception.accessDeniedPage("/error/403"));
         return http.build();

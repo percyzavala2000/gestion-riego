@@ -213,6 +213,17 @@
 
         </a>
 
+        <!-- Auditoria: solo administrador -->
+
+        <a sec:authorize="hasRole('ADMINISTRADOR')"
+           th:href="@{/auditoria}"
+           th:classappend="${active == 'auditoria'} ? ' active' : ''">
+
+            <span class="nav-icon">◎</span>
+            <span>Auditoría</span>
+
+        </a>
+
         <!-- Usuarios: solo administrador -->
 
         <a sec:authorize="hasRole('ADMINISTRADOR')"
@@ -269,7 +280,7 @@
         </form>
 
         <small class="version">
-            Vichayal Riego Web · v9.0
+            Vichayal Riego Web · v9.1
         </small>
 
     </div>
