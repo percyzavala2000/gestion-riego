@@ -11,92 +11,37 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
-
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http
-    ) throws Exception {
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
-
-                // Recursos públicos
                 .requestMatchers(
-                        "/login",
-                        "/error",
-                        "/error/**",
-                        "/css/**",
-                        "/js/**",
-                        "/images/**",
-                        "/icons/**",
-                        "/favicon.ico",
-                        "/actuator/health"
-                ).permitAll()
-
-                // Acceso compartido al dashboard
-                .requestMatchers(
-                        "/",
-                        "/dashboard"
-                ).hasAnyRole(
-                        "ADMINISTRADOR",
-                        "OPERADOR",
-                        "TESORERIA"
-                )
-
-                // Gestión operativa
-                .requestMatchers(
-                        "/agricultores/**",
-                        "/parcelas/**",
-                        "/turnos/**"
-                ).hasAnyRole(
-                        "ADMINISTRADOR",
-                        "OPERADOR"
-                )
-
-                // Gestión económica
-                .requestMatchers(
-                        "/tesoreria/**"
-                ).hasAnyRole(
-                        "ADMINISTRADOR",
-                        "TESORERIA"
-                )
-
-                // Reportes financieros
-                .requestMatchers(
-                        "/reportes/financieros/**"
-                ).hasAnyRole(
-                        "ADMINISTRADOR",
-                        "TESORERIA"
-                )
-
-                // Reportes operativos e inteligencia
-                .requestMatchers(
-                        "/reportes/**",
-                        "/inteligencia/**"
-                ).hasAnyRole(
-                        "ADMINISTRADOR",
-                        "OPERADOR"
-                )
-
-                // Administración de cuentas y roles
-                .requestMatchers(
-                        "/usuarios/**",
-                        "/roles/**"
-                ).hasRole(
-                        "ADMINISTRADOR"
-                )
-
-                // Cualquier otra ruta exige autenticación
-                .anyRequest()
-                .authenticated()
-        );
+                        "/login", "/error", "/error/**", "/css/**", "/js/**",
+                        "/images/**", "/icons/**", "/favicon.ico", "/actuator/health")
+                .permitAll()
+                .requestMatchers("/", "/dashboard")
+                .hasAnyRole("ADMINISTRADOR", "OPERADOR", "TESORERIA")
+                .requestMatchers("/agricultores/**", "/parcelas/**", "/turnos/**")
+                .hasAnyRole("ADMINISTRADOR", "OPERADOR")
+                .requestMatchers("/tesoreria/**")
+                .hasAnyRole("ADMINISTRADOR", "TESORERIA")
+                .requestMatchers("/reportes/financieros/**")
+                .hasAnyRole("ADMINISTRADOR", "TESORERIA")
+                .requestMatchers("/reportes/**")
+                .hasAnyRole("ADMINISTRADOR", "OPERADOR")
+                .requestMatchers("/inteligencia/financiera/**")
+                .hasAnyRole("ADMINISTRADOR", "TESORERIA")
+                .requestMatchers("/inteligencia/**")
+                .hasAnyRole("ADMINISTRADOR", "OPERADOR")
+                .requestMatchers("/usuarios/**", "/roles/**")
+                .hasRole("ADMINISTRADOR")
+                .anyRequest().authenticated());
 
         http.formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/dashboard", true)
                 .failureUrl("/login?error")
-                .permitAll()
-        );
+                .permitAll());
 
         http.logout(logout -> logout
                 .logoutUrl("/logout")
@@ -104,19 +49,14 @@ public class SecurityConfig {
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .deleteCookies("VICHAYAL_SESSION")
-                .permitAll()
-        );
+                .permitAll());
 
-        http.exceptionHandling(exception -> exception
-                .accessDeniedPage("/error/403")
-        );
-
+        http.exceptionHandling(exception -> exception.accessDeniedPage("/error/403"));
         return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories
-                .createDelegatingPasswordEncoder();
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }
