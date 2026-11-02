@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inteligencia y alertas</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/v9.css}">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar :: sidebar('inteligencia')}"></div>
+<section class="workspace">
+    <div th:replace="~{fragments/header :: header('Inteligencia y alertas')}"></div>
+    <main class="content">
+        <header class="page-title">
+            <div>
+                <h1 th:text="${tipo == 'financiera'} ? 'Inteligencia financiera' : 'Inteligencia operativa'">Inteligencia</h1>
+                <p>Alertas explicables calculadas con los datos registrados en el sistema.</p>
+            </div>
+            <a sec:authorize="hasRole('ADMINISTRADOR')"
+               class="btn secondary"
+               th:href="${tipo == 'financiera'} ? @{/inteligencia} : @{/inteligencia/financiera}"
+               th:text="${tipo == 'financiera'} ? 'Ver análisis operativo' : 'Ver análisis financiero'">
+                Cambiar análisis
+            </a>
+        </header>
+
+        <section class="ai-summary">
+            <article><span>Total</span><strong th:text="${resumen.total}">0</strong></article>
+            <article class="high"><span>Prioridad alta</span><strong th:text="${resumen.altas}">0</strong></article>
+            <article class="medium"><span>Prioridad media</span><strong th:text="${resumen.medias}">0</strong></article>
+            <article class="low"><span>Prioridad baja</span><strong th:text="${resumen.bajas}">0</strong></article>
+        </section>
+
+        <div class="notice ok" th:if="${#lists.isEmpty(resumen.alertas)}">
+            No se detectaron alertas con las reglas actuales.
+        </div>
+
+        <section class="alert-list">
+            <article class="alert-card" th:each="alerta : ${resumen.alertas}"
+                     th:classappend="| priority-${#strings.toLowerCase(alerta.prioridad)}|">
+                <div class="alert-head">
+                    <span class="priority" th:text="${alerta.prioridad}">ALTA</span>
+                    <span class="category" th:text="${alerta.categoria}">RIEGO</span>
+                </div>
+                <h2 th:text="${alerta.titulo}">Título</h2>
+                <div class="evidence">
+                    <strong>Evidencia</strong>
+                    <p th:text="${alerta.evidencia}">Evidencia</p>
+                </div>
+                <div class="recommendation">
+                    <strong>Acción recomendada</strong>
+                    <p th:text="${alerta.recomendacion}">Recomendación</p>
+                </div>
+                <a class="btn secondary" th:href="${alerta.referencia}">Revisar información</a>
+            </article>
+        </section>
+
+        <p class="method-note">
+            Este panel aplica reglas determinísticas. No reemplaza la evaluación del responsable operativo o financiero.
+        </p>
+    </main>
+</section>
+</body>
+</html>

@@ -1,0 +1,7 @@
+/Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/PruebaBasicaTest.java
+/Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/auditoria/web/SolicitudAuditableTest.java
+/Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/caja/entity/CierreCajaTest.java
+/Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/config/seed/DemoSeedGuardTest.java
+/Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/finanzas/entity/CuentaCobrarReversionTest.java
+/Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/finanzas/entity/CuentaCobrarTest.java
+/Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/inteligencia/service/ClasificadorPrioridadTest.java
