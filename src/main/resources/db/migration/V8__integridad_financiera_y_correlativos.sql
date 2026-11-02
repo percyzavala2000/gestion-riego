@@ -1,0 +1,13 @@
+CREATE SEQUENCE seq_pago_codigo START WITH 1;
+CREATE SEQUENCE seq_cuenta_codigo START WITH 1;
+CREATE SEQUENCE seq_egreso_codigo START WITH 1;
+CREATE SEQUENCE seq_devolucion_codigo START WITH 1;
+SELECT setval('seq_pago_codigo', COALESCE((SELECT MAX(id) FROM pagos),0)+1, false);
+SELECT setval('seq_cuenta_codigo', COALESCE((SELECT MAX(id) FROM cuentas_cobrar),0)+1, false);
+SELECT setval('seq_egreso_codigo', COALESCE((SELECT MAX(id) FROM egresos),0)+1, false);
+SELECT setval('seq_devolucion_codigo', COALESCE((SELECT MAX(id) FROM devoluciones),0)+1, false);
+ALTER TABLE cierres_caja ADD COLUMN motivo_reapertura VARCHAR(500);
+ALTER TABLE cierres_caja ADD COLUMN fecha_reapertura TIMESTAMPTZ;
+ALTER TABLE cierres_caja ADD COLUMN usuario_reapertura_id BIGINT REFERENCES usuarios(id);
+CREATE INDEX idx_cierres_fecha_estado ON cierres_caja(fecha, estado);
+ALTER TABLE cuentas_cobrar ADD CONSTRAINT chk_cuenta_monto_pagado CHECK (monto_pagado >= 0 AND monto_pagado <= monto_total);
