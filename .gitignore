@@ -1,0 +1,8 @@
+target/
+*.log
+.DS_Store
+.idea/
+*.iml
+.vscode/
+base-v*.txt
+*.sql.bak

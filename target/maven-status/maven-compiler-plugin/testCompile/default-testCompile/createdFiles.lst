@@ -1,7 +1,12 @@
-pe/vichaval/gestionriego/caja/entity/CierreCajaTest.class
-pe/vichaval/gestionriego/auditoria/web/SolicitudAuditableTest.class
+pe/vichaval/gestionriego/caja/entity/DevolucionTest.class
 pe/vichaval/gestionriego/inteligencia/service/ClasificadorPrioridadTest.class
 pe/vichaval/gestionriego/config/seed/DemoSeedGuardTest.class
-pe/vichaval/gestionriego/finanzas/entity/CuentaCobrarTest.class
 pe/vichaval/gestionriego/finanzas/entity/CuentaCobrarReversionTest.class
+pe/vichaval/gestionriego/caja/entity/CierreCajaTest.class
+pe/vichaval/gestionriego/auditoria/web/SolicitudAuditableTest.class
+pe/vichaval/gestionriego/tesoreria/entity/PagoTest.class
+pe/vichaval/gestionriego/integration/SecurityAccessIT.class
+pe/vichaval/gestionriego/integration/FlywaySchemaIT.class
+pe/vichaval/gestionriego/finanzas/entity/CuentaCobrarTest.class
+pe/vichaval/gestionriego/integration/PostgreSqlIntegrationBase.class
 pe/vichaval/gestionriego/PruebaBasicaTest.class
