@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportePdfService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.reporte.service</a> &gt; <span class="el_source">ReportePdfService.java</span></div><h1>ReportePdfService.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.reporte.service;
+
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.util.List;
+
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.*;
+import org.springframework.stereotype.Service;
+import pe.vichaval.gestionriego.finanzas.entity.CuentaCobrar;
+import pe.vichaval.gestionriego.tesoreria.entity.Pago;
+
+@Service
+<span class="fc" id="L14">public class ReportePdfService {</span>
+    public byte[] pagos(List&lt;Pago&gt; datos) {
+<span class="nc" id="L16">        return crear(&quot;Reporte de pagos&quot;, new String[]{&quot;Código&quot;, &quot;Fecha&quot;, &quot;Agricultor&quot;, &quot;Monto&quot;, &quot;Estado&quot;}, datos.stream().map(p -&gt; new String[]{p.getCodigo(), p.getFecha().toString(), p.getAgricultor().getNombres() + &quot; &quot; + p.getAgricultor().getApellidos(), &quot;S/ &quot; + p.getMonto(), p.getEstado()}).toList());</span>
+    }
+
+    public byte[] cuentas(List&lt;CuentaCobrar&gt; datos) {
+<span class="nc" id="L20">        return crear(&quot;Reporte de cuentas por cobrar&quot;, new String[]{&quot;Código&quot;, &quot;Agricultor&quot;, &quot;Total&quot;, &quot;Saldo&quot;, &quot;Estado&quot;}, datos.stream().map(c -&gt; new String[]{c.getCodigo(), c.getAgricultor().getNombres() + &quot; &quot; + c.getAgricultor().getApellidos(), &quot;S/ &quot; + c.getMontoTotal(), &quot;S/ &quot; + c.getSaldoPendiente(), c.getEstado()}).toList());</span>
+    }
+
+    private byte[] crear(String titulo, String[] columnas, List&lt;String[]&gt; filas) {
+<span class="nc" id="L24">        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {</span>
+<span class="nc" id="L25">            Document doc = new Document(PageSize.A4.rotate(), 28, 28, 28, 28);</span>
+<span class="nc" id="L26">            PdfWriter.getInstance(doc, out);</span>
+<span class="nc" id="L27">            doc.open();</span>
+<span class="nc" id="L28">            Font title = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);</span>
+<span class="nc" id="L29">            doc.add(new Paragraph(titulo, title));</span>
+<span class="nc" id="L30">            doc.add(new Paragraph(&quot;Vichayal Riego Web · Generado: &quot; + LocalDate.now()));</span>
+<span class="nc" id="L31">            doc.add(Chunk.NEWLINE);</span>
+<span class="nc" id="L32">            PdfPTable table = new PdfPTable(columnas.length);</span>
+<span class="nc" id="L33">            table.setWidthPercentage(100);</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">            for (String c : columnas) {</span>
+<span class="nc" id="L35">                PdfPCell cell = new PdfPCell(new Phrase(c, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9)));</span>
+<span class="nc" id="L36">                cell.setBackgroundColor(new java.awt.Color(225, 239, 233));</span>
+<span class="nc" id="L37">                table.addCell(cell);</span>
+            }
+<span class="nc bnc" id="L39" title="All 2 branches missed.">            for (String[] fila : filas)</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">                for (String valor : fila)</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">                    table.addCell(new Phrase(valor == null ? &quot;&quot; : valor, FontFactory.getFont(FontFactory.HELVETICA, 8)));</span>
+<span class="nc" id="L42">            doc.add(table);</span>
+<span class="nc" id="L43">            doc.close();</span>
+<span class="nc" id="L44">            return out.toByteArray();</span>
+<span class="nc" id="L45">        } catch (Exception e) {</span>
+<span class="nc" id="L46">            throw new IllegalStateException(&quot;No se pudo generar el PDF&quot;, e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

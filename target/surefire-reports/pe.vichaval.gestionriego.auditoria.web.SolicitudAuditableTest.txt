@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: pe.vichaval.gestionriego.auditoria.web.SolicitudAuditableTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in pe.vichaval.gestionriego.auditoria.web.SolicitudAuditableTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in pe.vichaval.gestionriego.auditoria.web.SolicitudAuditableTest

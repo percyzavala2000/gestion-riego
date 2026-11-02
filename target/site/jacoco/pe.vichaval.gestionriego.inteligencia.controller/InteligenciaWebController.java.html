@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InteligenciaWebController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.inteligencia.controller</a> &gt; <span class="el_source">InteligenciaWebController.java</span></div><h1>InteligenciaWebController.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.inteligencia.controller;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import pe.vichaval.gestionriego.inteligencia.service.InteligenciaService;
+
+@Controller
+@RequestMapping(&quot;/inteligencia&quot;)
+public class InteligenciaWebController {
+    private final InteligenciaService inteligencia;
+
+<span class="fc" id="L16">    public InteligenciaWebController(InteligenciaService inteligencia) {</span>
+<span class="fc" id="L17">        this.inteligencia = inteligencia;</span>
+<span class="fc" id="L18">    }</span>
+
+    @PreAuthorize(&quot;hasAnyRole('ADMINISTRADOR','OPERADOR')&quot;)
+    @GetMapping
+    public String operativa(Model model) {
+<span class="nc" id="L23">        model.addAttribute(&quot;resumen&quot;, inteligencia.operativa());</span>
+<span class="nc" id="L24">        model.addAttribute(&quot;tipo&quot;, &quot;operativa&quot;);</span>
+<span class="nc" id="L25">        return &quot;inteligencia/index&quot;;</span>
+    }
+
+    @PreAuthorize(&quot;hasAnyRole('ADMINISTRADOR','TESORERIA')&quot;)
+    @GetMapping(&quot;/financiera&quot;)
+    public String financiera(Model model) {
+<span class="nc" id="L31">        model.addAttribute(&quot;resumen&quot;, inteligencia.financiera());</span>
+<span class="nc" id="L32">        model.addAttribute(&quot;tipo&quot;, &quot;financiera&quot;);</span>
+<span class="nc" id="L33">        return &quot;inteligencia/index&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

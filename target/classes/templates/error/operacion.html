@@ -1,0 +1,5 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Error de operación</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body><main class="content"><section class="card"><h1 th:text="${titulo}">No fue posible completar la operación</h1><p th:text="${mensaje}">La solicitud no pudo procesarse.</p><p><strong>Código de seguimiento:</strong> <code th:text="${correlacion}">NO-DISPONIBLE</code></p><a class="btn primary" th:href="@{/dashboard}">Volver al panel</a></section></main></body>
+</html>

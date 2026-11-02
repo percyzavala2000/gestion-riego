@@ -5,6 +5,7 @@ pe/vichaval/gestionriego/finanzas/entity/CuentaCobrarReversionTest.class
 pe/vichaval/gestionriego/caja/entity/CierreCajaTest.class
 pe/vichaval/gestionriego/auditoria/web/SolicitudAuditableTest.class
 pe/vichaval/gestionriego/tesoreria/entity/PagoTest.class
+pe/vichaval/gestionriego/error/GlobalExceptionHandlerTest.class
 pe/vichaval/gestionriego/integration/SecurityAccessIT.class
 pe/vichaval/gestionriego/integration/FlywaySchemaIT.class
 pe/vichaval/gestionriego/finanzas/entity/CuentaCobrarTest.class

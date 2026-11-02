@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TesoreriaWebController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.tesoreria.controller</a> &gt; <span class="el_source">TesoreriaWebController.java</span></div><h1>TesoreriaWebController.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.tesoreria.controller;
+
+import jakarta.validation.Valid;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;
+import pe.vichaval.gestionriego.tesoreria.dto.PagoForm;
+import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
+import pe.vichaval.gestionriego.tesoreria.service.PagoService;
+
+@Controller
+@RequestMapping(&quot;/tesoreria&quot;)
+public class TesoreriaWebController {
+
+    private final PagoRepository pagoRepository;
+    private final AgricultorRepository agricultorRepository;
+    private final PagoService pagoService;
+
+    public TesoreriaWebController(
+            PagoRepository pagoRepository,
+            AgricultorRepository agricultorRepository,
+            PagoService pagoService
+<span class="fc" id="L31">    ) {</span>
+<span class="fc" id="L32">        this.pagoRepository = pagoRepository;</span>
+<span class="fc" id="L33">        this.agricultorRepository = agricultorRepository;</span>
+<span class="fc" id="L34">        this.pagoService = pagoService;</span>
+<span class="fc" id="L35">    }</span>
+
+    @GetMapping
+    public String mostrarTesoreria(Model model) {
+
+<span class="nc" id="L40">        cargarDatos(model);</span>
+
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (!model.containsAttribute(&quot;form&quot;)) {</span>
+<span class="nc" id="L43">            model.addAttribute(</span>
+                    &quot;form&quot;,
+                    new PagoForm()
+            );
+        }
+
+<span class="nc" id="L49">        return &quot;tesoreria/index&quot;;</span>
+    }
+
+    @PostMapping(&quot;/pagos/guardar&quot;)
+    public String registrarPago(
+            @Valid @ModelAttribute(&quot;form&quot;) PagoForm form,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        /*
+         * Si existe algún error de validación, se vuelve a mostrar
+         * el formulario conservando los valores ingresados.
+         */
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L64">            cargarDatos(model);</span>
+<span class="nc" id="L65">            return &quot;tesoreria/index&quot;;</span>
+        }
+
+        try {
+<span class="nc" id="L69">            pagoService.registrar(form);</span>
+
+<span class="nc" id="L71">            redirectAttributes.addFlashAttribute(</span>
+                    &quot;exito&quot;,
+                    &quot;Pago registrado correctamente.&quot;
+            );
+
+<span class="nc" id="L76">            return &quot;redirect:/tesoreria&quot;;</span>
+
+<span class="nc" id="L78">        } catch (RuntimeException exception) {</span>
+
+<span class="nc" id="L80">            bindingResult.reject(</span>
+                    &quot;errorNegocio&quot;,
+<span class="nc" id="L82">                    exception.getMessage()</span>
+            );
+
+<span class="nc" id="L85">            cargarDatos(model);</span>
+
+<span class="nc" id="L87">            return &quot;tesoreria/index&quot;;</span>
+        }
+    }
+
+    @PostMapping(&quot;/pagos/{id}/confirmar&quot;)
+    public String confirmarPago(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes
+    ) {
+<span class="nc" id="L96">        return ejecutarOperacion(</span>
+<span class="nc" id="L97">                () -&gt; pagoService.confirmar(id),</span>
+                redirectAttributes,
+                &quot;Pago confirmado correctamente.&quot;
+        );
+    }
+
+    @PostMapping(&quot;/pagos/{id}/rechazar&quot;)
+    public String rechazarPago(
+            @PathVariable Long id,
+            @RequestParam String motivo,
+            RedirectAttributes redirectAttributes
+    ) {
+<span class="nc" id="L109">        return ejecutarOperacion(</span>
+<span class="nc" id="L110">                () -&gt; pagoService.rechazar(id, motivo),</span>
+                redirectAttributes,
+                &quot;Pago rechazado correctamente.&quot;
+        );
+    }
+
+    @PostMapping(&quot;/pagos/{id}/anular&quot;)
+    public String anularPago(
+            @PathVariable Long id,
+            @RequestParam String motivo,
+            RedirectAttributes redirectAttributes
+    ) {
+<span class="nc" id="L122">        return ejecutarOperacion(</span>
+<span class="nc" id="L123">                () -&gt; pagoService.anular(id, motivo),</span>
+                redirectAttributes,
+                &quot;Pago anulado correctamente.&quot;
+        );
+    }
+
+    private String ejecutarOperacion(
+            Runnable operacion,
+            RedirectAttributes redirectAttributes,
+            String mensajeExito
+    ) {
+        try {
+<span class="nc" id="L135">            operacion.run();</span>
+
+<span class="nc" id="L137">            redirectAttributes.addFlashAttribute(</span>
+                    &quot;exito&quot;,
+                    mensajeExito
+            );
+
+<span class="nc" id="L142">        } catch (RuntimeException exception) {</span>
+
+<span class="nc" id="L144">            redirectAttributes.addFlashAttribute(</span>
+                    &quot;error&quot;,
+<span class="nc" id="L146">                    exception.getMessage()</span>
+            );
+<span class="nc" id="L148">        }</span>
+
+<span class="nc" id="L150">        return &quot;redirect:/tesoreria&quot;;</span>
+    }
+
+    private void cargarDatos(Model model) {
+
+<span class="nc" id="L155">        model.addAttribute(</span>
+                &quot;pagos&quot;,
+<span class="nc" id="L157">                pagoRepository.findAll()</span>
+        );
+
+<span class="nc" id="L160">        model.addAttribute(</span>
+                &quot;total&quot;,
+<span class="nc" id="L162">                pagoRepository.total()</span>
+        );
+
+<span class="nc" id="L165">        model.addAttribute(</span>
+                &quot;agricultores&quot;,
+                agricultorRepository
+<span class="nc" id="L168">                        .findAll()</span>
+<span class="nc" id="L169">                        .stream()</span>
+<span class="nc" id="L170">                        .filter(agricultor -&gt;</span>
+<span class="nc" id="L171">                                &quot;ACTIVO&quot;.equals(</span>
+<span class="nc" id="L172">                                        agricultor.getEstado()</span>
+                                )
+                        )
+<span class="nc" id="L175">                        .toList()</span>
+        );
+<span class="nc" id="L177">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

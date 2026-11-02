@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Usuario.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.usuario.entity</a> &gt; <span class="el_source">Usuario.java</span></div><h1>Usuario.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.usuario.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.OffsetDateTime;
+
+@Entity
+@Table(name = &quot;usuarios&quot;)
+public class Usuario {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 50)
+    private String username;
+
+    @Column(name = &quot;password_hash&quot;, nullable = false, length = 255)
+    private String passwordHash;
+
+    @Column(nullable = false, length = 100)
+    private String nombres;
+
+    @Column(nullable = false, length = 120)
+    private String apellidos;
+
+<span class="fc" id="L33">    @Column(nullable = false)</span>
+    private boolean activo = true;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = &quot;rol_id&quot;, nullable = false)
+    private Rol rol;
+
+    @Column(name = &quot;fecha_creacion&quot;, nullable = false)
+    private OffsetDateTime fechaCreacion;
+
+<span class="fc" id="L43">    protected Usuario() {}</span>
+
+<span class="fc" id="L45">    public Usuario(String username, String passwordHash, String nombres, String apellidos, Rol rol) {</span>
+<span class="fc" id="L46">        this.username = username;</span>
+<span class="fc" id="L47">        this.passwordHash = passwordHash;</span>
+<span class="fc" id="L48">        this.nombres = nombres;</span>
+<span class="fc" id="L49">        this.apellidos = apellidos;</span>
+<span class="fc" id="L50">        this.rol = rol;</span>
+<span class="fc" id="L51">        this.activo = true;</span>
+<span class="fc" id="L52">        this.fechaCreacion = OffsetDateTime.now();</span>
+<span class="fc" id="L53">    }</span>
+
+    public void actualizar(String username, String nombres, String apellidos, Rol rol, boolean activo) {
+<span class="nc" id="L56">        this.username = username;</span>
+<span class="nc" id="L57">        this.nombres = nombres;</span>
+<span class="nc" id="L58">        this.apellidos = apellidos;</span>
+<span class="nc" id="L59">        this.rol = rol;</span>
+<span class="nc" id="L60">        this.activo = activo;</span>
+<span class="nc" id="L61">    }</span>
+
+<span class="nc" id="L63">    public void cambiarPassword(String passwordHash) { this.passwordHash = passwordHash; }</span>
+<span class="nc" id="L64">    public void activar() { this.activo = true; }</span>
+<span class="nc" id="L65">    public void desactivar() { this.activo = false; }</span>
+
+<span class="nc" id="L67">    public Long getId() { return id; }</span>
+<span class="nc" id="L68">    public String getNombres() { return nombres; }</span>
+<span class="nc" id="L69">    public String getApellidos() { return apellidos; }</span>
+<span class="nc" id="L70">    public String getUsername() { return username; }</span>
+<span class="nc" id="L71">    public String getPasswordHash() { return passwordHash; }</span>
+<span class="nc" id="L72">    public boolean isActivo() { return activo; }</span>
+<span class="nc" id="L73">    public Rol getRol() { return rol; }</span>
+<span class="nc" id="L74">    public OffsetDateTime getFechaCreacion() { return fechaCreacion; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

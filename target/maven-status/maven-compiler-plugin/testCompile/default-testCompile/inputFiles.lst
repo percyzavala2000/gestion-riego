@@ -3,6 +3,7 @@
 /Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/caja/entity/CierreCajaTest.java
 /Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/caja/entity/DevolucionTest.java
 /Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/config/seed/DemoSeedGuardTest.java
+/Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/error/GlobalExceptionHandlerTest.java
 /Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/finanzas/entity/CuentaCobrarReversionTest.java
 /Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/finanzas/entity/CuentaCobrarTest.java
 /Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/integration/FlywaySchemaIT.java

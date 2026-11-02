@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CierreCaja.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.caja.entity</a> &gt; <span class="el_source">CierreCaja.java</span></div><h1>CierreCaja.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.caja.entity;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import pe.vichaval.gestionriego.usuario.entity.Usuario;
+
+@Entity @Table(name=&quot;cierres_caja&quot;)
+public class CierreCaja {
+    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
+    private LocalDate fecha;
+    @Column(name=&quot;saldo_inicial&quot;) private BigDecimal saldoInicial;
+    private BigDecimal ingresos; private BigDecimal egresos; private BigDecimal devoluciones;
+    @Column(name=&quot;saldo_teorico&quot;) private BigDecimal saldoTeorico;
+    @Column(name=&quot;saldo_contado&quot;) private BigDecimal saldoContado;
+<span class="fc" id="L17">    private BigDecimal diferencia; private String observaciones; private String estado=&quot;CERRADO&quot;;</span>
+    @ManyToOne @JoinColumn(name=&quot;usuario_id&quot;) private Usuario usuario;
+<span class="fc" id="L19">    @Column(name=&quot;fecha_cierre&quot;) private OffsetDateTime fechaCierre=OffsetDateTime.now();</span>
+    @Column(name=&quot;motivo_reapertura&quot;) private String motivoReapertura;
+    @Column(name=&quot;fecha_reapertura&quot;) private OffsetDateTime fechaReapertura;
+    @ManyToOne @JoinColumn(name=&quot;usuario_reapertura_id&quot;) private Usuario usuarioReapertura;
+<span class="fc" id="L23">    protected CierreCaja(){}</span>
+<span class="fc" id="L24">    public CierreCaja(LocalDate f,BigDecimal si,BigDecimal i,BigDecimal e,BigDecimal d,BigDecimal sc,String o,Usuario u){fecha=f;cerrar(si,i,e,d,sc,o,u);}</span>
+<span class="pc bpc" id="L25" title="2 of 6 branches missed.">    public void reabrir(String motivo,Usuario usuario){if(!&quot;CERRADO&quot;.equals(estado))throw new IllegalStateException(&quot;El cierre ya está reabierto&quot;);if(motivo==null||motivo.isBlank())throw new IllegalArgumentException(&quot;El motivo de reapertura es obligatorio&quot;);estado=&quot;REABIERTO&quot;;motivoReapertura=motivo.trim();fechaReapertura=OffsetDateTime.now();usuarioReapertura=usuario;}</span>
+<span class="pc bpc" id="L26" title="2 of 4 branches missed.">    public void cerrar(BigDecimal si,BigDecimal i,BigDecimal e,BigDecimal d,BigDecimal sc,String o,Usuario u){if(si==null||sc==null)throw new IllegalArgumentException(&quot;Los saldos son obligatorios&quot;);saldoInicial=si;ingresos=i;egresos=e;devoluciones=d;saldoTeorico=si.add(i).subtract(e).subtract(d);saldoContado=sc;diferencia=sc.subtract(saldoTeorico);observaciones=o;usuario=u;estado=&quot;CERRADO&quot;;fechaCierre=OffsetDateTime.now();}</span>
+<span class="pc" id="L27">    public Long getId(){return id;} public LocalDate getFecha(){return fecha;} public BigDecimal getSaldoTeorico(){return saldoTeorico;} public BigDecimal getSaldoContado(){return saldoContado;} public BigDecimal getDiferencia(){return diferencia;} public String getEstado(){return estado;} public String getMotivoReapertura(){return motivoReapertura;}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

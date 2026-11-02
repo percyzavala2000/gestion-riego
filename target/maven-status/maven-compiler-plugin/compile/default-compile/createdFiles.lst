@@ -4,6 +4,7 @@ pe/vichaval/gestionriego/reporte/dto/ResumenReportes.class
 pe/vichaval/gestionriego/inteligencia/service/InteligenciaService.class
 pe/vichaval/gestionriego/usuario/entity/Rol.class
 pe/vichaval/gestionriego/caja/service/CajaService.class
+pe/vichaval/gestionriego/error/GlobalExceptionHandler.class
 pe/vichaval/gestionriego/config/SecurityConfig.class
 pe/vichaval/gestionriego/finanzas/dto/ConceptoCobroForm.class
 pe/vichaval/gestionriego/security/controller/LoginController.class

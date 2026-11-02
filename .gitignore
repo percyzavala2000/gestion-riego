@@ -1,8 +1,5 @@
-target/
-*.log
-.DS_Store
-.idea/
-*.iml
-.vscode/
-base-v*.txt
-*.sql.bak
+.env.prod
+.env
+backups/
+*.dump
+*.dump.sha256
