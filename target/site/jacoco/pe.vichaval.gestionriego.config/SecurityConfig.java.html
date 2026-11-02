@@ -15,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 <span class="fc" id="L16">        http.authorizeHttpRequests(authorize -&gt; authorize</span>
 <span class="fc" id="L17">                .requestMatchers(&quot;/login&quot;, &quot;/error&quot;, &quot;/error/**&quot;, &quot;/css/**&quot;, &quot;/js/**&quot;,</span>
-                        &quot;/images/**&quot;, &quot;/icons/**&quot;, &quot;/favicon.ico&quot;, &quot;/actuator/health&quot;)
+                        &quot;/images/**&quot;, &quot;/icons/**&quot;, &quot;/favicon.ico&quot;, &quot;/actuator/health&quot;, &quot;/actuator/prometheus&quot;)
 <span class="fc" id="L19">                .permitAll()</span>
 <span class="fc" id="L20">                .requestMatchers(&quot;/&quot;, &quot;/dashboard&quot;)</span>
 <span class="fc" id="L21">                .hasAnyRole(&quot;ADMINISTRADOR&quot;, &quot;OPERADOR&quot;, &quot;TESORERIA&quot;)</span>

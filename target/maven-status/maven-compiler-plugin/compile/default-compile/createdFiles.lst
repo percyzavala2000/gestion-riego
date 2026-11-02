@@ -4,6 +4,7 @@ pe/vichaval/gestionriego/reporte/dto/ResumenReportes.class
 pe/vichaval/gestionriego/inteligencia/service/InteligenciaService.class
 pe/vichaval/gestionriego/usuario/entity/Rol.class
 pe/vichaval/gestionriego/caja/service/CajaService.class
+pe/vichaval/gestionriego/mantenimiento/MantenimientoAuditoriaService.class
 pe/vichaval/gestionriego/error/GlobalExceptionHandler.class
 pe/vichaval/gestionriego/config/SecurityConfig.class
 pe/vichaval/gestionriego/finanzas/dto/ConceptoCobroForm.class
@@ -14,6 +15,7 @@ pe/vichaval/gestionriego/finanzas/service/FinanzasService.class
 pe/vichaval/gestionriego/agricultor/service/AgricultorService.class
 pe/vichaval/gestionriego/finanzas/repository/ConceptoCobroRepository.class
 pe/vichaval/gestionriego/caja/dto/DevolucionForm.class
+pe/vichaval/gestionriego/observabilidad/MetricasNegocio.class
 pe/vichaval/gestionriego/finanzas/controller/ConceptoCobroWebController.class
 pe/vichaval/gestionriego/caja/dto/CierreCajaForm.class
 pe/vichaval/gestionriego/caja/entity/Devolucion.class
@@ -26,6 +28,7 @@ pe/vichaval/gestionriego/infraestructura/CorrelativoService.class
 pe/vichaval/gestionriego/riego/dto/TurnoForm.class
 pe/vichaval/gestionriego/dashboard/controller/DashboardController.class
 pe/vichaval/gestionriego/riego/service/TurnoRiegoService.class
+pe/vichaval/gestionriego/mantenimiento/ConfiguracionTareas.class
 pe/vichaval/gestionriego/caja/service/ControlCierreCajaService.class
 pe/vichaval/gestionriego/usuario/enums/CodigoRol.class
 pe/vichaval/gestionriego/caja/controller/CajaWebController.class

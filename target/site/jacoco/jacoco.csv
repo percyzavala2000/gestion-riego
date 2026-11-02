@@ -8,11 +8,12 @@ gestion-riego,pe.vichaval.gestionriego.caja.entity,CierreCaja,22,115,4,6,0,7,8,8
 gestion-riego,pe.vichaval.gestionriego.caja.entity,Egreso,87,6,6,0,0,1,13,1,10,1
 gestion-riego,pe.vichaval.gestionriego.caja.entity,Devolucion,23,73,1,5,0,1,7,8,6,6
 gestion-riego,pe.vichaval.gestionriego.agricultor.entity,Agricultor,29,49,0,2,1,2,9,4,9,3
-gestion-riego,pe.vichaval.gestionriego.auditoria.web,AuditoriaFilter,92,35,14,2,15,11,11,3,3,3
+gestion-riego,pe.vichaval.gestionriego.auditoria.web,AuditoriaFilter,92,40,14,2,15,13,11,3,3,3
 gestion-riego,pe.vichaval.gestionriego.auditoria.web,SolicitudAuditable,0,46,6,12,0,8,6,5,0,2
 gestion-riego,pe.vichaval.gestionriego.auditoria.controller,AuditoriaWebController,16,6,0,0,3,3,1,1,1,1
 gestion-riego,pe.vichaval.gestionriego.tesoreria.controller,TesoreriaWebController,138,12,4,0,40,5,13,1,11,1
 gestion-riego,pe.vichaval.gestionriego.agricultor.controller,AgricultorWebController,135,6,2,0,0,1,7,1,6,1
+gestion-riego,pe.vichaval.gestionriego.observabilidad,MetricasNegocio,14,49,0,0,1,13,3,2,3,2
 gestion-riego,pe.vichaval.gestionriego.reporte.service,ReporteService,323,18,60,0,30,7,51,1,21,1
 gestion-riego,pe.vichaval.gestionriego.reporte.service,ReportePdfService,287,3,8,0,24,1,9,1,5,1
 gestion-riego,pe.vichaval.gestionriego.reporte.service,ReporteExcelService,363,3,8,0,56,1,8,1,4,1
@@ -33,6 +34,8 @@ gestion-riego,pe.vichaval.gestionriego.reporte.dto,ReporteFiltro,31,0,0,0,13,0,9
 gestion-riego,pe.vichaval.gestionriego.riego.controller,TurnoRiegoWebController,295,12,12,0,94,5,21,1,15,1
 gestion-riego,pe.vichaval.gestionriego.usuario.dto,CambioPasswordForm,17,0,0,0,5,0,5,0,5,0
 gestion-riego,pe.vichaval.gestionriego.usuario.dto,UsuarioForm,55,0,0,0,16,0,15,0,15,0
+gestion-riego,pe.vichaval.gestionriego.mantenimiento,ConfiguracionTareas,0,3,0,0,0,1,0,1,0,1
+gestion-riego,pe.vichaval.gestionriego.mantenimiento,MantenimientoAuditoriaService,24,29,0,2,5,8,1,3,1,2
 gestion-riego,pe.vichaval.gestionriego.usuario.controller,UsuarioWebController,200,6,6,0,46,1,11,1,8,1
 gestion-riego,pe.vichaval.gestionriego.inteligencia.controller,InteligenciaWebController,28,6,0,0,6,3,2,1,2,1
 gestion-riego,pe.vichaval.gestionriego.caja.controller,CajaWebController,224,9,10,0,9,1,22,1,16,1
@@ -57,7 +60,7 @@ gestion-riego,pe.vichaval.gestionriego.finanzas.controller,FinanzasWebController
 gestion-riego,pe.vichaval.gestionriego.finanzas.controller,ConceptoCobroWebController,81,6,12,0,30,3,9,1,3,1
 gestion-riego,pe.vichaval.gestionriego.parcela.entity,Parcela,64,6,2,0,0,1,10,1,9,1
 gestion-riego,pe.vichaval.gestionriego.dashboard.controller,DashboardController,9,6,0,0,3,3,1,1,1,1
-gestion-riego,pe.vichaval.gestionriego.config,SecurityConfig,0,324,0,0,0,45,0,14,0,14
+gestion-riego,pe.vichaval.gestionriego.config,SecurityConfig,0,328,0,0,0,45,0,14,0,14
 gestion-riego,pe.vichaval.gestionriego.config,InitialUserConfig,0,59,1,1,0,9,1,4,0,4
 gestion-riego,pe.vichaval.gestionriego.riego.service,TurnoRiegoService,140,9,12,0,0,1,13,1,7,1
 gestion-riego,pe.vichaval.gestionriego.parcela.controller,ParcelaWebController,191,15,4,0,69,6,11,1,9,1

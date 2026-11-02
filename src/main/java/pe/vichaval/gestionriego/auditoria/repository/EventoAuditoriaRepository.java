@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import java.time.OffsetDateTime;
 import pe.vichaval.gestionriego.auditoria.entity.EventoAuditoria;
 
 public interface EventoAuditoriaRepository extends JpaRepository<EventoAuditoria, Long> {
@@ -17,4 +18,5 @@ public interface EventoAuditoriaRepository extends JpaRepository<EventoAuditoria
         order by e.fechaHora desc
         """)
     Page<EventoAuditoria> buscar(@Param("q") String q, Pageable pageable);
+    long deleteByFechaHoraBefore(OffsetDateTime limite);
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MantenimientoAuditoriaService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.mantenimiento</a> &gt; <span class="el_source">MantenimientoAuditoriaService.java</span></div><h1>MantenimientoAuditoriaService.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.mantenimiento;
+
+import java.time.OffsetDateTime;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.vichaval.gestionriego.auditoria.repository.EventoAuditoriaRepository;
+
+@Service
+public class MantenimientoAuditoriaService {
+<span class="fc" id="L16">    private static final Logger log = LoggerFactory.getLogger(MantenimientoAuditoriaService.class);</span>
+    private final EventoAuditoriaRepository repository;
+    private final Counter eliminados;
+    private final int retentionDays;
+
+    public MantenimientoAuditoriaService(EventoAuditoriaRepository repository, MeterRegistry registry,
+<span class="fc" id="L22">            @Value(&quot;${vichayal.audit.retention-days:365}&quot;) int retentionDays) {</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (retentionDays &lt; 30) throw new IllegalArgumentException(&quot;La retención de auditoría no puede ser menor a 30 días&quot;);</span>
+<span class="fc" id="L24">        this.repository = repository;</span>
+<span class="fc" id="L25">        this.retentionDays = retentionDays;</span>
+<span class="fc" id="L26">        this.eliminados = Counter.builder(&quot;vichayal_auditoria_eventos_eliminados_total&quot;)</span>
+<span class="fc" id="L27">                .description(&quot;Eventos eliminados por la política de retención&quot;).register(registry);</span>
+<span class="fc" id="L28">    }</span>
+
+    @Scheduled(cron = &quot;${vichayal.audit.cleanup-cron:0 30 2 * * *}&quot;, zone = &quot;America/Lima&quot;)
+    @Transactional
+    public long depurar() {
+<span class="nc" id="L33">        OffsetDateTime limite = OffsetDateTime.now().minusDays(retentionDays);</span>
+<span class="nc" id="L34">        long cantidad = repository.deleteByFechaHoraBefore(limite);</span>
+<span class="nc" id="L35">        eliminados.increment(cantidad);</span>
+<span class="nc" id="L36">        log.info(&quot;Mantenimiento de auditoría finalizado: eliminados={}, limite={}&quot;, cantidad, limite);</span>
+<span class="nc" id="L37">        return cantidad;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

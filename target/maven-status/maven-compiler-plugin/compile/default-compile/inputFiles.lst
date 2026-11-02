@@ -46,6 +46,9 @@
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/inteligencia/dto/ResumenInteligenciaDto.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/inteligencia/service/ClasificadorPrioridad.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/inteligencia/service/InteligenciaService.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/mantenimiento/ConfiguracionTareas.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/mantenimiento/MantenimientoAuditoriaService.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/observabilidad/MetricasNegocio.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/controller/ParcelaWebController.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/dto/ParcelaForm.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/parcela/entity/Parcela.java

@@ -15,7 +15,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/login", "/error", "/error/**", "/css/**", "/js/**",
-                        "/images/**", "/icons/**", "/favicon.ico", "/actuator/health")
+                        "/images/**", "/icons/**", "/favicon.ico", "/actuator/health", "/actuator/prometheus")
                 .permitAll()
                 .requestMatchers("/", "/dashboard")
                 .hasAnyRole("ADMINISTRADOR", "OPERADOR", "TESORERIA")

@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: pe.vichaval.gestionriego.integration.SecurityAccessIT
 -------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.362 s -- in pe.vichaval.gestionriego.integration.SecurityAccessIT
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.29 s -- in pe.vichaval.gestionriego.integration.SecurityAccessIT
