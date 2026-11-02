@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
+import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -28,11 +29,16 @@ public class AuditoriaFilter extends OncePerRequestFilter {
         String correlacion = normalizarCorrelacion(request.getHeader(CORRELACION_HEADER));
         response.setHeader(CORRELACION_HEADER, correlacion);
         request.setAttribute(CORRELACION_HEADER, correlacion);
+        MDC.put("correlationId", correlacion);
         try {
             chain.doFilter(request, response);
         } finally {
-            if (SolicitudAuditable.evaluar(request.getMethod(), request.getRequestURI())) {
-                registrarSinInterrumpir(request, response, correlacion);
+            try {
+                if (SolicitudAuditable.evaluar(request.getMethod(), request.getRequestURI())) {
+                    registrarSinInterrumpir(request, response, correlacion);
+                }
+            } finally {
+                MDC.remove("correlationId");
             }
         }
     }

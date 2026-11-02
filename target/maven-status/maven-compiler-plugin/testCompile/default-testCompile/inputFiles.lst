@@ -10,4 +10,5 @@
 /Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/integration/PostgreSqlIntegrationBase.java
 /Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/integration/SecurityAccessIT.java
 /Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/inteligencia/service/ClasificadorPrioridadTest.java
+/Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/mantenimiento/MantenimientoAuditoriaServiceTest.java
 /Users/pz/Desktop/gestion-riego/src/test/java/pe/vichaval/gestionriego/tesoreria/entity/PagoTest.java
