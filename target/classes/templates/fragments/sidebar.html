@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+
+<body>
+
+<aside th:fragment="sidebar(active)"
+       class="sidebar">
+
+    <div class="sidebar-brand">
+
+        <div class="brand-logo">
+            <span>♧</span>
+        </div>
+
+        <div>
+            <strong>Vichayal</strong>
+            <small>Riego Web</small>
+        </div>
+
+    </div>
+
+    <div class="sidebar-organization">
+
+        <small>
+            COMISIÓN DE REGANTES
+        </small>
+
+        <span>
+            Vichayal · Piura
+        </span>
+
+    </div>
+
+    <p class="sidebar-title">
+        GESTIÓN DE RIEGO
+    </p>
+
+    <nav class="sidebar-nav">
+
+        <!-- Dashboard: todos los usuarios autenticados -->
+
+        <a th:href="@{/dashboard}"
+           th:classappend="${active == 'dashboard'} ? ' active' : ''">
+
+            <span class="nav-icon">▦</span>
+
+            <span>
+                Dashboard
+            </span>
+
+        </a>
+
+        <!-- Turnos: administrador y operador -->
+
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')"
+           th:href="@{/turnos}"
+           th:classappend="${active == 'turnos'} ? ' active' : ''">
+
+            <span class="nav-icon">▣</span>
+
+            <span>
+                Turnos de riego
+            </span>
+
+        </a>
+
+        <!-- Agricultores: administrador y operador -->
+
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')"
+           th:href="@{/agricultores}"
+           th:classappend="${active == 'agricultores'} ? ' active' : ''">
+
+            <span class="nav-icon">♙</span>
+
+            <span>
+                Agricultores
+            </span>
+
+        </a>
+
+        <!-- Parcelas: administrador y operador -->
+
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')"
+           th:href="@{/parcelas}"
+           th:classappend="${active == 'parcelas'} ? ' active' : ''">
+
+            <span class="nav-icon">◇</span>
+
+            <span>
+                Parcelas
+            </span>
+
+        </a>
+
+        <!-- Tesorería: administrador y tesorería -->
+
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','TESORERIA')"
+           th:href="@{/tesoreria}"
+           th:classappend="${active == 'tesoreria'} ? ' active' : ''">
+
+            <span class="nav-icon">▤</span>
+
+            <span>
+                Tesorería
+            </span>
+
+        </a>
+
+        <!-- Cuentas por cobrar: administrador y tesorería -->
+
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','TESORERIA')"
+           th:href="@{/tesoreria/cuentas}"
+           th:classappend="${active == 'cuentas'} ? ' active' : ''">
+
+            <span class="nav-icon">▧</span>
+
+            <span>
+                Cuentas por cobrar
+            </span>
+
+        </a>
+        <!-- Caja: administrador y tesorería -->
+
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','TESORERIA')"
+           th:href="@{/tesoreria/caja}"
+           th:classappend="${active == 'caja'} ? ' active' : ''">
+
+            <span class="nav-icon">▨</span>
+
+            <span>
+        Caja
+    </span>
+
+        </a>
+
+        <!--
+            REPORTES SEGÚN EL ROL
+
+            Administrador:
+            entra al centro general de reportes.
+        -->
+
+        <a sec:authorize="hasRole('ADMINISTRADOR')"
+           th:href="@{/reportes}"
+           th:classappend="${active == 'reportes'} ? ' active' : ''">
+
+            <span class="nav-icon">▥</span>
+
+            <span>
+                Reportes
+            </span>
+
+        </a>
+
+        <!--
+            Operador:
+            entra directamente a reportes operativos.
+        -->
+
+        <a sec:authorize="hasRole('OPERADOR')"
+           th:href="@{/reportes/operativos}"
+           th:classappend="${active == 'reportes'} ? ' active' : ''">
+
+            <span class="nav-icon">▥</span>
+
+            <span>
+                Reportes
+            </span>
+
+        </a>
+
+        <!--
+            Tesorería:
+            entra directamente a reportes financieros.
+        -->
+
+        <a sec:authorize="hasRole('TESORERIA')"
+           th:href="@{/reportes/financieros}"
+           th:classappend="${active == 'reportes'} ? ' active' : ''">
+
+            <span class="nav-icon">▥</span>
+
+            <span>
+                Reportes
+            </span>
+
+        </a>
+
+        <!-- Inteligencia operativa: administrador y operador -->
+
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')"
+           th:href="@{/inteligencia}"
+           th:classappend="${active == 'inteligencia'} ? ' active' : ''">
+
+            <span class="nav-icon">✦</span>
+
+            <span>Inteligencia operativa</span>
+
+        </a>
+
+        <!-- Inteligencia financiera: tesorería -->
+
+        <a sec:authorize="hasRole('TESORERIA')"
+           th:href="@{/inteligencia/financiera}"
+           th:classappend="${active == 'inteligencia'} ? ' active' : ''">
+
+            <span class="nav-icon">✦</span>
+
+            <span>Inteligencia financiera</span>
+
+        </a>
+
+        <!-- Auditoria: solo administrador -->
+
+        <a sec:authorize="hasRole('ADMINISTRADOR')"
+           th:href="@{/auditoria}"
+           th:classappend="${active == 'auditoria'} ? ' active' : ''">
+
+            <span class="nav-icon">◎</span>
+            <span>Auditoría</span>
+
+        </a>
+
+        <!-- Usuarios: solo administrador -->
+
+        <a sec:authorize="hasRole('ADMINISTRADOR')"
+           th:href="@{/usuarios}"
+           th:classappend="${active == 'usuarios'} ? ' active' : ''">
+
+            <span class="nav-icon">⚙</span>
+
+            <span>
+                Usuarios y roles
+            </span>
+
+        </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+
+        <div class="sidebar-user">
+
+            <div class="sidebar-avatar"
+                 sec:authentication="principal.iniciales">
+                AD
+            </div>
+
+            <div>
+
+                <strong sec:authentication="principal.nombreCompleto">
+                    Usuario
+                </strong>
+
+                <small sec:authentication="principal.rolLegible">
+                    Rol
+                </small>
+
+            </div>
+
+        </div>
+
+        <form th:action="@{/logout}"
+              method="post">
+
+            <button type="submit"
+                    class="logout-button">
+
+                <span>↪</span>
+
+                <span>
+                    Cerrar sesión
+                </span>
+
+            </button>
+
+        </form>
+
+        <small class="version">
+            Vichayal Riego Web · v9.2
+        </small>
+
+    </div>
+
+</aside>
+
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+services:
+  postgres-demo:
+    image: postgres:18
+    container_name: vichayal-postgres-demo
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gestion_riego_demo
+      POSTGRES_USER: gestion_demo
+      POSTGRES_PASSWORD: demo_password_local
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: America/Lima
+      PGTZ: America/Lima
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_demo_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gestion_demo -d gestion_riego_demo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  postgres_demo_data:

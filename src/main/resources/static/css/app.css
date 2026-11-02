@@ -482,3 +482,4 @@ th, td {
 .content {
     padding: 32px;
 }
+.demo-environment-banner{position:fixed;top:0;left:0;right:0;z-index:9999;padding:6px;text-align:center;background:#7a2e0b;color:#fff;font-size:12px;font-weight:800;letter-spacing:.08em}
