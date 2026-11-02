@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InteligenciaService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.inteligencia.service</a> &gt; <span class="el_source">InteligenciaService.java</span></div><h1>InteligenciaService.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.inteligencia.service;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import pe.vichaval.gestionriego.caja.repository.CierreCajaRepository;
+import pe.vichaval.gestionriego.caja.repository.DevolucionRepository;
+import pe.vichaval.gestionriego.finanzas.entity.CuentaCobrar;
+import pe.vichaval.gestionriego.finanzas.repository.CuentaCobrarRepository;
+import pe.vichaval.gestionriego.inteligencia.dto.AlertaDto;
+import pe.vichaval.gestionriego.inteligencia.dto.ResumenInteligenciaDto;
+import pe.vichaval.gestionriego.riego.entity.TurnoRiego;
+import pe.vichaval.gestionriego.riego.repository.TurnoRiegoRepository;
+import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
+
+@Service
+@Transactional(readOnly = true)
+public class InteligenciaService {
+<span class="fc" id="L27">    private static final Map&lt;String, Integer&gt; ORDEN = Map.of(&quot;ALTA&quot;, 0, &quot;MEDIA&quot;, 1, &quot;BAJA&quot;, 2);</span>
+
+    private final TurnoRiegoRepository turnos;
+    private final CuentaCobrarRepository cuentas;
+    private final PagoRepository pagos;
+    private final CierreCajaRepository cierres;
+    private final DevolucionRepository devoluciones;
+
+    public InteligenciaService(
+            TurnoRiegoRepository turnos,
+            CuentaCobrarRepository cuentas,
+            PagoRepository pagos,
+            CierreCajaRepository cierres,
+<span class="fc" id="L40">            DevolucionRepository devoluciones) {</span>
+<span class="fc" id="L41">        this.turnos = turnos;</span>
+<span class="fc" id="L42">        this.cuentas = cuentas;</span>
+<span class="fc" id="L43">        this.pagos = pagos;</span>
+<span class="fc" id="L44">        this.cierres = cierres;</span>
+<span class="fc" id="L45">        this.devoluciones = devoluciones;</span>
+<span class="fc" id="L46">    }</span>
+
+    public ResumenInteligenciaDto operativa() {
+<span class="nc" id="L49">        List&lt;AlertaDto&gt; alertas = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L50">        LocalDate hoy = LocalDate.now();</span>
+<span class="nc" id="L51">        LocalDate limite = hoy.plusDays(7);</span>
+<span class="nc" id="L52">        List&lt;TurnoRiego&gt; lista = turnos.findAll();</span>
+
+<span class="nc" id="L54">        long vencidos = lista.stream().filter(t -&gt; &quot;VENCIDO&quot;.equals(t.getEstado())).count();</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (vencidos &gt; 0) {</span>
+<span class="nc" id="L56">            alertas.add(new AlertaDto(</span>
+<span class="nc" id="L57">                    ClasificadorPrioridad.porCantidad(vencidos, 1, 3),</span>
+                    &quot;RIEGO&quot;,
+                    &quot;Turnos vencidos sin reprogramar&quot;,
+                    vencidos + &quot; turno(s) permanecen en estado VENCIDO.&quot;,
+                    &quot;Revisar cada turno y reprogramar los que aún sean necesarios.&quot;,
+                    &quot;/turnos&quot;));
+        }
+
+<span class="nc" id="L65">        Map&lt;Long, List&lt;TurnoRiego&gt;&gt; proximosPorParcela = lista.stream()</span>
+<span class="nc bnc" id="L66" title="All 4 branches missed.">                .filter(t -&gt; !t.getFecha().isBefore(hoy) &amp;&amp; !t.getFecha().isAfter(limite))</span>
+<span class="nc" id="L67">                .filter(t -&gt; &quot;PROGRAMADO&quot;.equals(t.getEstado()))</span>
+<span class="nc" id="L68">                .collect(Collectors.groupingBy(t -&gt; t.getParcela().getId()));</span>
+
+<span class="nc" id="L70">        proximosPorParcela.values().stream()</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">                .filter(grupo -&gt; grupo.size() &gt;= 3)</span>
+<span class="nc" id="L72">                .forEach(grupo -&gt; {</span>
+<span class="nc" id="L73">                    TurnoRiego ejemplo = grupo.getFirst();</span>
+<span class="nc" id="L74">                    alertas.add(new AlertaDto(</span>
+<span class="nc" id="L75">                            ClasificadorPrioridad.porCantidad(grupo.size(), 3, 5),</span>
+                            &quot;DEMANDA&quot;,
+                            &quot;Concentración de turnos en una parcela&quot;,
+<span class="nc" id="L78">                            ejemplo.getParcela().getCodigo() + &quot; tiene &quot; + grupo.size() + &quot; turnos programados en los próximos 7 días.&quot;,</span>
+                            &quot;Verificar disponibilidad hídrica y distribuir los horarios si fuera necesario.&quot;,
+                            &quot;/turnos&quot;));
+<span class="nc" id="L81">                });</span>
+
+<span class="nc" id="L83">        long programadosHoy = lista.stream()</span>
+<span class="nc" id="L84">                .filter(t -&gt; hoy.equals(t.getFecha()))</span>
+<span class="nc" id="L85">                .filter(t -&gt; &quot;PROGRAMADO&quot;.equals(t.getEstado()))</span>
+<span class="nc" id="L86">                .count();</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (programadosHoy &gt;= 4) {</span>
+<span class="nc" id="L88">            alertas.add(new AlertaDto(</span>
+<span class="nc" id="L89">                    ClasificadorPrioridad.porCantidad(programadosHoy, 4, 7),</span>
+                    &quot;CAPACIDAD&quot;,
+                    &quot;Carga operativa elevada para hoy&quot;,
+                    programadosHoy + &quot; turnos están programados para la fecha actual.&quot;,
+                    &quot;Confirmar disponibilidad del canal y capacidad de supervisión.&quot;,
+                    &quot;/turnos&quot;));
+        }
+
+<span class="nc" id="L97">        return resumen(alertas);</span>
+    }
+
+    public ResumenInteligenciaDto financiera() {
+<span class="nc" id="L101">        List&lt;AlertaDto&gt; alertas = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L102">        List&lt;CuentaCobrar&gt; lista = cuentas.findAll();</span>
+<span class="nc" id="L103">        lista.forEach(CuentaCobrar::actualizarVencida);</span>
+
+<span class="nc" id="L105">        List&lt;CuentaCobrar&gt; vencidas = lista.stream()</span>
+<span class="nc" id="L106">                .filter(c -&gt; &quot;VENCIDA&quot;.equals(c.getEstado()))</span>
+<span class="nc" id="L107">                .toList();</span>
+<span class="nc" id="L108">        BigDecimal deudaVencida = vencidas.stream()</span>
+<span class="nc" id="L109">                .map(CuentaCobrar::getSaldoPendiente)</span>
+<span class="nc" id="L110">                .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (!vencidas.isEmpty()) {</span>
+<span class="nc" id="L112">            alertas.add(new AlertaDto(</span>
+<span class="nc" id="L113">                    ClasificadorPrioridad.porCantidad(vencidas.size(), 1, 4),</span>
+                    &quot;COBRANZA&quot;,
+                    &quot;Cuentas vencidas con saldo&quot;,
+<span class="nc" id="L116">                    vencidas.size() + &quot; cuenta(s) vencida(s) acumulan S/ &quot; + deudaVencida + &quot;.&quot;,</span>
+                    &quot;Priorizar contacto con los agricultores y registrar compromisos de pago.&quot;,
+                    &quot;/tesoreria/cuentas&quot;));
+        }
+
+<span class="nc" id="L121">        long pendientes = pagos.countByEstado(&quot;PENDIENTE&quot;);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (pendientes &gt; 0) {</span>
+<span class="nc" id="L123">            alertas.add(new AlertaDto(</span>
+<span class="nc" id="L124">                    ClasificadorPrioridad.porCantidad(pendientes, 1, 5),</span>
+                    &quot;VERIFICACION&quot;,
+                    &quot;Pagos pendientes de verificación&quot;,
+                    pendientes + &quot; pago(s) todavía requieren confirmación o rechazo.&quot;,
+                    &quot;Contrastar los comprobantes antes del cierre diario.&quot;,
+                    &quot;/tesoreria&quot;));
+        }
+
+<span class="nc" id="L132">        cierres.findAll().stream()</span>
+<span class="nc bnc" id="L133" title="All 4 branches missed.">                .filter(c -&gt; c.getDiferencia() != null &amp;&amp; c.getDiferencia().abs().compareTo(BigDecimal.ZERO) &gt; 0)</span>
+<span class="nc" id="L134">                .max(Comparator.comparing(c -&gt; c.getDiferencia().abs()))</span>
+<span class="nc" id="L135">                .ifPresent(c -&gt; alertas.add(new AlertaDto(</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                        c.getDiferencia().abs().compareTo(new BigDecimal(&quot;50.00&quot;)) &gt;= 0 ? &quot;ALTA&quot; : &quot;MEDIA&quot;,</span>
+                        &quot;CAJA&quot;,
+                        &quot;Diferencia detectada en cierre&quot;,
+<span class="nc" id="L139">                        &quot;El cierre del &quot; + c.getFecha() + &quot; presenta una diferencia de S/ &quot; + c.getDiferencia() + &quot;.&quot;,</span>
+                        &quot;Revisar pagos, egresos, devoluciones y efectivo contado de esa fecha.&quot;,
+                        &quot;/tesoreria/caja&quot;)));
+
+<span class="nc" id="L143">        long solicitudes = devoluciones.findAll().stream()</span>
+<span class="nc" id="L144">                .filter(d -&gt; &quot;SOLICITADA&quot;.equals(d.getEstado()))</span>
+<span class="nc" id="L145">                .count();</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        if (solicitudes &gt; 0) {</span>
+<span class="nc" id="L147">            alertas.add(new AlertaDto(</span>
+<span class="nc" id="L148">                    ClasificadorPrioridad.porCantidad(solicitudes, 1, 4),</span>
+                    &quot;DEVOLUCIONES&quot;,
+                    &quot;Solicitudes de devolución pendientes&quot;,
+                    solicitudes + &quot; solicitud(es) esperan evaluación.&quot;,
+                    &quot;Revisar el pago original, el motivo y el importe disponible.&quot;,
+                    &quot;/tesoreria/caja&quot;));
+        }
+
+<span class="nc" id="L156">        return resumen(alertas);</span>
+    }
+
+    private ResumenInteligenciaDto resumen(List&lt;AlertaDto&gt; alertas) {
+<span class="nc" id="L160">        List&lt;AlertaDto&gt; ordenadas = alertas.stream()</span>
+<span class="nc" id="L161">                .sorted(Comparator.comparingInt(a -&gt; ORDEN.getOrDefault(a.prioridad(), 9)))</span>
+<span class="nc" id="L162">                .toList();</span>
+<span class="nc" id="L163">        return new ResumenInteligenciaDto(</span>
+<span class="nc" id="L164">                ordenadas.size(),</span>
+<span class="nc" id="L165">                ordenadas.stream().filter(a -&gt; &quot;ALTA&quot;.equals(a.prioridad())).count(),</span>
+<span class="nc" id="L166">                ordenadas.stream().filter(a -&gt; &quot;MEDIA&quot;.equals(a.prioridad())).count(),</span>
+<span class="nc" id="L167">                ordenadas.stream().filter(a -&gt; &quot;BAJA&quot;.equals(a.prioridad())).count(),</span>
+                ordenadas);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

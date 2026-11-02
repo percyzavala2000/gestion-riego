@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReporteFiltro.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.reporte.dto</a> &gt; <span class="el_source">ReporteFiltro.java</span></div><h1>ReporteFiltro.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.reporte.dto;
+
+import java.time.LocalDate;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
+<span class="nc" id="L7">public class ReporteFiltro {</span>
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate desde;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate hasta;
+    private String estado;
+    private Long agricultorId;
+
+    public LocalDate getDesde() {
+<span class="nc" id="L16">        return desde;</span>
+    }
+
+    public void setDesde(LocalDate desde) {
+<span class="nc" id="L20">        this.desde = desde;</span>
+<span class="nc" id="L21">    }</span>
+
+    public LocalDate getHasta() {
+<span class="nc" id="L24">        return hasta;</span>
+    }
+
+    public void setHasta(LocalDate hasta) {
+<span class="nc" id="L28">        this.hasta = hasta;</span>
+<span class="nc" id="L29">    }</span>
+
+    public String getEstado() {
+<span class="nc" id="L32">        return estado;</span>
+    }
+
+    public void setEstado(String estado) {
+<span class="nc" id="L36">        this.estado = estado;</span>
+<span class="nc" id="L37">    }</span>
+
+    public Long getAgricultorId() {
+<span class="nc" id="L40">        return agricultorId;</span>
+    }
+
+    public void setAgricultorId(Long agricultorId) {
+<span class="nc" id="L44">        this.agricultorId = agricultorId;</span>
+<span class="nc" id="L45">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

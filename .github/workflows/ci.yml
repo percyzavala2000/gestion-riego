@@ -25,6 +25,10 @@ jobs:
           cache: maven
       - name: Verificar con pruebas unitarias e integracion
         run: mvn --batch-mode --no-transfer-progress clean verify
+      - name: Construir imagen de produccion
+        run: docker build -t vichayal-riego:${{ github.sha }} .
+      - name: Inspeccionar usuario no privilegiado
+        run: test "$(docker image inspect vichayal-riego:${{ github.sha }} --format '{{.Config.User}}')" != "" && test "$(docker image inspect vichayal-riego:${{ github.sha }} --format '{{.Config.User}}')" != "0"
       - name: Publicar informes
         if: always()
         uses: actions/upload-artifact@v4

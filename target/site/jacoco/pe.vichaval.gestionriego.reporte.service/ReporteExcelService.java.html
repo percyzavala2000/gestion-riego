@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReporteExcelService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.reporte.service</a> &gt; <span class="el_source">ReporteExcelService.java</span></div><h1>ReporteExcelService.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.reporte.service;
+
+import java.io.ByteArrayOutputStream;
+import java.util.List;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Service;
+import pe.vichaval.gestionriego.finanzas.entity.CuentaCobrar;
+import pe.vichaval.gestionriego.tesoreria.entity.Pago;
+
+@Service
+<span class="fc" id="L13">public class ReporteExcelService {</span>
+    public byte[] pagos(List&lt;Pago&gt; datos) {
+<span class="nc" id="L15">        try (Workbook wb = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {</span>
+<span class="nc" id="L16">            Sheet sh = wb.createSheet(&quot;Pagos&quot;);</span>
+<span class="nc" id="L17">            encabezado(sh, &quot;Código&quot;, &quot;Fecha&quot;, &quot;Agricultor&quot;, &quot;Concepto&quot;, &quot;Monto&quot;, &quot;Método&quot;, &quot;Estado&quot;);</span>
+<span class="nc" id="L18">            int i = 1;</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">            for (Pago p : datos) {</span>
+<span class="nc" id="L20">                Row r = sh.createRow(i++);</span>
+<span class="nc" id="L21">                r.createCell(0).setCellValue(p.getCodigo());</span>
+<span class="nc" id="L22">                r.createCell(1).setCellValue(p.getFecha().toString());</span>
+<span class="nc" id="L23">                r.createCell(2).setCellValue(p.getAgricultor().getNombres() + &quot; &quot; + p.getAgricultor().getApellidos());</span>
+<span class="nc" id="L24">                r.createCell(3).setCellValue(p.getConcepto());</span>
+<span class="nc" id="L25">                r.createCell(4).setCellValue(p.getMonto().doubleValue());</span>
+<span class="nc" id="L26">                r.createCell(5).setCellValue(p.getMetodo());</span>
+<span class="nc" id="L27">                r.createCell(6).setCellValue(p.getEstado());</span>
+<span class="nc" id="L28">            }</span>
+<span class="nc" id="L29">            ajustar(sh, 7);</span>
+<span class="nc" id="L30">            wb.write(out);</span>
+<span class="nc" id="L31">            return out.toByteArray();</span>
+<span class="nc" id="L32">        } catch (Exception e) {</span>
+<span class="nc" id="L33">            throw new IllegalStateException(&quot;No se pudo generar el Excel de pagos&quot;, e);</span>
+        }
+    }
+
+    public byte[] cuentas(List&lt;CuentaCobrar&gt; datos) {
+<span class="nc" id="L38">        try (Workbook wb = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {</span>
+<span class="nc" id="L39">            Sheet sh = wb.createSheet(&quot;Cuentas por cobrar&quot;);</span>
+<span class="nc" id="L40">            encabezado(sh, &quot;Código&quot;, &quot;Agricultor&quot;, &quot;Concepto&quot;, &quot;Emisión&quot;, &quot;Vencimiento&quot;, &quot;Total&quot;, &quot;Pagado&quot;, &quot;Saldo&quot;, &quot;Estado&quot;);</span>
+<span class="nc" id="L41">            int i = 1;</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">            for (CuentaCobrar c : datos) {</span>
+<span class="nc" id="L43">                Row r = sh.createRow(i++);</span>
+<span class="nc" id="L44">                r.createCell(0).setCellValue(c.getCodigo());</span>
+<span class="nc" id="L45">                r.createCell(1).setCellValue(c.getAgricultor().getNombres() + &quot; &quot; + c.getAgricultor().getApellidos());</span>
+<span class="nc" id="L46">                r.createCell(2).setCellValue(c.getConcepto().getNombre());</span>
+<span class="nc" id="L47">                r.createCell(3).setCellValue(c.getFechaEmision().toString());</span>
+<span class="nc" id="L48">                r.createCell(4).setCellValue(c.getFechaVencimiento().toString());</span>
+<span class="nc" id="L49">                r.createCell(5).setCellValue(c.getMontoTotal().doubleValue());</span>
+<span class="nc" id="L50">                r.createCell(6).setCellValue(c.getMontoPagado().doubleValue());</span>
+<span class="nc" id="L51">                r.createCell(7).setCellValue(c.getSaldoPendiente().doubleValue());</span>
+<span class="nc" id="L52">                r.createCell(8).setCellValue(c.getEstado());</span>
+<span class="nc" id="L53">            }</span>
+<span class="nc" id="L54">            ajustar(sh, 9);</span>
+<span class="nc" id="L55">            wb.write(out);</span>
+<span class="nc" id="L56">            return out.toByteArray();</span>
+<span class="nc" id="L57">        } catch (Exception e) {</span>
+<span class="nc" id="L58">            throw new IllegalStateException(&quot;No se pudo generar el Excel de cuentas&quot;, e);</span>
+        }
+    }
+
+    private void encabezado(Sheet sh, String... valores) {
+<span class="nc" id="L63">        Row row = sh.createRow(0);</span>
+<span class="nc" id="L64">        CellStyle style = sh.getWorkbook().createCellStyle();</span>
+<span class="nc" id="L65">        Font f = sh.getWorkbook().createFont();</span>
+<span class="nc" id="L66">        f.setBold(true);</span>
+<span class="nc" id="L67">        style.setFont(f);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        for (int i = 0; i &lt; valores.length; i++) {</span>
+<span class="nc" id="L69">            Cell c = row.createCell(i);</span>
+<span class="nc" id="L70">            c.setCellValue(valores[i]);</span>
+<span class="nc" id="L71">            c.setCellStyle(style);</span>
+        }
+<span class="nc" id="L73">        sh.createFreezePane(0, 1);</span>
+<span class="nc" id="L74">        sh.setAutoFilter(new org.apache.poi.ss.util.CellRangeAddress(0, 0, 0, valores.length - 1));</span>
+<span class="nc" id="L75">    }</span>
+
+    private void ajustar(Sheet sh, int n) {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="nc" id="L79">            sh.autoSizeColumn(i);</span>
+<span class="nc" id="L80">            sh.setColumnWidth(i, Math.min(sh.getColumnWidth(i) + 800, 15000));</span>
+        }
+<span class="nc" id="L82">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

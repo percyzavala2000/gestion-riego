@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReporteService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.reporte.service</a> &gt; <span class="el_source">ReporteService.java</span></div><h1>ReporteService.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.reporte.service;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.vichaval.gestionriego.agricultor.entity.Agricultor;
+import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;
+import pe.vichaval.gestionriego.finanzas.entity.CuentaCobrar;
+import pe.vichaval.gestionriego.finanzas.repository.CuentaCobrarRepository;
+import pe.vichaval.gestionriego.parcela.entity.Parcela;
+import pe.vichaval.gestionriego.parcela.repository.ParcelaRepository;
+import pe.vichaval.gestionriego.reporte.dto.ReporteFiltro;
+import pe.vichaval.gestionriego.reporte.dto.ResumenReportes;
+import pe.vichaval.gestionriego.riego.entity.TurnoRiego;
+import pe.vichaval.gestionriego.riego.repository.TurnoRiegoRepository;
+import pe.vichaval.gestionriego.tesoreria.entity.Pago;
+import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
+
+@Service
+@Transactional(readOnly = true)
+public class ReporteService {
+    private final AgricultorRepository agricultores;
+    private final ParcelaRepository parcelas;
+    private final TurnoRiegoRepository turnos;
+    private final PagoRepository pagos;
+    private final CuentaCobrarRepository cuentas;
+
+    public ReporteService(AgricultorRepository agricultores, ParcelaRepository parcelas,
+<span class="fc" id="L31">                          TurnoRiegoRepository turnos, PagoRepository pagos, CuentaCobrarRepository cuentas) {</span>
+<span class="fc" id="L32">        this.agricultores = agricultores;</span>
+<span class="fc" id="L33">        this.parcelas = parcelas;</span>
+<span class="fc" id="L34">        this.turnos = turnos;</span>
+<span class="fc" id="L35">        this.pagos = pagos;</span>
+<span class="fc" id="L36">        this.cuentas = cuentas;</span>
+<span class="fc" id="L37">    }</span>
+
+    public ResumenReportes resumen() {
+<span class="nc" id="L40">        List&lt;CuentaCobrar&gt; lista = cuentas.findAll();</span>
+<span class="nc" id="L41">        lista.forEach(CuentaCobrar::actualizarVencida);</span>
+<span class="nc bnc" id="L42" title="All 4 branches missed.">        long pendientes = lista.stream().filter(c -&gt; &quot;PENDIENTE&quot;.equals(c.getEstado()) || &quot;PAGO_PARCIAL&quot;.equals(c.getEstado())).count();</span>
+<span class="nc" id="L43">        long vencidas = lista.stream().filter(c -&gt; &quot;VENCIDA&quot;.equals(c.getEstado())).count();</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        BigDecimal ingresos = pagos.total() == null ? BigDecimal.ZERO : pagos.total();</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        BigDecimal deuda = cuentas.totalDeuda() == null ? BigDecimal.ZERO : cuentas.totalDeuda();</span>
+<span class="nc" id="L46">        return new ResumenReportes(agricultores.count(), parcelas.count(), turnos.count(), pagos.count(), ingresos, deuda, pendientes, vencidas);</span>
+    }
+
+    public List&lt;Agricultor&gt; agricultores() {
+<span class="nc" id="L50">        return agricultores.findAll();</span>
+    }
+
+    public List&lt;Parcela&gt; parcelas() {
+<span class="nc" id="L54">        return parcelas.findAll();</span>
+    }
+
+    public List&lt;TurnoRiego&gt; turnos(ReporteFiltro f) {
+<span class="nc" id="L58">        return turnos.findAll().stream()</span>
+<span class="nc bnc" id="L59" title="All 4 branches missed.">                .filter(t -&gt; f.getDesde() == null || !t.getFecha().isBefore(f.getDesde()))</span>
+<span class="nc bnc" id="L60" title="All 4 branches missed.">                .filter(t -&gt; f.getHasta() == null || !t.getFecha().isAfter(f.getHasta()))</span>
+<span class="nc bnc" id="L61" title="All 4 branches missed.">                .filter(t -&gt; vacio(f.getEstado()) || f.getEstado().equals(t.getEstado()))</span>
+<span class="nc bnc" id="L62" title="All 4 branches missed.">                .filter(t -&gt; f.getAgricultorId() == null || f.getAgricultorId().equals(t.getParcela().getAgricultor().getId()))</span>
+<span class="nc" id="L63">                .toList();</span>
+    }
+
+    public List&lt;Pago&gt; pagos(ReporteFiltro f) {
+<span class="nc" id="L67">        return pagos.findAll().stream()</span>
+<span class="nc bnc" id="L68" title="All 4 branches missed.">                .filter(p -&gt; f.getDesde() == null || !p.getFecha().isBefore(f.getDesde()))</span>
+<span class="nc bnc" id="L69" title="All 4 branches missed.">                .filter(p -&gt; f.getHasta() == null || !p.getFecha().isAfter(f.getHasta()))</span>
+<span class="nc bnc" id="L70" title="All 4 branches missed.">                .filter(p -&gt; vacio(f.getEstado()) || f.getEstado().equals(p.getEstado()))</span>
+<span class="nc bnc" id="L71" title="All 4 branches missed.">                .filter(p -&gt; f.getAgricultorId() == null || f.getAgricultorId().equals(p.getAgricultor().getId()))</span>
+<span class="nc" id="L72">                .toList();</span>
+    }
+
+    public List&lt;CuentaCobrar&gt; cuentas(ReporteFiltro f) {
+<span class="nc" id="L76">        List&lt;CuentaCobrar&gt; lista = cuentas.findAll();</span>
+<span class="nc" id="L77">        lista.forEach(CuentaCobrar::actualizarVencida);</span>
+<span class="nc" id="L78">        return lista.stream()</span>
+<span class="nc bnc" id="L79" title="All 4 branches missed.">                .filter(c -&gt; f.getDesde() == null || !c.getFechaEmision().isBefore(f.getDesde()))</span>
+<span class="nc bnc" id="L80" title="All 4 branches missed.">                .filter(c -&gt; f.getHasta() == null || !c.getFechaEmision().isAfter(f.getHasta()))</span>
+<span class="nc bnc" id="L81" title="All 4 branches missed.">                .filter(c -&gt; vacio(f.getEstado()) || f.getEstado().equals(c.getEstado()))</span>
+<span class="nc bnc" id="L82" title="All 4 branches missed.">                .filter(c -&gt; f.getAgricultorId() == null || f.getAgricultorId().equals(c.getAgricultor().getId()))</span>
+<span class="nc" id="L83">                .toList();</span>
+    }
+
+    private boolean vacio(String s) {
+<span class="nc bnc" id="L87" title="All 4 branches missed.">        return s == null || s.isBlank();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

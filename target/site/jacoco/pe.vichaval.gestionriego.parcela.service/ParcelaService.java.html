@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ParcelaService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.parcela.service</a> &gt; <span class="el_source">ParcelaService.java</span></div><h1>ParcelaService.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.parcela.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;
+import pe.vichaval.gestionriego.parcela.dto.ParcelaForm;
+import pe.vichaval.gestionriego.parcela.entity.Parcela;
+import pe.vichaval.gestionriego.parcela.repository.ParcelaRepository;
+import pe.vichaval.gestionriego.riego.repository.TurnoRiegoRepository;
+
+@Service
+@Transactional
+public class ParcelaService {
+
+    private final ParcelaRepository parcelaRepository;
+    private final AgricultorRepository agricultorRepository;
+    private final TurnoRiegoRepository turnoRiegoRepository;
+
+    public ParcelaService(
+            ParcelaRepository parcelaRepository,
+            AgricultorRepository agricultorRepository,
+            TurnoRiegoRepository turnoRiegoRepository
+<span class="fc" id="L24">    ) {</span>
+<span class="fc" id="L25">        this.parcelaRepository = parcelaRepository;</span>
+<span class="fc" id="L26">        this.agricultorRepository = agricultorRepository;</span>
+<span class="fc" id="L27">        this.turnoRiegoRepository = turnoRiegoRepository;</span>
+<span class="fc" id="L28">    }</span>
+
+    @Transactional(readOnly = true)
+    public Parcela get(Long id) {
+
+<span class="nc" id="L33">        return parcelaRepository</span>
+<span class="nc" id="L34">                .findById(id)</span>
+<span class="nc" id="L35">                .orElseThrow(() -&gt;</span>
+<span class="nc" id="L36">                        new IllegalArgumentException(</span>
+                                &quot;La parcela solicitada no existe.&quot;
+                        )
+                );
+    }
+
+    public void guardar(
+            ParcelaForm form,
+            Long id
+    ) {
+<span class="nc" id="L46">        validarCodigo(</span>
+<span class="nc" id="L47">                form.getCodigo(),</span>
+                id
+        );
+
+<span class="nc" id="L51">        var agricultor = agricultorRepository</span>
+<span class="nc" id="L52">                .findById(form.getAgricultorId())</span>
+<span class="nc" id="L53">                .orElseThrow(() -&gt;</span>
+<span class="nc" id="L54">                        new IllegalArgumentException(</span>
+                                &quot;El agricultor seleccionado no existe.&quot;
+                        )
+                );
+
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (!&quot;ACTIVO&quot;.equals(agricultor.getEstado())) {</span>
+<span class="nc" id="L60">            throw new IllegalStateException(</span>
+                    &quot;No se puede asociar la parcela &quot;
+                            + &quot;a un agricultor inactivo.&quot;
+            );
+        }
+
+        Parcela parcela;
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (id == null) {</span>
+
+<span class="nc" id="L70">            parcela = new Parcela(</span>
+                    form,
+                    agricultor
+            );
+
+        } else {
+
+<span class="nc" id="L77">            parcela = get(id);</span>
+
+            /*
+             * Cuando la parcela tiene historial, el código
+             * debe conservarse como identificador estable.
+             */
+<span class="nc" id="L83">            boolean tieneTurnos =</span>
+<span class="nc" id="L84">                    turnoRiegoRepository.existsByParcelaId(id);</span>
+
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (</span>
+                    tieneTurnos
+<span class="nc" id="L88">                            &amp;&amp; !parcela.getCodigo()</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                            .equalsIgnoreCase(</span>
+<span class="nc" id="L90">                                    form.getCodigo()</span>
+<span class="nc" id="L91">                                            .trim()</span>
+                            )
+            ) {
+<span class="nc" id="L94">                throw new IllegalStateException(</span>
+                        &quot;No puedes cambiar el código de una &quot;
+                                + &quot;parcela que tiene turnos asociados.&quot;
+                );
+            }
+
+<span class="nc" id="L100">            parcela.actualizar(</span>
+                    form,
+                    agricultor
+            );
+        }
+
+<span class="nc" id="L106">        parcelaRepository.save(</span>
+                parcela
+        );
+<span class="nc" id="L109">    }</span>
+
+    public void eliminar(Long id) {
+
+<span class="nc" id="L113">        Parcela parcela = get(id);</span>
+
+<span class="nc" id="L115">        boolean tieneTurnos =</span>
+<span class="nc" id="L116">                turnoRiegoRepository.existsByParcelaId(id);</span>
+
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (tieneTurnos) {</span>
+
+<span class="nc" id="L120">            throw new IllegalStateException(</span>
+                    &quot;No se puede eliminar la parcela porque &quot;
+                            + &quot;tiene turnos de riego asociados. &quot;
+                            + &quot;Cámbiala a INACTIVA para conservar &quot;
+                            + &quot;el historial.&quot;
+            );
+        }
+
+<span class="nc" id="L128">        parcelaRepository.delete(</span>
+                parcela
+        );
+<span class="nc" id="L131">    }</span>
+
+    private void validarCodigo(
+            String codigo,
+            Long id
+    ) {
+<span class="nc" id="L137">        String codigoNormalizado =</span>
+<span class="nc" id="L138">                codigo.trim();</span>
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (</span>
+                id == null
+                        &amp;&amp; parcelaRepository
+<span class="nc bnc" id="L143" title="All 2 branches missed.">                        .existsByCodigoIgnoreCase(</span>
+                                codigoNormalizado
+                        )
+        ) {
+<span class="nc" id="L147">            throw new IllegalArgumentException(</span>
+                    &quot;El código de parcela ya está registrado.&quot;
+            );
+        }
+
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (</span>
+                id != null
+                        &amp;&amp; parcelaRepository
+<span class="nc bnc" id="L155" title="All 2 branches missed.">                        .existsByCodigoIgnoreCaseAndIdNot(</span>
+                                codigoNormalizado,
+                                id
+                        )
+        ) {
+<span class="nc" id="L160">            throw new IllegalArgumentException(</span>
+                    &quot;El código pertenece a otra parcela.&quot;
+            );
+        }
+<span class="nc" id="L164">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

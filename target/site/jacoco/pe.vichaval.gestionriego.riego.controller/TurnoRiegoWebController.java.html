@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TurnoRiegoWebController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-riego</a> &gt; <a href="index.source.html" class="el_package">pe.vichaval.gestionriego.riego.controller</a> &gt; <span class="el_source">TurnoRiegoWebController.java</span></div><h1>TurnoRiegoWebController.java</h1><pre class="source lang-java linenums">package pe.vichaval.gestionriego.riego.controller;
+
+import jakarta.validation.Valid;
+import java.time.Duration;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.vichaval.gestionriego.parcela.repository.ParcelaRepository;
+import pe.vichaval.gestionriego.riego.dto.TurnoForm;
+import pe.vichaval.gestionriego.riego.repository.TurnoRiegoRepository;
+import pe.vichaval.gestionriego.riego.service.TurnoRiegoService;
+
+@Controller
+@RequestMapping(&quot;/turnos&quot;)
+public class TurnoRiegoWebController {
+
+    private final TurnoRiegoRepository turnoRepository;
+    private final ParcelaRepository parcelaRepository;
+    private final TurnoRiegoService turnoService;
+
+    public TurnoRiegoWebController(
+            TurnoRiegoRepository turnoRepository,
+            ParcelaRepository parcelaRepository,
+            TurnoRiegoService turnoService
+<span class="fc" id="L32">    ) {</span>
+<span class="fc" id="L33">        this.turnoRepository = turnoRepository;</span>
+<span class="fc" id="L34">        this.parcelaRepository = parcelaRepository;</span>
+<span class="fc" id="L35">        this.turnoService = turnoService;</span>
+<span class="fc" id="L36">    }</span>
+
+    @GetMapping
+    public String listar(Model model) {
+
+<span class="nc" id="L41">        turnoService.actualizarVencidos();</span>
+
+<span class="nc" id="L43">        model.addAttribute(</span>
+                &quot;turnos&quot;,
+<span class="nc" id="L45">                turnoRepository.findAll()</span>
+        );
+
+<span class="nc" id="L48">        return &quot;riego/list&quot;;</span>
+    }
+
+    @GetMapping(&quot;/nuevo&quot;)
+    public String mostrarFormularioNuevo(Model model) {
+
+<span class="nc" id="L54">        model.addAttribute(</span>
+                &quot;form&quot;,
+                new TurnoForm()
+        );
+
+<span class="nc" id="L59">        model.addAttribute(&quot;id&quot;, null);</span>
+
+<span class="nc" id="L61">        cargarParcelasActivas(model);</span>
+
+<span class="nc" id="L63">        return &quot;riego/form&quot;;</span>
+    }
+
+    @GetMapping(&quot;/{id}/editar&quot;)
+    public String mostrarFormularioEditar(
+            @PathVariable Long id,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+<span class="nc" id="L73">            var turno = turnoService.get(id);</span>
+
+<span class="nc" id="L75">            if (</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">                    !&quot;PROGRAMADO&quot;.equals(turno.getEstado())</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">                            &amp;&amp; !&quot;PENDIENTE&quot;.equals(turno.getEstado())</span>
+            ) {
+<span class="nc" id="L79">                redirectAttributes.addFlashAttribute(</span>
+                        &quot;error&quot;,
+                        &quot;Solo pueden editarse turnos pendientes &quot;
+                                + &quot;o programados.&quot;
+                );
+
+<span class="nc" id="L85">                return &quot;redirect:/turnos&quot;;</span>
+            }
+
+<span class="nc" id="L88">            TurnoForm form = crearFormularioDesdeTurno(</span>
+                    turno
+            );
+
+<span class="nc" id="L92">            model.addAttribute(&quot;form&quot;, form);</span>
+<span class="nc" id="L93">            model.addAttribute(&quot;id&quot;, id);</span>
+
+<span class="nc" id="L95">            cargarParcelasActivas(model);</span>
+
+<span class="nc" id="L97">            return &quot;riego/form&quot;;</span>
+
+<span class="nc" id="L99">        } catch (RuntimeException exception) {</span>
+
+<span class="nc" id="L101">            redirectAttributes.addFlashAttribute(</span>
+                    &quot;error&quot;,
+<span class="nc" id="L103">                    exception.getMessage()</span>
+            );
+
+<span class="nc" id="L106">            return &quot;redirect:/turnos&quot;;</span>
+        }
+    }
+
+    @GetMapping(&quot;/{id}/reprogramar&quot;)
+    public String reprogramar(
+            @PathVariable Long id,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+<span class="nc" id="L117">            var turno = turnoService.get(id);</span>
+
+<span class="nc" id="L119">            if (</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                    !&quot;CANCELADO&quot;.equals(turno.getEstado())</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">                            &amp;&amp; !&quot;VENCIDO&quot;.equals(turno.getEstado())</span>
+            ) {
+<span class="nc" id="L123">                redirectAttributes.addFlashAttribute(</span>
+                        &quot;error&quot;,
+                        &quot;Solo pueden reprogramarse turnos &quot;
+                                + &quot;cancelados o vencidos.&quot;
+                );
+
+<span class="nc" id="L129">                return &quot;redirect:/turnos&quot;;</span>
+            }
+
+<span class="nc" id="L132">            TurnoForm form = new TurnoForm();</span>
+
+<span class="nc" id="L134">            form.setParcelaId(</span>
+<span class="nc" id="L135">                    turno.getParcela().getId()</span>
+            );
+
+<span class="nc" id="L138">            form.setDuracionMinutos(</span>
+<span class="nc" id="L139">                    calcularDuracion(turno)</span>
+            );
+
+<span class="nc" id="L142">            form.setObservaciones(</span>
+                    &quot;Reprogramación del turno &quot;
+<span class="nc" id="L144">                            + turno.getCodigo()</span>
+            );
+
+            /*
+             * La fecha y la hora quedan vacías para obligar
+             * a seleccionar una nueva programación.
+             */
+<span class="nc" id="L151">            form.setFecha(null);</span>
+<span class="nc" id="L152">            form.setHoraInicio(null);</span>
+
+<span class="nc" id="L154">            model.addAttribute(&quot;form&quot;, form);</span>
+
+            /*
+             * id nulo significa que se creará un turno nuevo.
+             * No se sobrescribe el turno cancelado o vencido.
+             */
+<span class="nc" id="L160">            model.addAttribute(&quot;id&quot;, null);</span>
+
+<span class="nc" id="L162">            cargarParcelasActivas(model);</span>
+
+<span class="nc" id="L164">            return &quot;riego/form&quot;;</span>
+
+<span class="nc" id="L166">        } catch (RuntimeException exception) {</span>
+
+<span class="nc" id="L168">            redirectAttributes.addFlashAttribute(</span>
+                    &quot;error&quot;,
+<span class="nc" id="L170">                    exception.getMessage()</span>
+            );
+
+<span class="nc" id="L173">            return &quot;redirect:/turnos&quot;;</span>
+        }
+    }
+
+    @PostMapping(&quot;/guardar&quot;)
+    public String guardar(
+            @RequestParam(required = false) Long id,
+            @Valid @ModelAttribute(&quot;form&quot;) TurnoForm form,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+<span class="nc" id="L185">        model.addAttribute(&quot;id&quot;, id);</span>
+
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L188">            cargarParcelasActivas(model);</span>
+<span class="nc" id="L189">            return &quot;riego/form&quot;;</span>
+        }
+
+        try {
+<span class="nc" id="L193">            turnoService.guardar(form, id);</span>
+
+<span class="nc" id="L195">            redirectAttributes.addFlashAttribute(</span>
+                    &quot;exito&quot;,
+<span class="nc bnc" id="L197" title="All 2 branches missed.">                    id == null</span>
+<span class="nc" id="L198">                            ? &quot;Turno registrado correctamente.&quot;</span>
+<span class="nc" id="L199">                            : &quot;Turno actualizado correctamente.&quot;</span>
+            );
+
+<span class="nc" id="L202">            return &quot;redirect:/turnos&quot;;</span>
+
+<span class="nc" id="L204">        } catch (RuntimeException exception) {</span>
+
+<span class="nc" id="L206">            bindingResult.reject(</span>
+                    &quot;errorNegocio&quot;,
+<span class="nc" id="L208">                    exception.getMessage()</span>
+            );
+
+<span class="nc" id="L211">            cargarParcelasActivas(model);</span>
+
+<span class="nc" id="L213">            return &quot;riego/form&quot;;</span>
+        }
+    }
+
+    @PostMapping(&quot;/{id}/iniciar&quot;)
+    public String iniciar(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes
+    ) {
+<span class="nc" id="L222">        return ejecutarOperacion(</span>
+<span class="nc" id="L223">                () -&gt; turnoService.iniciar(id),</span>
+                redirectAttributes,
+                &quot;Turno iniciado correctamente.&quot;
+        );
+    }
+
+    @PostMapping(&quot;/{id}/completar&quot;)
+    public String completar(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes
+    ) {
+<span class="nc" id="L234">        return ejecutarOperacion(</span>
+<span class="nc" id="L235">                () -&gt; turnoService.completar(id),</span>
+                redirectAttributes,
+                &quot;Turno completado correctamente.&quot;
+        );
+    }
+
+    @PostMapping(&quot;/{id}/cancelar&quot;)
+    public String cancelar(
+            @PathVariable Long id,
+            @RequestParam String motivo,
+            RedirectAttributes redirectAttributes
+    ) {
+<span class="nc" id="L247">        return ejecutarOperacion(</span>
+<span class="nc" id="L248">                () -&gt; turnoService.cancelar(id, motivo),</span>
+                redirectAttributes,
+                &quot;Turno cancelado correctamente.&quot;
+        );
+    }
+
+    private TurnoForm crearFormularioDesdeTurno(
+            pe.vichaval.gestionriego.riego.entity.TurnoRiego turno
+    ) {
+<span class="nc" id="L257">        TurnoForm form = new TurnoForm();</span>
+
+<span class="nc" id="L259">        form.setParcelaId(</span>
+<span class="nc" id="L260">                turno.getParcela().getId()</span>
+        );
+
+<span class="nc" id="L263">        form.setFecha(</span>
+<span class="nc" id="L264">                turno.getFecha()</span>
+        );
+
+<span class="nc" id="L267">        form.setHoraInicio(</span>
+<span class="nc" id="L268">                turno.getHoraInicio()</span>
+        );
+
+<span class="nc" id="L271">        form.setDuracionMinutos(</span>
+<span class="nc" id="L272">                calcularDuracion(turno)</span>
+        );
+
+<span class="nc" id="L275">        form.setObservaciones(</span>
+<span class="nc" id="L276">                turno.getObservaciones()</span>
+        );
+
+<span class="nc" id="L279">        return form;</span>
+    }
+
+    private int calcularDuracion(
+            pe.vichaval.gestionriego.riego.entity.TurnoRiego turno
+    ) {
+<span class="nc" id="L285">        return (int) Duration</span>
+<span class="nc" id="L286">                .between(</span>
+<span class="nc" id="L287">                        turno.getHoraInicio(),</span>
+<span class="nc" id="L288">                        turno.getHoraFin()</span>
+                )
+<span class="nc" id="L290">                .toMinutes();</span>
+    }
+
+    private String ejecutarOperacion(
+            Runnable operacion,
+            RedirectAttributes redirectAttributes,
+            String mensajeExito
+    ) {
+        try {
+<span class="nc" id="L299">            operacion.run();</span>
+
+<span class="nc" id="L301">            redirectAttributes.addFlashAttribute(</span>
+                    &quot;exito&quot;,
+                    mensajeExito
+            );
+
+<span class="nc" id="L306">        } catch (RuntimeException exception) {</span>
+
+<span class="nc" id="L308">            redirectAttributes.addFlashAttribute(</span>
+                    &quot;error&quot;,
+<span class="nc" id="L310">                    exception.getMessage()</span>
+            );
+<span class="nc" id="L312">        }</span>
+
+<span class="nc" id="L314">        return &quot;redirect:/turnos&quot;;</span>
+    }
+
+    private void cargarParcelasActivas(Model model) {
+<span class="nc" id="L318">        model.addAttribute(</span>
+                &quot;parcelas&quot;,
+                parcelaRepository
+<span class="nc" id="L321">                        .findByEstadoOrderByCodigo(&quot;ACTIVA&quot;)</span>
+        );
+<span class="nc" id="L323">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

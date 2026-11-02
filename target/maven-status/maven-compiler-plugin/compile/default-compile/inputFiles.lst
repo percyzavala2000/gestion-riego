@@ -29,6 +29,7 @@
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/config/seed/DemoSeedGuard.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/dashboard/controller/DashboardController.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/dashboard/service/DashboardService.java
+/Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/error/GlobalExceptionHandler.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/controller/ConceptoCobroWebController.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/controller/FinanzasWebController.java
 /Users/pz/Desktop/gestion-riego/src/main/java/pe/vichaval/gestionriego/finanzas/dto/ConceptoCobroForm.java
