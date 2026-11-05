@@ -3,3 +3,10 @@
 backups/
 *.dump
 *.dump.sha256
+
+# Maven
+target/
+
+# Respaldos temporales locales
+*.backup-*
+*.contaminado
