@@ -17,6 +17,10 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/error", "/error/**", "/css/**", "/js/**",
                         "/images/**", "/icons/**", "/favicon.ico", "/actuator/health", "/actuator/prometheus")
                 .permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                .hasRole("ADMINISTRADOR")
+                .requestMatchers("/api/v1/agricultores/**", "/api/v1/parcelas/**", "/api/v1/turnos/**")
+                .hasAnyRole("ADMINISTRADOR", "OPERADOR")
                 .requestMatchers("/", "/dashboard")
                 .hasAnyRole("ADMINISTRADOR", "OPERADOR", "TESORERIA")
                 .requestMatchers("/agricultores/**", "/parcelas/**", "/turnos/**")
