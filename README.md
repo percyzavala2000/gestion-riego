@@ -1,221 +1,251 @@
-# Vichayal Riego Web
+# Vichayal Riego Web v10.0
 
-Sistema web para la gestión operativa, financiera y administrativa de la Comisión de Regantes de Vichayal. La aplicación permite administrar agricultores, parcelas, turnos de riego, cuentas por cobrar, pagos, tesorería, caja, auditoría, reportes, inteligencia basada en reglas, observabilidad y una API REST inicial.
+## Guía de instalación y prueba en Windows
 
-> **Versión documentada:** 10.0.0  
-> **Estado:** API REST operativa inicial, login responsive, despliegue Docker, observabilidad con Prometheus y Grafana.  
-> **Ubicación institucional:** Vichayal, Piura, Perú.
+Esta guía está destinada a personas evaluadoras que recibirán el proyecto en un archivo ZIP. No es necesario tener contenedores creados previamente. **Docker Compose descargará las imágenes necesarias y creará automáticamente los contenedores, redes y volúmenes** cuando se ejecuten los comandos indicados.
 
----
+La evaluación contempla dos modalidades:
 
-## 1. Objetivos del proyecto
+1. **Demo local con seed:** recomendada para revisar rápidamente las funciones con datos ficticios.
+2. **Producción local con Docker:** recomendada para comprobar el despliegue contenedorizado, observabilidad y una base inicialmente vacía.
 
-Vichayal Riego Web centraliza procesos que normalmente se ejecutan mediante registros manuales o archivos separados:
-
-- Registro y mantenimiento de agricultores.
-- Registro de parcelas y cultivos.
-- Programación, inicio, finalización y cancelación de turnos de riego.
-- Gestión de conceptos de cobro y cuentas por cobrar.
-- Registro, confirmación y anulación de pagos.
-- Registro de egresos, devoluciones y cierres de caja.
-- Generación de reportes PDF y Excel.
-- Auditoría técnica con identificadores de correlación.
-- Alertas operativas y financieras basadas en reglas.
-- Métricas de rendimiento mediante Prometheus.
-- Visualización inicial mediante Grafana.
-- API REST versionada para agricultores, parcelas y turnos.
+> Versión documentada: `10.0.0`  
+> Sistema operativo de esta guía: Windows 10 u 11 de 64 bits  
+> Backend: Java 21 y Spring Boot 4.1.1  
+> Base de datos: PostgreSQL 18
 
 ---
 
-## 2. Tecnologías utilizadas
+# 1. Herramientas necesarias
 
-| Capa | Tecnología | Uso |
-|---|---|---|
-| Lenguaje | Java 21 | Implementación del backend |
-| Framework | Spring Boot 4.1.1 | Aplicación web y configuración |
-| Web MVC | Spring MVC | Controladores, formularios y vistas |
-| Plantillas | Thymeleaf | Interfaz web renderizada en servidor |
-| Seguridad | Spring Security | Autenticación, sesiones y autorización por roles |
-| Persistencia | Spring Data JPA | Repositorios y acceso a datos |
-| ORM | Hibernate ORM | Mapeo objeto-relacional |
-| Base de datos | PostgreSQL 18 | Almacenamiento transaccional |
-| Migraciones | Flyway | Versionado del esquema V1 a V8 |
-| API | REST JSON y ProblemDetail | Integración con clientes futuros |
-| Documentación API | Springdoc OpenAPI y Swagger UI | Exploración de endpoints |
-| Validación | Jakarta Bean Validation | Validación de DTO y formularios |
-| Pruebas | JUnit 6, MockMvc y Mockito | Pruebas unitarias y web |
-| Integración | Testcontainers 1.21.4 | PostgreSQL temporal en pruebas |
-| Cobertura | JaCoCo 0.8.13 | Informe de cobertura |
-| Construcción | Maven | Dependencias, pruebas y empaquetado |
-| Contenedores | Docker y Docker Compose | Desarrollo, demo y producción |
-| Métricas | Micrometer y Prometheus | Métricas de JVM, HTTP y negocio |
-| Paneles | Grafana | Visualización de métricas |
-| CI | GitHub Actions | Pruebas, construcción e informes |
+## 1.1 Instalación obligatoria
 
----
+Instalar solamente estas herramientas:
 
-## 3. Arquitectura general
+### Git para Windows
+
+Se utiliza para comandos auxiliares y control de versiones. Si solamente se recibe el ZIP, Git no es imprescindible para ejecutar el sistema, pero se recomienda para revisar cambios.
+
+Descarga oficial:
 
 ```text
-Navegador o cliente REST
-          |
-          v
-Spring Security
-          |
-          v
-Controladores MVC y API REST
-          |
-          v
-Servicios de dominio
-          |
-          v
-Repositorios Spring Data JPA
-          |
-          v
-PostgreSQL
+https://git-scm.com/download/win
 ```
 
-Componentes transversales:
+Durante la instalación se pueden conservar las opciones predeterminadas.
+
+### Docker Desktop para Windows
+
+Se utiliza para crear PostgreSQL, la aplicación productiva, Prometheus y Grafana.
+
+Descarga oficial:
 
 ```text
-Auditoría
-Correlación de solicitudes
-Manejo global de errores
-Flyway
-Prometheus
-Grafana
-Pruebas automatizadas
+https://www.docker.com/products/docker-desktop/
 ```
 
-La aplicación se mantiene como un **monolito modular**. Esta estrategia conserva transacciones simples, reduce complejidad operativa y permite separar posteriormente clientes React, Angular o móviles mediante `/api/v1`.
+Requisitos habituales:
+
+- Windows 10 u 11 de 64 bits.
+- Virtualización habilitada en BIOS o UEFI.
+- WSL 2 habilitado.
+- Al menos 4 GB de RAM disponibles para Docker Desktop. Se recomiendan 8 GB en el equipo.
+
+Después de instalar, abrir Docker Desktop y esperar hasta que indique que el motor está ejecutándose.
+
+### JDK 21
+
+Es necesario para ejecutar el modo demo local con Maven.
+
+Descarga recomendada:
+
+```text
+https://adoptium.net/temurin/releases/?version=21
+```
+
+Seleccionar:
+
+```text
+Operating System: Windows
+Architecture: x64
+Package Type: JDK
+Version: 21 LTS
+```
+
+Durante la instalación, habilitar las opciones para configurar `JAVA_HOME` y agregar Java al `PATH`.
+
+### Apache Maven 3.9 o superior
+
+Se utiliza para compilar y ejecutar la aplicación demo.
+
+Descarga oficial:
+
+```text
+https://maven.apache.org/download.cgi
+```
+
+Descomprimir Maven, por ejemplo, en:
+
+```text
+C:\Tools\apache-maven-3.9.11
+```
+
+Agregar al `PATH`:
+
+```text
+C:\Tools\apache-maven-3.9.11\bin
+```
+
+## 1.2 Navegador
+
+Usar una versión reciente de:
+
+- Google Chrome.
+- Microsoft Edge.
+- Mozilla Firefox.
+
+## 1.3 Verificación de herramientas
+
+Abrir **PowerShell** y ejecutar:
+
+```powershell
+java -version
+mvn -version
+docker version
+docker compose version
+```
+
+Resultados esperados:
+
+- Java debe indicar versión 21.
+- Maven debe indicar versión 3.9 o superior y Java 21.
+- Docker debe mostrar información del cliente y servidor.
+- Docker Compose debe indicar versión 2.
+
+Si `docker version` no muestra información del servidor, abrir Docker Desktop y esperar hasta que el motor termine de iniciar.
 
 ---
 
-## 4. Módulos funcionales
+# 2. Preparar el proyecto recibido por correo
 
-### 4.1 Agricultores
-
-- Registrar agricultores.
-- Actualizar datos personales y operativos.
-- Activar o desactivar registros.
-- Impedir eliminaciones que violen relaciones del dominio.
-- Consultar mediante interfaz web y API REST.
-
-### 4.2 Parcelas
-
-- Registrar código, nombre, extensión, cultivo y estado.
-- Asociar cada parcela con un agricultor.
-- Consultar parcelas desde la web y la API REST.
-
-### 4.3 Turnos de riego
-
-Estados principales:
+1. Descargar el ZIP adjunto.
+2. Hacer clic derecho y seleccionar **Extraer todo**.
+3. Extraer en una ruta corta, por ejemplo:
 
 ```text
-PROGRAMADO
-EN_CURSO
-COMPLETADO
-CANCELADO
-VENCIDO
+C:\Proyectos\gestion-riego
 ```
 
-Operaciones:
+4. Abrir PowerShell.
+5. Entrar al proyecto:
 
-- Programar turnos.
-- Evitar conflictos horarios.
-- Iniciar un turno.
-- Completar un turno.
-- Cancelar con motivo.
-- Actualizar turnos vencidos.
+```powershell
+cd C:\Proyectos\gestion-riego
+```
 
-### 4.4 Finanzas
+6. Comprobar los archivos principales:
 
-- Conceptos de cobro.
-- Cuentas por cobrar.
-- Estados pendientes, parciales, pagados y vencidos.
-- Vinculación entre pagos y cuentas.
-- Reversión de saldos al anular pagos o ejecutar devoluciones.
+```powershell
+Get-ChildItem
+```
 
-### 4.5 Tesorería
-
-- Registro de pagos.
-- Confirmación de pagos digitales.
-- Anulación controlada.
-- Aplicación idempotente sobre cuentas por cobrar.
-- Correlativos únicos.
-
-### 4.6 Caja
-
-- Registro de egresos.
-- Solicitud y ejecución de devoluciones.
-- Cierre diario.
-- Reapertura controlada.
-- Restricción de movimientos en fechas cerradas.
-
-### 4.7 Reportes
-
-- Reportes operativos.
-- Reportes financieros.
-- Exportación PDF.
-- Exportación Excel.
-- Filtros por fecha, estado y módulo.
-
-### 4.8 Inteligencia basada en reglas
-
-- Turnos vencidos.
-- Concentración de demanda.
-- Pagos pendientes.
-- Cuentas vencidas.
-- Devoluciones pendientes.
-- Diferencias de caja.
-
-No utiliza todavía aprendizaje automático. Las alertas son determinísticas y explicables.
-
-### 4.9 Auditoría
-
-Registra:
-
-- Usuario.
-- Método HTTP.
-- Ruta.
-- Código de respuesta.
-- Resultado.
-- Fecha y hora.
-- Dirección IP.
-- Identificador de correlación.
-
-### 4.10 Observabilidad
-
-Métricas principales:
+Deben existir, entre otros:
 
 ```text
-http_server_requests_seconds
-jvm_memory_used_bytes
-process_cpu_usage
-hikaricp_connections_active
-vichayal_pagos_pendientes
-vichayal_deuda_total_soles
-vichayal_devoluciones_solicitadas
-vichayal_auditoria_eventos_eliminados_total
+pom.xml
+Dockerfile
+compose-prod.yaml
+compose-observability.yaml
+compose-demo.yaml
+src
+scripts
 ```
 
 ---
 
-## 5. Roles del sistema
+# 3. Primera prueba recomendada: demo local con seed
 
-| Rol | Alcance |
-|---|---|
-| ADMINISTRADOR | Acceso completo, usuarios, auditoría, operación y finanzas |
-| OPERADOR | Agricultores, parcelas, turnos e inteligencia operativa |
-| TESORERIA | Cuentas, pagos, caja e inteligencia financiera |
+## 3.1 Qué es el seed demo
 
----
+El seed es un proceso que crea automáticamente datos ficticios para poder evaluar el sistema sin registrar todo manualmente. Puede incluir:
 
-## 6. Credenciales y secretos
+- Usuarios de prueba.
+- Agricultores ficticios.
+- Parcelas ficticias.
+- Turnos en distintos estados.
+- Cuentas, pagos y movimientos de prueba.
+- Casos preparados para mostrar alertas operativas y financieras.
 
-### Credenciales de aplicación
+El seed se ejecuta solamente con el perfil:
 
-Los nombres de usuario normalmente utilizados en desarrollo o demo son:
+```text
+demo
+```
+
+No debe habilitarse en producción porque introduciría datos ficticios en una base destinada a información real.
+
+## 3.2 Qué crea Docker automáticamente
+
+Al ejecutar `compose-demo.yaml`, Docker:
+
+1. Descarga `postgres:18` si no está disponible.
+2. Crea el contenedor PostgreSQL demo.
+3. Crea la red y el volumen necesarios.
+4. Publica PostgreSQL demo en `localhost:5433`.
+
+No es necesario crear manualmente un contenedor desde Docker Desktop.
+
+## 3.3 Levantar PostgreSQL demo
+
+Desde PowerShell, dentro del proyecto:
+
+```powershell
+docker compose -f compose-demo.yaml up -d
+```
+
+Comprobar:
+
+```powershell
+docker compose -f compose-demo.yaml ps
+```
+
+El contenedor PostgreSQL debe mostrarse como `healthy`.
+
+La primera ejecución puede tardar mientras Docker descarga la imagen.
+
+## 3.4 Ejecutar la aplicación con perfil demo
+
+En la misma ventana de PowerShell:
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE="demo"
+mvn spring-boot:run
+```
+
+Esperar hasta observar:
+
+```text
+Started GestionRiegoApplication
+```
+
+En el primer inicio:
+
+1. Flyway crea el esquema de PostgreSQL.
+2. Se aplican las migraciones disponibles.
+3. El perfil demo activa el seed.
+4. Se insertan los datos ficticios.
+
+## 3.5 Abrir el demo
+
+Abrir en el navegador:
+
+```text
+http://localhost:8080/login
+```
+
+## 3.6 Usuarios demo
+
+Usuarios previstos:
 
 ```text
 admin
@@ -223,96 +253,451 @@ operador
 tesoreria
 ```
 
-Las contraseñas no deben documentarse en Git ni incrustarse en este README. Deben definirse mediante configuración local, variables de entorno o el mecanismo de carga inicial correspondiente.
+Las claves de evaluación deben entregarse junto al ZIP mediante un archivo separado, por ejemplo `CREDENCIALES-EVALUACION.txt`, o por un canal privado.
 
-Para localizar la configuración del usuario inicial sin imprimir archivos secretos completos:
+No se recomienda incluir contraseñas reales en un repositorio público.
 
-```bash
-grep -R -n 'ADMIN_USERNAME\|ADMIN_PASSWORD\|INITIAL_' src/main/resources src/main/java
+Formato sugerido para el archivo privado:
+
+```text
+ministrador
+Usuario: admin
+Clave: Admin123*
+
+Operador
+Usuario: operador
+Clave: Operador123*
+
+Tesorería
+Usuario: tesoreria
+Clave: Tesoreria123*
+
 ```
 
-Para localizar credenciales exclusivamente demo:
+## 3.7 Detener la aplicación demo
 
-```bash
-grep -R -n 'admin\|operador\|tesoreria' src/main/java/pe/vichaval/gestionriego/config/seed src/main/resources/application-demo.properties
+En la terminal donde se ejecuta Maven, presionar:
+
+```text
+Control + C
 ```
 
-> Nunca publiques `.env.prod`, contraseñas de PostgreSQL, contraseñas de Grafana, tokens ni hashes.
+La aplicación se detiene, pero PostgreSQL demo y sus datos permanecen disponibles.
 
-### Credenciales PostgreSQL
+## 3.8 Detener PostgreSQL demo conservando datos
 
-Se configuran en `.env.prod`:
+```powershell
+docker compose -f compose-demo.yaml stop
+```
+
+Volver a iniciarlo:
+
+```powershell
+docker compose -f compose-demo.yaml start
+```
+
+## 3.9 Eliminar contenedores demo conservando datos
+
+```powershell
+docker compose -f compose-demo.yaml down
+```
+
+Volver a crearlos usando el volumen existente:
+
+```powershell
+docker compose -f compose-demo.yaml up -d
+```
+
+## 3.10 Resetear el demo y ejecutar otra vez el seed
+
+Primero detener Maven con `Control + C`.
+
+Eliminar contenedor y volumen demo:
+
+```powershell
+docker compose -f compose-demo.yaml down -v
+```
+
+Crear una base demo nueva:
+
+```powershell
+docker compose -f compose-demo.yaml up -d
+```
+
+Ejecutar nuevamente la aplicación:
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE="demo"
+mvn spring-boot:run
+```
+
+El seed volverá a ejecutarse porque la base está vacía.
+
+> `down -v` elimina los datos del entorno indicado. Utilizarlo solamente en el demo cuando se desee comenzar desde cero.
+
+---
+
+# 4. Segunda prueba: producción local con Docker
+
+## 4.1 Qué significa producción local
+
+Es la configuración de producción ejecutada en la computadora del evaluador. Docker crea:
+
+- Aplicación Spring Boot.
+- PostgreSQL 18.
+- Prometheus.
+- Grafana.
+- Red privada.
+- Volúmenes persistentes.
+
+Direcciones:
+
+```text
+Aplicación: http://127.0.0.1:8080
+Prometheus: http://127.0.0.1:9090
+Grafana:    http://127.0.0.1:3000
+```
+
+La producción local empieza con una base vacía. Esto es correcto: Flyway crea las tablas, pero el seed demo no se ejecuta.
+
+## 4.2 Detener el demo antes de producción
+
+Si Maven sigue activo, presionar `Control + C`.
+
+Detener PostgreSQL demo si no se utilizará:
+
+```powershell
+docker compose -f compose-demo.yaml stop
+```
+
+## 4.3 Crear `.env.prod`
+
+```powershell
+Copy-Item .env.prod.example .env.prod
+```
+
+Abrirlo en Bloc de notas:
+
+```powershell
+notepad .env.prod
+```
+
+Verificar o completar:
 
 ```dotenv
+APP_VERSION=10.0.0
+SPRING_PROFILES_ACTIVE=prod
+SERVER_PORT=8080
 POSTGRES_DB=gestion_riego
 POSTGRES_USER=gestion_prod
 POSTGRES_PASSWORD=CAMBIAR_POR_UN_SECRETO
 DB_URL=jdbc:postgresql://postgres:5432/gestion_riego
 DB_USERNAME=gestion_prod
 DB_PASSWORD=CAMBIAR_POR_EL_MISMO_SECRETO
-```
-
-`POSTGRES_PASSWORD` y `DB_PASSWORD` deben coincidir para una instalación nueva.
-
-### Credenciales Grafana
-
-```dotenv
+COOKIE_SECURE=false
+JAVA_OPTS=-XX:MaxRAMPercentage=75.0
+TZ=America/Lima
+AUDIT_RETENTION_DAYS=365
+AUDIT_CLEANUP_CRON=0 30 2 * * *
 GRAFANA_ADMIN_USER=admin
 GRAFANA_ADMIN_PASSWORD=CAMBIAR_POR_UN_SECRETO
+PROMETHEUS_PORT=9090
+GRAFANA_PORT=3000
+```
+
+`POSTGRES_PASSWORD` y `DB_PASSWORD` deben ser iguales en la primera instalación.
+
+El archivo `.env.prod` contiene secretos y no debe publicarse ni enviarse a repositorios.
+
+## 4.4 Validar configuración
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml config --quiet
+```
+
+Si el comando no imprime errores, la configuración es válida.
+
+## 4.5 Levantar producción local
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml up -d --build
+```
+
+Docker realizará automáticamente:
+
+1. Descarga de imágenes ausentes.
+2. Construcción de `vichayal-riego:10.0.0`.
+3. Creación de PostgreSQL.
+4. Creación de redes y volúmenes.
+5. Inicio de Prometheus y Grafana.
+6. Ejecución de Flyway al iniciar la aplicación.
+
+Esperar:
+
+```powershell
+Start-Sleep -Seconds 25
+```
+
+Comprobar:
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml ps
+```
+
+Resultado esperado:
+
+```text
+app          healthy
+postgres     healthy
+prometheus   running
+grafana      running
+```
+
+## 4.6 Abrir producción local
+
+Login:
+
+```text
+http://127.0.0.1:8080/login
+```
+
+Health check:
+
+```text
+http://127.0.0.1:8080/actuator/health
+```
+
+Swagger:
+
+```text
+http://127.0.0.1:8080/swagger-ui.html
+```
+
+Prometheus:
+
+```text
+http://127.0.0.1:9090
+```
+
+Grafana:
+
+```text
+http://127.0.0.1:3000
+```
+
+## 4.7 Base vacía en producción
+
+La base productiva empieza vacía. Los datos reales se registran desde la aplicación después de iniciar sesión:
+
+1. Usuarios.
+2. Agricultores.
+3. Parcelas.
+4. Turnos.
+5. Conceptos de cobro.
+6. Cuentas y pagos.
+
+No ejecutar el perfil `demo` sobre producción.
+
+## 4.8 Ver logs
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml logs --tail=200 app
+```
+
+Logs continuos:
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml logs -f app
+```
+
+Para salir de los logs continuos, presionar `Control + C`. Los contenedores continúan encendidos.
+
+## 4.9 Apagar producción conservando datos
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml stop
+```
+
+Volver a iniciar:
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml start
+```
+
+## 4.10 Eliminar contenedores conservando datos
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml down
+```
+
+Volver a crearlos:
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml up -d
+```
+
+## 4.11 Reset total de producción local
+
+> Advertencia: elimina la base de datos productiva local, las métricas de Prometheus y los datos persistentes de Grafana.
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml down -v
+```
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml up -d --build
+```
+
+No ejecutar esta operación cuando existan datos importantes sin respaldo.
+
+---
+
+# 5. Diferencia entre demo y producción local
+
+| Característica | Demo local | Producción local Docker |
+|---|---|---|
+| Perfil | `demo` | `prod` |
+| Aplicación | Maven en Windows | Contenedor Docker |
+| Dirección | `localhost:8080` | `127.0.0.1:8080` |
+| PostgreSQL | Contenedor, puerto `5433` | Contenedor interno |
+| Base | `gestion_riego_demo` | `gestion_riego` |
+| Seed | Sí | No |
+| Datos iniciales | Ficticios | Vacíos |
+| Prometheus y Grafana | No requeridos | Sí |
+| Finalidad | Demostración funcional | Validación del despliegue |
+
+Aunque `localhost` y `127.0.0.1` representan el mismo equipo, esta guía los utiliza para distinguir conceptualmente ambos modos. No pueden utilizar simultáneamente el mismo puerto 8080.
+
+---
+
+# 6. Prueba rápida de salud
+
+En producción local:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8080/actuator/health
+```
+
+Debe mostrar estado:
+
+```text
+UP
+```
+
+Comprobar contenedores:
+
+```powershell
+docker ps
 ```
 
 ---
 
-## 7. Requisitos
+# 7. API REST disponible
 
-### Desarrollo local
+Después de iniciar sesión como administrador u operador:
 
-- Java 21.
-- Maven 3.9 o superior.
-- PostgreSQL 18, o Docker Desktop.
-- Git.
+```text
+GET    /api/v1/agricultores
+GET    /api/v1/agricultores/{id}
+POST   /api/v1/agricultores
+PUT    /api/v1/agricultores/{id}
+PATCH  /api/v1/agricultores/{id}/estado
+DELETE /api/v1/agricultores/{id}
 
-Comprobar versiones:
+GET    /api/v1/parcelas
+GET    /api/v1/parcelas/{id}
 
-```bash
-java -version
-mvn -version
-docker version
-docker compose version
-git --version
+GET    /api/v1/turnos
+GET    /api/v1/turnos/{id}
+POST   /api/v1/turnos/{id}/iniciar
+POST   /api/v1/turnos/{id}/completar
+POST   /api/v1/turnos/{id}/cancelar
+```
+
+Swagger:
+
+```text
+http://127.0.0.1:8080/swagger-ui.html
 ```
 
 ---
 
-## 8. Clonar y preparar el proyecto
+# 8. Pruebas automatizadas opcionales
 
-```bash
-git clone URL_DEL_REPOSITORIO
-git switch main
-cd gestion-riego
-```
+Con Docker Desktop encendido:
 
-Instalar dependencias y compilar:
-
-```bash
-mvn clean package -DskipTests
-```
-
-Ejecutar todas las verificaciones:
-
-```bash
+```powershell
 mvn clean verify
 ```
 
+Resultado requerido:
+
+```text
+BUILD SUCCESS
+```
+
+Las pruebas de integración crean automáticamente un PostgreSQL temporal mediante Testcontainers. No es necesario crear ese contenedor manualmente.
+
 ---
 
-## 9. Ejecución local con Maven
+# 9. Problemas frecuentes
 
-### Opción A: PostgreSQL local
+## Docker no responde
 
-Configura las variables requeridas por el perfil de desarrollo y ejecuta:
+Abrir Docker Desktop y esperar. Después ejecutar:
 
-```bash
+```powershell
+docker info
+```
+
+## Puerto 8080 ocupado
+
+```powershell
+Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue
+```
+
+Detener el modo que ya usa el puerto antes de iniciar el otro.
+
+## El contenedor demo ya existe
+
+```powershell
+docker ps -a --filter name=vichayal-postgres-demo
+```
+
+Reutilizarlo:
+
+```powershell
+docker compose -f compose-demo.yaml up -d
+```
+
+## La aplicación productiva reinicia
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml logs --tail=200 app
+```
+
+## La contraseña de PostgreSQL cambió después de crear el volumen
+
+Las variables de entorno no cambian la contraseña almacenada en un volumen existente. En una evaluación sin datos importantes, resetear producción local:
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml down -v
+```
+
+```powershell
+docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml up -d --build
+```
+
+---
+
+# 10. Secuencia mínima recomendada
+
+## Primero: demo con datos ficticios
+
+```powershell
+cd C:\Proyectos\gestion-riego
+docker compose -f compose-demo.yaml up -d
+$env:SPRING_PROFILES_ACTIVE="demo"
 mvn spring-boot:run
 ```
 
@@ -322,714 +707,54 @@ Abrir:
 http://localhost:8080/login
 ```
 
-Detener:
+Al terminar, presionar `Control + C`.
 
-```text
-Control + C
-```
+## Segundo: producción local Docker
 
-### Opción B: ejecutar el JAR
-
-```bash
-mvn clean package -DskipTests
-```
-
-```bash
-java -jar target/gestion-riego-0.0.3-SNAPSHOT.jar
-```
-
----
-
-## 10. Entorno demo
-
-La configuración demo utiliza un PostgreSQL separado y datos ficticios.
-
-Iniciar:
-
-```bash
-docker compose -f compose-demo.yaml up -d --build
-```
-
-Ver estado:
-
-```bash
-docker compose -f compose-demo.yaml ps
-```
-
-Ver logs:
-
-```bash
-docker compose -f compose-demo.yaml logs -f
-```
-
-Detener conservando datos:
-
-```bash
+```powershell
 docker compose -f compose-demo.yaml stop
+Copy-Item .env.prod.example .env.prod
+notepad .env.prod
 ```
 
-Iniciar contenedores detenidos:
+Después de configurar las claves:
 
-```bash
-docker compose -f compose-demo.yaml start
-```
-
-Eliminar contenedores conservando volumen:
-
-```bash
-docker compose -f compose-demo.yaml down
-```
-
-Reiniciar demo desde cero, eliminando su volumen:
-
-```bash
-docker compose -f compose-demo.yaml down -v
-```
-
-```bash
-docker compose -f compose-demo.yaml up -d --build
-```
-
-### Seed demo
-
-El seed se activa mediante el perfil `demo`. La implementación usa los componentes ubicados en:
-
-```text
-src/main/java/pe/vichaval/gestionriego/config/seed/
-```
-
-Para revisar las condiciones exactas:
-
-```bash
-grep -R -n 'Profile\|ConditionalOnProperty\|demo.seed' src/main/java/pe/vichaval/gestionriego/config/seed src/main/resources
-```
-
-Para recrear completamente los datos demo:
-
-```bash
-docker compose -f compose-demo.yaml down -v
-```
-
-```bash
-docker compose -f compose-demo.yaml up -d --build
-```
-
-El seed debe ser idempotente: reiniciar el contenedor no debe duplicar datos.
-
----
-
-## 11. Producción local con Docker Compose
-
-### Crear archivo de entorno
-
-```bash
-cp .env.prod.example .env.prod
-```
-
-Editar:
-
-```bash
-nano .env.prod
-```
-
-Comprobar que Git lo ignore:
-
-```bash
-git check-ignore -v .env.prod
-```
-
-Validar configuración sin revelar secretos:
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml config --quiet
-```
-
-### Construir e iniciar
-
-```bash
+```powershell
 docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml up -d --build
-```
-
-### Estado
-
-```bash
+Start-Sleep -Seconds 25
 docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml ps
 ```
 
-### Logs de aplicación
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml logs --tail=200 app
-```
-
-### Logs continuos
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml logs -f app
-```
-
-### Reiniciar solo la aplicación
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml restart app
-```
-
-### Reconstruir solo la aplicación
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml up -d --build --force-recreate app
-```
-
-### Detener sin eliminar
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml stop
-```
-
-### Volver a iniciar
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml start
-```
-
-### Eliminar contenedores conservando volúmenes
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml down
-```
-
-### Reinicio total con eliminación de datos
-
-> Advertencia: elimina PostgreSQL, Prometheus y Grafana del proyecto local.
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml down -v
-```
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml up -d --build
-```
-
----
-
-## 12. Enlaces principales
-
-| Recurso | Dirección |
-|---|---|
-| Login | http://127.0.0.1:8080/login |
-| Dashboard | http://127.0.0.1:8080/dashboard |
-| Salud | http://127.0.0.1:8080/actuator/health |
-| Métricas | http://127.0.0.1:8080/actuator/prometheus |
-| Swagger UI | http://127.0.0.1:8080/swagger-ui.html |
-| OpenAPI JSON | http://127.0.0.1:8080/v3/api-docs |
-| Prometheus | http://127.0.0.1:9090 |
-| Objetivos Prometheus | http://127.0.0.1:9090/targets |
-| Grafana | http://127.0.0.1:3000 |
-| pgAdmin de desarrollo, si está activo | http://127.0.0.1:5050 |
-
-La aplicación se publica únicamente en `127.0.0.1` en el entorno local de producción. Para exposición externa se requiere proxy inverso, TLS, control de red y gestión segura de secretos.
-
----
-
-## 13. Health checks
-
-Comprobar aplicación:
-
-```bash
-curl --fail --silent http://127.0.0.1:8080/actuator/health
-```
-
-Resultado esperado:
-
-```json
-{"groups":["liveness","readiness"],"status":"UP"}
-```
-
-Comprobar PostgreSQL:
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml exec postgres pg_isready -U gestion_prod -d gestion_riego
-```
-
-Comprobar Prometheus:
-
-```bash
-curl --fail --silent http://127.0.0.1:8080/actuator/prometheus
-```
-
-Buscar métricas del negocio:
-
-```bash
-curl --fail --silent http://127.0.0.1:8080/actuator/prometheus | grep '^vichayal_'
-```
-
----
-
-## 14. API REST v10.0
-
-### Base URL
+Abrir:
 
 ```text
-http://127.0.0.1:8080/api/v1
-```
-
-### Agricultores
-
-```text
-GET    /api/v1/agricultores
-GET    /api/v1/agricultores/{id}
-POST   /api/v1/agricultores
-PUT    /api/v1/agricultores/{id}
-PATCH  /api/v1/agricultores/{id}/estado
-DELETE /api/v1/agricultores/{id}
-```
-
-Ejemplo de creación:
-
-```json
-{
-  "dni": "12345678",
-  "nombres": "Agricultor",
-  "apellidos": "Prueba API",
-  "telefono": "999999999",
-  "sector": "Norte",
-  "estado": "ACTIVO"
-}
-```
-
-### Parcelas
-
-```text
-GET /api/v1/parcelas
-GET /api/v1/parcelas/{id}
-```
-
-### Turnos
-
-```text
-GET  /api/v1/turnos
-GET  /api/v1/turnos/{id}
-POST /api/v1/turnos/{id}/iniciar
-POST /api/v1/turnos/{id}/completar
-POST /api/v1/turnos/{id}/cancelar
-```
-
-Ejemplo de cancelación:
-
-```json
-{
-  "motivo": "Suspensión temporal del servicio"
-}
-```
-
-### Seguridad de la API actual
-
-- Administrador y operador pueden acceder a agricultores, parcelas y turnos.
-- Tesorería no accede a la API operativa.
-- Swagger está restringido al administrador.
-- v10.0 usa la sesión web existente.
-- Los tokens para React, Angular y aplicación móvil se incorporarán en v10.1.
-
----
-
-## 15. Migraciones Flyway
-
-Migraciones actuales:
-
-```text
-V1  schema
-V2  estados y trazabilidad
-V3  conceptos y cuentas por cobrar
-V4  vinculación de pagos
-V5  egresos y devoluciones
-V6  cierres de caja
-V7  bitácora de auditoría
-V8  integridad financiera y correlativos
-```
-
-Consultar historial:
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml exec postgres psql -U gestion_prod -d gestion_riego -P pager=off -c "SELECT installed_rank, version, description, success FROM flyway_schema_history ORDER BY installed_rank;"
-```
-
-No modifiques una migración ya aplicada. Crea una nueva migración para cambios posteriores.
-
----
-
-## 16. Pruebas
-
-### Pruebas unitarias
-
-```bash
-mvn test
-```
-
-### Compilar pruebas
-
-```bash
-mvn test-compile
-```
-
-### Verificación completa
-
-```bash
-mvn clean verify
-```
-
-### Ejecutar una clase unitaria
-
-```bash
-mvn -Dtest=GlobalExceptionHandlerTest test
-```
-
-### Ejecutar integraciones específicas
-
-```bash
-mvn clean verify -Dit.test=SecurityAccessIT,FlywaySchemaIT,ApiAccessIT
-```
-
-### Informes
-
-```text
-target/surefire-reports/
-target/failsafe-reports/
-target/site/jacoco/index.html
-```
-
-Abrir cobertura en macOS:
-
-```bash
-open target/site/jacoco/index.html
+http://127.0.0.1:8080/login
 ```
 
 ---
 
-## 17. Respaldo de PostgreSQL
+# 11. Credenciales de evaluación
 
-Crear respaldo:
-
-```bash
-ENV_FILE=.env.prod COMPOSE_FILE=compose-prod.yaml COMPOSE_PROJECT_NAME=vichayal_prod ./scripts/backup-postgres.sh
-```
-
-Listar respaldos:
-
-```bash
-ls -lh backups
-```
-
-Verificar SHA-256:
-
-```bash
-shasum -a 256 -c backups/*.dump.sha256
-```
-
-Seleccionar el respaldo más reciente:
-
-```bash
-BACKUP_FILE=$(find backups -type f -name '*.dump' -print | sort | tail -1)
-echo "$BACKUP_FILE"
-```
-
----
-
-## 18. Restauración de prueba
-
-```bash
-RESTORE_TARGET_DB=gestion_riego_restore_test ENV_FILE=.env.prod COMPOSE_FILE=compose-prod.yaml COMPOSE_PROJECT_NAME=vichayal_prod ./scripts/restore-postgres.sh "$BACKUP_FILE"
-```
-
-Comprobar tablas:
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml exec postgres psql -U gestion_prod -d gestion_riego_restore_test -P pager=off -c '\dt'
-```
-
-Comprobar Flyway restaurado:
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml exec postgres psql -U gestion_prod -d gestion_riego_restore_test -P pager=off -c "SELECT version, description, success FROM flyway_schema_history ORDER BY installed_rank;"
-```
-
-Nunca ensayes una restauración directamente sobre la base productiva.
-
----
-
-## 19. Mantenimiento
-
-La auditoría conserva por defecto 365 días y ejecuta su depuración a las 02:30, zona `America/Lima`.
-
-Variables:
-
-```dotenv
-AUDIT_RETENTION_DAYS=365
-AUDIT_CLEANUP_CRON=0 30 2 * * *
-```
-
-No configures una retención menor de 30 días.
-
----
-
-## 20. Prometheus y Grafana
-
-Iniciar junto con producción:
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml up -d
-```
-
-Detener solo observabilidad:
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml stop prometheus grafana
-```
-
-Iniciar nuevamente:
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml start prometheus grafana
-```
-
-No uses `down -v` si deseas conservar las series de Prometheus y la configuración persistente de Grafana.
-
----
-
-## 21. Integración continua
-
-El flujo de GitHub Actions se encuentra en:
+El responsable del proyecto debe completar y entregar este bloque por separado:
 
 ```text
-.github/workflows/ci.yml
+DEMO
+
+Administrador
+Usuario: admin
+Clave: Admin123*
+
+Operador
+Usuario: operador
+Clave: Operador123*
+
+Tesorería
+Usuario: tesoreria
+Clave: Tesoreria123*
+
+Grafana
+Usuario: admin
+Clave: 7pcv4bG68Ox10i1hFHhG+KqthbIQoyz1WVXZWC143U4w/UkVe9LefDUd8GDjksTh
 ```
 
-Acciones principales:
-
-1. Descargar el repositorio.
-2. Configurar Java 21.
-3. Ejecutar `mvn clean verify`.
-4. Construir la imagen Docker.
-5. Comprobar que la imagen use un usuario no privilegiado.
-6. Publicar informes de pruebas como artefactos.
-
-Ejecutar localmente el equivalente principal:
-
-```bash
-mvn --batch-mode --no-transfer-progress clean verify
-```
-
-Construir la imagen:
-
-```bash
-docker build -t vichayal-riego:10.0.0 .
-```
-
-Comprobar usuario del contenedor:
-
-```bash
-docker image inspect vichayal-riego:10.0.0 --format '{{.Config.User}}'
-```
-
-Resultado esperado:
-
-```text
-10001:10001
-```
-
----
-
-## 22. Git y estrategia de versiones
-
-Ver estado:
-
-```bash
-git status
-```
-
-Agregar cambios:
-
-```bash
-git add .
-```
-
-Comprobar lo preparado:
-
-```bash
-git diff --cached --name-status
-```
-
-Crear commit:
-
-```bash
-git commit -m "Incorporar API REST operativa v10 y login responsive"
-```
-
-Crear etiqueta:
-
-```bash
-git tag -a v10.0.0 -m "Vichayal Riego Web v10 API REST inicial"
-```
-
-Publicar rama:
-
-```bash
-git push -u origin feature/v10-api-rest
-```
-
-Publicar etiqueta:
-
-```bash
-git push origin v10.0.0
-```
-
-`target/`, `.env.prod` y los archivos de respaldo deben estar ignorados por Git.
-
----
-
-## 23. Solución de problemas
-
-### La aplicación no inicia por contraseña PostgreSQL
-
-Síntoma:
-
-```text
-password authentication failed for user gestion_prod
-```
-
-Causa habitual: `.env.prod` cambió, pero el volumen conserva la contraseña anterior.
-
-Si los datos son prescindibles:
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml down -v
-```
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml up -d --build
-```
-
-### Puerto 8080 ocupado
-
-```bash
-lsof -i :8080
-```
-
-### Docker no disponible
-
-```bash
-docker info
-```
-
-### Ver causa de reinicio
-
-```bash
-docker inspect vichayal_prod-app-1 --format 'estado={{.State.Status}} reinicios={{.RestartCount}} salida={{.State.ExitCode}}'
-```
-
-### Ver logs recientes
-
-```bash
-docker compose -p vichayal_prod --env-file .env.prod -f compose-prod.yaml -f compose-observability.yaml logs --tail=200 app
-```
-
-### Endpoint inexistente devuelve 500
-
-Debe existir un manejador específico para `NoResourceFoundException` que responda 404. Las pruebas `SecurityAccessIT` verifican esta conducta.
-
-### El login no cambia visualmente
-
-La plantilla activa es:
-
-```text
-src/main/resources/templates/auth/login.html
-```
-
-El CSS exclusivo es:
-
-```text
-src/main/resources/static/css/login.css
-```
-
-El controlador original es:
-
-```text
-src/main/java/pe/vichaval/gestionriego/security/controller/LoginController.java
-```
-
-No crees un segundo `LoginController`, porque produciría un conflicto de beans.
-
----
-
-## 24. Estructura relevante
-
-```text
-src/main/java/pe/vichaval/gestionriego/
-├── agricultor/
-├── api/v1/
-│   ├── agricultor/
-│   ├── parcela/
-│   ├── turno/
-│   ├── common/
-│   ├── config/
-│   └── error/
-├── auditoria/
-├── caja/
-├── config/
-├── dashboard/
-├── error/
-├── finanzas/
-├── inteligencia/
-├── mantenimiento/
-├── observabilidad/
-├── parcela/
-├── reporte/
-├── riego/
-├── security/
-├── tesoreria/
-└── usuario/
-
-src/main/resources/
-├── db/migration/
-├── static/css/
-│   ├── app.css
-│   └── login.css
-├── templates/
-│   └── auth/login.html
-├── application.properties
-├── application-demo.properties
-└── application-prod.properties
-```
-
----
-
-## 25. Hoja de ruta
-
-```text
-v10.0  API REST inicial para agricultores, parcelas y turnos
-v10.1  Seguridad API y cuenta del agricultor
-v10.2  Centro de notificaciones persistentes
-v10.3  Notificaciones push mediante Firebase Cloud Messaging
-v10.4  WebSocket opcional
-v11.0  Aplicación móvil del agricultor
-v12.0  Inteligencia predictiva
-```
-
----
-
-## 26. Seguridad operativa
-
-- No subir `.env.prod`.
-- No registrar contraseñas en logs.
-- No publicar Actuator, Prometheus, Grafana o PostgreSQL directamente en Internet.
-- Usar TLS y proxy inverso para exposición externa.
-- Rotar cualquier secreto compartido accidentalmente.
-- Ejecutar la imagen con usuario `10001:10001`.
-- Conservar `no-new-privileges:true`.
-- Mantener PostgreSQL sin puerto público en producción.
-- Realizar respaldos y pruebas de restauración.
-
----
-
-## 27. Licencia y uso
-
-Proyecto académico y administrativo orientado a la gestión de riego de Vichayal. Antes de un despliegue institucional definitivo deben revisarse licenciamiento, protección de datos personales, continuidad operativa, respaldo, recuperación y responsabilidades de administración.
+No utilizar claves de producción real para la evaluación.

@@ -10,3 +10,4 @@ target/
 # Respaldos temporales locales
 *.backup-*
 *.contaminado
+.DS_Store
