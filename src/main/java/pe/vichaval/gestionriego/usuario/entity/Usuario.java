@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import java.time.OffsetDateTime;
 
 @Entity
@@ -40,7 +41,8 @@ public class Usuario {
     @Column(name = "fecha_creacion", nullable = false)
     private OffsetDateTime fechaCreacion;
 
-    protected Usuario() {}
+    protected Usuario() {
+    }
 
     public Usuario(String username, String passwordHash, String nombres, String apellidos, Rol rol) {
         this.username = username;
@@ -60,16 +62,47 @@ public class Usuario {
         this.activo = activo;
     }
 
-    public void cambiarPassword(String passwordHash) { this.passwordHash = passwordHash; }
-    public void activar() { this.activo = true; }
-    public void desactivar() { this.activo = false; }
+    public void cambiarPassword(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
 
-    public Long getId() { return id; }
-    public String getNombres() { return nombres; }
-    public String getApellidos() { return apellidos; }
-    public String getUsername() { return username; }
-    public String getPasswordHash() { return passwordHash; }
-    public boolean isActivo() { return activo; }
-    public Rol getRol() { return rol; }
-    public OffsetDateTime getFechaCreacion() { return fechaCreacion; }
+    public void activar() {
+        this.activo = true;
+    }
+
+    public void desactivar() {
+        this.activo = false;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getNombres() {
+        return nombres;
+    }
+
+    public String getApellidos() {
+        return apellidos;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public Rol getRol() {
+        return rol;
+    }
+
+    public OffsetDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
 }

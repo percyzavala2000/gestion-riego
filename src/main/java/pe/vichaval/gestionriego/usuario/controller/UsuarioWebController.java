@@ -24,7 +24,9 @@ import pe.vichaval.gestionriego.usuario.service.UsuarioService;
 public class UsuarioWebController {
     private final UsuarioService service;
 
-    public UsuarioWebController(UsuarioService service) { this.service = service; }
+    public UsuarioWebController(UsuarioService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public String listar(Model model, @AuthenticationPrincipal UsuarioPrincipal principal) {
@@ -65,7 +67,10 @@ public class UsuarioWebController {
             @AuthenticationPrincipal UsuarioPrincipal principal,
             RedirectAttributes redirectAttributes) {
         model.addAttribute("id", id);
-        if (result.hasErrors()) { cargarRoles(model); return "usuario/form"; }
+        if (result.hasErrors()) {
+            cargarRoles(model);
+            return "usuario/form";
+        }
         try {
             service.guardar(form, id, principal.getId());
             redirectAttributes.addFlashAttribute("exito", id == null ? "Usuario creado correctamente" : "Usuario actualizado correctamente");
@@ -118,5 +123,7 @@ public class UsuarioWebController {
         }
     }
 
-    private void cargarRoles(Model model) { model.addAttribute("roles", service.listarRoles()); }
+    private void cargarRoles(Model model) {
+        model.addAttribute("roles", service.listarRoles());
+    }
 }

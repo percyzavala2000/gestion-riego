@@ -16,20 +16,20 @@ public interface TurnoRiegoRepository
         extends JpaRepository<TurnoRiego, Long> {
 
     @Query("""
-        SELECT COUNT(t) > 0
-        FROM TurnoRiego t
-        WHERE t.fecha = :fecha
-          AND (
-              :ignorarId IS NULL
-              OR t.id <> :ignorarId
-          )
-          AND t.estado NOT IN (
-              'CANCELADO',
-              'VENCIDO'
-          )
-          AND t.horaInicio < :horaFin
-          AND t.horaFin > :horaInicio
-        """)
+            SELECT COUNT(t) > 0
+            FROM TurnoRiego t
+            WHERE t.fecha = :fecha
+              AND (
+                  :ignorarId IS NULL
+                  OR t.id <> :ignorarId
+              )
+              AND t.estado NOT IN (
+                  'CANCELADO',
+                  'VENCIDO'
+              )
+              AND t.horaInicio < :horaFin
+              AND t.horaFin > :horaInicio
+            """)
     boolean hayCruce(
             @Param("fecha") LocalDate fecha,
             @Param("horaInicio") LocalTime horaInicio,

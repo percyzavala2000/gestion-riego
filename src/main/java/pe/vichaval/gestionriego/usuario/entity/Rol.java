@@ -24,9 +24,18 @@ public class Rol {
     @Column(nullable = false, length = 80)
     private String nombre;
 
-    protected Rol() {}
+    protected Rol() {
+    }
 
-    public Long getId() { return id; }
-    public CodigoRol getCodigo() { return codigo; }
-    public String getNombre() { return nombre; }
+    public Long getId() {
+        return id;
+    }
+
+    public CodigoRol getCodigo() {
+        return codigo;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
 }

@@ -16,7 +16,7 @@ public class MetricasNegocio {
     private final DevolucionRepository devoluciones;
 
     public MetricasNegocio(MeterRegistry registry, PagoRepository pagos,
-            CuentaCobrarRepository cuentas, DevolucionRepository devoluciones) {
+                           CuentaCobrarRepository cuentas, DevolucionRepository devoluciones) {
         this.registry = registry;
         this.pagos = pagos;
         this.cuentas = cuentas;

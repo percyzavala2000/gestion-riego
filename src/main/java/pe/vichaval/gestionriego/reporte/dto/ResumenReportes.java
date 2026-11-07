@@ -10,4 +10,5 @@ public record ResumenReportes(
         BigDecimal ingresos,
         BigDecimal deudaPendiente,
         long cuentasPendientes,
-        long cuentasVencidas) {}
+        long cuentasVencidas) {
+}

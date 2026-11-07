@@ -8,5 +8,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 @Profile("demo")
 public class DemoEnvironmentAdvice {
     @ModelAttribute("entornoDemo")
-    public boolean entornoDemo() { return true; }
+    public boolean entornoDemo() {
+        return true;
+    }
 }

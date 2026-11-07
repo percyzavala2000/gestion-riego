@@ -21,28 +21,28 @@ class CuentaCobrarTest {
     void cuentaNuevaDebeConservarSaldoCompleto() {
 
         CuentaCobrar cuenta =
-            crearCuenta(
-                new BigDecimal("500.00")
-            );
+                crearCuenta(
+                        new BigDecimal("500.00")
+                );
 
         assertMontoIgual(
-            "500.00",
-            cuenta.getMontoTotal()
+                "500.00",
+                cuenta.getMontoTotal()
         );
 
         assertMontoIgual(
-            "0.00",
-            cuenta.getMontoPagado()
+                "0.00",
+                cuenta.getMontoPagado()
         );
 
         assertMontoIgual(
-            "500.00",
-            cuenta.getSaldoPendiente()
+                "500.00",
+                cuenta.getSaldoPendiente()
         );
 
         assertEquals(
-            "PENDIENTE",
-            cuenta.getEstado()
+                "PENDIENTE",
+                cuenta.getEstado()
         );
     }
 
@@ -51,27 +51,27 @@ class CuentaCobrarTest {
     void pagoParcialDebeReducirSaldo() {
 
         CuentaCobrar cuenta =
-            crearCuenta(
-                new BigDecimal("500.00")
-            );
+                crearCuenta(
+                        new BigDecimal("500.00")
+                );
 
         cuenta.aplicarPago(
-            new BigDecimal("200.00")
+                new BigDecimal("200.00")
         );
 
         assertMontoIgual(
-            "200.00",
-            cuenta.getMontoPagado()
+                "200.00",
+                cuenta.getMontoPagado()
         );
 
         assertMontoIgual(
-            "300.00",
-            cuenta.getSaldoPendiente()
+                "300.00",
+                cuenta.getSaldoPendiente()
         );
 
         assertEquals(
-            "PAGO_PARCIAL",
-            cuenta.getEstado()
+                "PAGO_PARCIAL",
+                cuenta.getEstado()
         );
     }
 
@@ -80,21 +80,21 @@ class CuentaCobrarTest {
     void pagoSuperiorAlSaldoDebeSerRechazado() {
 
         CuentaCobrar cuenta =
-            crearCuenta(
-                new BigDecimal("500.00")
-            );
+                crearCuenta(
+                        new BigDecimal("500.00")
+                );
 
         IllegalStateException excepcion =
-            assertThrows(
-                IllegalStateException.class,
-                () -> cuenta.aplicarPago(
-                    new BigDecimal("600.00")
-                )
-            );
+                assertThrows(
+                        IllegalStateException.class,
+                        () -> cuenta.aplicarPago(
+                                new BigDecimal("600.00")
+                        )
+                );
 
         assertEquals(
-            "El pago supera el saldo pendiente",
-            excepcion.getMessage()
+                "El pago supera el saldo pendiente",
+                excepcion.getMessage()
         );
 
         /*
@@ -102,18 +102,18 @@ class CuentaCobrarTest {
          * la cuenta.
          */
         assertMontoIgual(
-            "0.00",
-            cuenta.getMontoPagado()
+                "0.00",
+                cuenta.getMontoPagado()
         );
 
         assertMontoIgual(
-            "500.00",
-            cuenta.getSaldoPendiente()
+                "500.00",
+                cuenta.getSaldoPendiente()
         );
 
         assertEquals(
-            "PENDIENTE",
-            cuenta.getEstado()
+                "PENDIENTE",
+                cuenta.getEstado()
         );
     }
 
@@ -121,33 +121,33 @@ class CuentaCobrarTest {
             BigDecimal monto
     ) {
         CuentaCobrarForm form =
-            new CuentaCobrarForm();
+                new CuentaCobrarForm();
 
         form.setAgricultorId(1L);
         form.setConceptoId(1L);
         form.setMontoTotal(monto);
         form.setFechaEmision(
-            LocalDate.now()
+                LocalDate.now()
         );
         form.setFechaVencimiento(
-            LocalDate.now().plusDays(30)
+                LocalDate.now().plusDays(30)
         );
         form.setObservaciones(
-            "Cuenta de prueba"
+                "Cuenta de prueba"
         );
 
         return new CuentaCobrar(
-            "CC-TEST-001",
-            form,
-            crearAgricultor(),
-            crearConcepto()
+                "CC-TEST-001",
+                form,
+                crearAgricultor(),
+                crearConcepto()
         );
     }
 
     private Agricultor crearAgricultor() {
 
         AgricultorForm form =
-            new AgricultorForm();
+                new AgricultorForm();
 
         form.setDni("12345678");
         form.setNombres("Agricultor");
@@ -162,12 +162,12 @@ class CuentaCobrarTest {
     private ConceptoCobro crearConcepto() {
 
         ConceptoCobroForm form =
-            new ConceptoCobroForm();
+                new ConceptoCobroForm();
 
         form.setCodigo("PRUEBA");
         form.setNombre("Concepto de prueba");
         form.setDescripcion(
-            "Concepto utilizado en la prueba"
+                "Concepto utilizado en la prueba"
         );
         form.setActivo(true);
 
@@ -183,9 +183,9 @@ class CuentaCobrarTest {
             BigDecimal actual
     ) {
         assertEquals(
-            0,
-            new BigDecimal(esperado)
-                .compareTo(actual)
+                0,
+                new BigDecimal(esperado)
+                        .compareTo(actual)
         );
     }
 }

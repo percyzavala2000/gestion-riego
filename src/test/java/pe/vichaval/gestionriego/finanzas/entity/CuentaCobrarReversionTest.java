@@ -2,8 +2,10 @@ package pe.vichaval.gestionriego.finanzas.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
+
 import org.junit.jupiter.api.Test;
 import pe.vichaval.gestionriego.agricultor.dto.AgricultorForm;
 import pe.vichaval.gestionriego.agricultor.entity.Agricultor;
@@ -33,13 +35,22 @@ class CuentaCobrarReversionTest {
 
     private CuentaCobrar cuenta(String monto) {
         AgricultorForm af = new AgricultorForm();
-        af.setDni("12345678"); af.setNombres("Prueba"); af.setApellidos("Financiera");
-        af.setTelefono("999999999"); af.setSector("Norte"); af.setEstado("ACTIVO");
+        af.setDni("12345678");
+        af.setNombres("Prueba");
+        af.setApellidos("Financiera");
+        af.setTelefono("999999999");
+        af.setSector("Norte");
+        af.setEstado("ACTIVO");
         ConceptoCobroForm cf = new ConceptoCobroForm();
-        cf.setCodigo("PRUEBA"); cf.setNombre("Prueba"); cf.setActivo(true);
+        cf.setCodigo("PRUEBA");
+        cf.setNombre("Prueba");
+        cf.setActivo(true);
         CuentaCobrarForm f = new CuentaCobrarForm();
-        f.setAgricultorId(1L); f.setConceptoId(1L); f.setMontoTotal(new BigDecimal(monto));
-        f.setFechaEmision(LocalDate.now()); f.setFechaVencimiento(LocalDate.now().plusDays(30));
+        f.setAgricultorId(1L);
+        f.setConceptoId(1L);
+        f.setMontoTotal(new BigDecimal(monto));
+        f.setFechaEmision(LocalDate.now());
+        f.setFechaVencimiento(LocalDate.now().plusDays(30));
         return new CuentaCobrar("CC-TEST-REV", f, new Agricultor(af), new ConceptoCobro(cf));
     }
 

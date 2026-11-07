@@ -1,6 +1,7 @@
 package pe.vichaval.gestionriego.mantenimiento;
 
 import java.time.OffsetDateTime;
+
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
@@ -19,8 +20,9 @@ public class MantenimientoAuditoriaService {
     private final int retentionDays;
 
     public MantenimientoAuditoriaService(EventoAuditoriaRepository repository, MeterRegistry registry,
-            @Value("${vichayal.audit.retention-days:365}") int retentionDays) {
-        if (retentionDays < 30) throw new IllegalArgumentException("La retención de auditoría no puede ser menor a 30 días");
+                                         @Value("${vichayal.audit.retention-days:365}") int retentionDays) {
+        if (retentionDays < 30)
+            throw new IllegalArgumentException("La retención de auditoría no puede ser menor a 30 días");
         this.repository = repository;
         this.retentionDays = retentionDays;
         this.eliminados = Counter.builder("vichayal_auditoria_eventos_eliminados_total")

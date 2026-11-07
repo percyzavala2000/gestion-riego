@@ -2,6 +2,7 @@ package pe.vichaval.gestionriego.usuario.service;
 
 import java.util.Comparator;
 import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,12 +30,14 @@ public class UsuarioService {
     @Transactional(readOnly = true)
     public List<Usuario> listar() {
         return usuarios.findAll().stream()
-            .sorted(Comparator.comparing(Usuario::getApellidos).thenComparing(Usuario::getNombres))
-            .toList();
+                .sorted(Comparator.comparing(Usuario::getApellidos).thenComparing(Usuario::getNombres))
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<Rol> listarRoles() { return roles.findAllByOrderByNombreAsc(); }
+    public List<Rol> listarRoles() {
+        return roles.findAllByOrderByNombreAsc();
+    }
 
     @Transactional(readOnly = true)
     public Usuario get(Long id) {
@@ -49,11 +52,11 @@ public class UsuarioService {
         if (id == null) {
             validarPasswordCreacion(form);
             Usuario nuevo = new Usuario(
-                username,
-                passwordEncoder.encode(form.getPassword()),
-                form.getNombres().trim(),
-                form.getApellidos().trim(),
-                rol
+                    username,
+                    passwordEncoder.encode(form.getPassword()),
+                    form.getNombres().trim(),
+                    form.getApellidos().trim(),
+                    rol
             );
             if (!form.isActivo()) nuevo.desactivar();
             usuarios.save(nuevo);
@@ -87,8 +90,8 @@ public class UsuarioService {
 
     private void validarUsername(String username, Long id) {
         boolean duplicado = id == null
-            ? usuarios.existsByUsernameIgnoreCase(username)
-            : usuarios.existsByUsernameIgnoreCaseAndIdNot(username, id);
+                ? usuarios.existsByUsernameIgnoreCase(username)
+                : usuarios.existsByUsernameIgnoreCaseAndIdNot(username, id);
         if (duplicado) throw new IllegalArgumentException("El nombre de usuario ya está registrado");
     }
 
@@ -106,7 +109,7 @@ public class UsuarioService {
             throw new IllegalStateException("No puedes desactivar tu propia cuenta");
         }
         boolean dejaDeSerAdministrador = usuario.getRol().getCodigo() == CodigoRol.ADMINISTRADOR
-            && (nuevoRol != CodigoRol.ADMINISTRADOR || !nuevoActivo);
+                && (nuevoRol != CodigoRol.ADMINISTRADOR || !nuevoActivo);
         if (dejaDeSerAdministrador) validarUltimoAdministrador(usuario);
     }
 

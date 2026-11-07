@@ -15,20 +15,28 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class SecurityAccessIT extends PostgreSqlIntegrationBase {
-    @Autowired MockMvc mvc;
+    @Autowired
+    MockMvc mvc;
 
-    @Test void anonimoEsRedirigidoAlLogin() throws Exception {
+    @Test
+    void anonimoEsRedirigidoAlLogin() throws Exception {
         mvc.perform(get("/auditoria")).andExpect(status().is3xxRedirection());
     }
-    @Test void administradorSuperaLaCapaDeAutorizacion() throws Exception {
+
+    @Test
+    void administradorSuperaLaCapaDeAutorizacion() throws Exception {
         mvc.perform(get("/auditoria/ruta-inexistente").with(user("admin").roles("ADMINISTRADOR")))
                 .andExpect(status().isNotFound());
     }
-    @Test void operadorNoAccedeAAuditoria() throws Exception {
+
+    @Test
+    void operadorNoAccedeAAuditoria() throws Exception {
         mvc.perform(get("/auditoria").with(user("operador").roles("OPERADOR")))
                 .andExpect(status().isForbidden());
     }
-    @Test void tesoreriaSuperaAutorizacionFinancieraYOperadorNo() throws Exception {
+
+    @Test
+    void tesoreriaSuperaAutorizacionFinancieraYOperadorNo() throws Exception {
         mvc.perform(get("/tesoreria/ruta-inexistente").with(user("tesoreria").roles("TESORERIA")))
                 .andExpect(status().isNotFound());
         mvc.perform(get("/tesoreria/ruta-inexistente").with(user("operador").roles("OPERADOR")))

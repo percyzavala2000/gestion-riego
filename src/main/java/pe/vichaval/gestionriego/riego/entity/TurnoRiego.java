@@ -1,3 +1,117 @@
 package pe.vichaval.gestionriego.riego.entity;
-import jakarta.persistence.*;import java.time.*;import pe.vichaval.gestionriego.parcela.entity.Parcela;import pe.vichaval.gestionriego.riego.dto.TurnoForm;
-@Entity @Table(name="turnos_riego") public class TurnoRiego { @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; @Column(nullable=false,unique=true) private String codigo; @Column(nullable=false) private LocalDate fecha; @Column(name="hora_inicio",nullable=false) private LocalTime horaInicio; @Column(name="hora_fin",nullable=false) private LocalTime horaFin; @Column(nullable=false,length=20) private String estado="PROGRAMADO"; @Column(length=255) private String observaciones; @Column(name="motivo_cancelacion",length=500) private String motivoCancelacion; @Column(name="fecha_cancelacion") private OffsetDateTime fechaCancelacion; @Column(name="fecha_actualizacion",nullable=false) private OffsetDateTime fechaActualizacion=OffsetDateTime.now(); @ManyToOne(fetch=FetchType.LAZY,optional=false) @JoinColumn(name="parcela_id",nullable=false) private Parcela parcela; protected TurnoRiego(){} public TurnoRiego(String c,TurnoForm f,LocalTime fin,Parcela p){codigo=c;actualizar(f,fin,p);} public void actualizar(TurnoForm f,LocalTime fin,Parcela p){fecha=f.getFecha();horaInicio=f.getHoraInicio();horaFin=fin;observaciones=f.getObservaciones();parcela=p;fechaActualizacion=OffsetDateTime.now();} public void iniciar(){exigir("PROGRAMADO");estado="EN_CURSO";} public void completar(){exigir("EN_CURSO");estado="COMPLETADO";} public void cancelar(String motivo){if("COMPLETADO".equals(estado)||"CANCELADO".equals(estado)||"VENCIDO".equals(estado))throw new IllegalStateException("No se puede cancelar");if(motivo==null||motivo.isBlank())throw new IllegalArgumentException("Motivo obligatorio");estado="CANCELADO";motivoCancelacion=motivo;fechaCancelacion=OffsetDateTime.now();} public void vencer(){if("PROGRAMADO".equals(estado))estado="VENCIDO";} private void exigir(String e){if(!e.equals(estado))throw new IllegalStateException("Transicion no permitida");} public Long getId(){return id;}public String getCodigo(){return codigo;}public LocalDate getFecha(){return fecha;}public LocalTime getHoraInicio(){return horaInicio;}public LocalTime getHoraFin(){return horaFin;}public String getEstado(){return estado;}public String getObservaciones(){return observaciones;}public String getMotivoCancelacion(){return motivoCancelacion;}public Parcela getParcela(){return parcela;} }
+
+import jakarta.persistence.*;
+
+import java.time.*;
+
+import pe.vichaval.gestionriego.parcela.entity.Parcela;
+import pe.vichaval.gestionriego.riego.dto.TurnoForm;
+
+@Entity
+@Table(name = "turnos_riego")
+public class TurnoRiego {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false, unique = true)
+    private String codigo;
+    @Column(nullable = false)
+    private LocalDate fecha;
+    @Column(name = "hora_inicio", nullable = false)
+    private LocalTime horaInicio;
+    @Column(name = "hora_fin", nullable = false)
+    private LocalTime horaFin;
+    @Column(nullable = false, length = 20)
+    private String estado = "PROGRAMADO";
+    @Column(length = 255)
+    private String observaciones;
+    @Column(name = "motivo_cancelacion", length = 500)
+    private String motivoCancelacion;
+    @Column(name = "fecha_cancelacion")
+    private OffsetDateTime fechaCancelacion;
+    @Column(name = "fecha_actualizacion", nullable = false)
+    private OffsetDateTime fechaActualizacion = OffsetDateTime.now();
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "parcela_id", nullable = false)
+    private Parcela parcela;
+
+    protected TurnoRiego() {
+    }
+
+    public TurnoRiego(String c, TurnoForm f, LocalTime fin, Parcela p) {
+        codigo = c;
+        actualizar(f, fin, p);
+    }
+
+    public void actualizar(TurnoForm f, LocalTime fin, Parcela p) {
+        fecha = f.getFecha();
+        horaInicio = f.getHoraInicio();
+        horaFin = fin;
+        observaciones = f.getObservaciones();
+        parcela = p;
+        fechaActualizacion = OffsetDateTime.now();
+    }
+
+    public void iniciar() {
+        exigir("PROGRAMADO");
+        estado = "EN_CURSO";
+    }
+
+    public void completar() {
+        exigir("EN_CURSO");
+        estado = "COMPLETADO";
+    }
+
+    public void cancelar(String motivo) {
+        if ("COMPLETADO".equals(estado) || "CANCELADO".equals(estado) || "VENCIDO".equals(estado))
+            throw new IllegalStateException("No se puede cancelar");
+        if (motivo == null || motivo.isBlank()) throw new IllegalArgumentException("Motivo obligatorio");
+        estado = "CANCELADO";
+        motivoCancelacion = motivo;
+        fechaCancelacion = OffsetDateTime.now();
+    }
+
+    public void vencer() {
+        if ("PROGRAMADO".equals(estado)) estado = "VENCIDO";
+    }
+
+    private void exigir(String e) {
+        if (!e.equals(estado)) throw new IllegalStateException("Transicion no permitida");
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public LocalTime getHoraInicio() {
+        return horaInicio;
+    }
+
+    public LocalTime getHoraFin() {
+        return horaFin;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public String getMotivoCancelacion() {
+        return motivoCancelacion;
+    }
+
+    public Parcela getParcela() {
+        return parcela;
+    }
+}

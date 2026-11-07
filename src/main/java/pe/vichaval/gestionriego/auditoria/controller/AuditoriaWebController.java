@@ -20,7 +20,7 @@ public class AuditoriaWebController {
 
     @GetMapping
     public String listar(@RequestParam(defaultValue = "") String q,
-            @RequestParam(defaultValue = "0") int page, Model model) {
+                         @RequestParam(defaultValue = "0") int page, Model model) {
         model.addAttribute("pagina", auditoria.buscar(q, page));
         model.addAttribute("q", q);
         return "auditoria/index";

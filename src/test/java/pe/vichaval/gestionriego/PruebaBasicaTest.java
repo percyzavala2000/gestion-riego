@@ -14,8 +14,8 @@ class PruebaBasicaTest {
         int resultado = 2 + 2;
 
         assertEquals(
-            4,
-            resultado
+                4,
+                resultado
         );
     }
 }

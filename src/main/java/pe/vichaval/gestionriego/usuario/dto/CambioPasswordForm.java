@@ -11,8 +11,19 @@ public class CambioPasswordForm {
     @NotBlank(message = "Confirma la nueva contraseña")
     private String confirmarPassword;
 
-    public String getNuevaPassword() { return nuevaPassword; }
-    public void setNuevaPassword(String nuevaPassword) { this.nuevaPassword = nuevaPassword; }
-    public String getConfirmarPassword() { return confirmarPassword; }
-    public void setConfirmarPassword(String confirmarPassword) { this.confirmarPassword = confirmarPassword; }
+    public String getNuevaPassword() {
+        return nuevaPassword;
+    }
+
+    public void setNuevaPassword(String nuevaPassword) {
+        this.nuevaPassword = nuevaPassword;
+    }
+
+    public String getConfirmarPassword() {
+        return confirmarPassword;
+    }
+
+    public void setConfirmarPassword(String confirmarPassword) {
+        this.confirmarPassword = confirmarPassword;
+    }
 }

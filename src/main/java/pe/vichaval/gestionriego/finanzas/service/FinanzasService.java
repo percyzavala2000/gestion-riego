@@ -1,15 +1,98 @@
 package pe.vichaval.gestionriego.finanzas.service;
+
 import java.util.List;
-import org.springframework.stereotype.Service;import org.springframework.transaction.annotation.Transactional;
-import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;import pe.vichaval.gestionriego.finanzas.dto.*;import pe.vichaval.gestionriego.finanzas.entity.*;import pe.vichaval.gestionriego.finanzas.repository.*;import pe.vichaval.gestionriego.infraestructura.CorrelativoService;import pe.vichaval.gestionriego.tesoreria.dto.PagoForm;import pe.vichaval.gestionriego.tesoreria.service.PagoService;
-@Service @Transactional public class FinanzasService{
-private final CuentaCobrarRepository cuentas;private final ConceptoCobroRepository conceptos;private final AgricultorRepository agricultores;private final PagoService pagos;private final CorrelativoService correlativos;
-public FinanzasService(CuentaCobrarRepository c,ConceptoCobroRepository co,AgricultorRepository a,PagoService p,CorrelativoService r){cuentas=c;conceptos=co;agricultores=a;pagos=p;correlativos=r;}
-public List<CuentaCobrar> listar(){var lista=cuentas.findAll();lista.forEach(CuentaCobrar::actualizarVencida);return lista;}
-@Transactional(readOnly=true) public CuentaCobrar get(Long id){return cuentas.findById(id).orElseThrow(()->new IllegalArgumentException("Cuenta no encontrada."));}
-public void crearCuenta(CuentaCobrarForm f){if(f.getFechaEmision()==null||f.getFechaVencimiento()==null)throw new IllegalArgumentException("Las fechas son obligatorias.");if(f.getFechaVencimiento().isBefore(f.getFechaEmision()))throw new IllegalArgumentException("El vencimiento no puede ser anterior a la emisión.");var a=agricultores.findById(f.getAgricultorId()).orElseThrow();if(!"ACTIVO".equals(a.getEstado()))throw new IllegalStateException("Agricultor inactivo.");var c=conceptos.findById(f.getConceptoId()).orElseThrow();if(!c.isActivo())throw new IllegalStateException("Concepto inactivo.");cuentas.save(new CuentaCobrar(correlativos.siguiente("seq_cuenta_codigo","CC"),f,a,c));}
-public void registrarPago(Long id,PagoCuentaForm f){CuentaCobrar c=get(id);if("ANULADA".equals(c.getEstado())||"PAGADA".equals(c.getEstado()))throw new IllegalStateException("La cuenta no admite pagos.");if(f.getMonto()==null||f.getMonto().signum()<=0)throw new IllegalArgumentException("El monto debe ser mayor que cero.");if(f.getMonto().compareTo(c.getSaldoPendiente())>0)throw new IllegalStateException("El pago supera el saldo pendiente.");PagoForm p=new PagoForm();p.setAgricultorId(c.getAgricultor().getId());p.setMonto(f.getMonto());p.setFecha(f.getFecha());p.setConcepto(c.getConcepto().getNombre()+" - "+c.getCodigo());p.setComprobante(f.getComprobante());p.setMetodo(f.getMetodo());pagos.registrar(p,c);}
-public void anular(Long id,String motivo){get(id).anular(motivo);}
-@Transactional(readOnly=true)public List<ConceptoCobro> listarConceptos(){return conceptos.findAllByOrderByNombre();}
-@Transactional(readOnly=true)public List<ConceptoCobro> conceptosActivos(){return conceptos.findByActivoTrueOrderByNombre();}
-public void crearConcepto(ConceptoCobroForm f){String codigo=f.getCodigo()==null?"":f.getCodigo().trim().toUpperCase();String nombre=f.getNombre()==null?"":f.getNombre().trim();if(codigo.isBlank()||nombre.isBlank())throw new IllegalArgumentException("Código y nombre son obligatorios.");if(conceptos.existsByCodigoIgnoreCase(codigo))throw new IllegalArgumentException("El código "+codigo+" ya está registrado.");f.setCodigo(codigo);f.setNombre(nombre);conceptos.save(new ConceptoCobro(f));}}
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;
+import pe.vichaval.gestionriego.finanzas.dto.*;
+import pe.vichaval.gestionriego.finanzas.entity.*;
+import pe.vichaval.gestionriego.finanzas.repository.*;
+import pe.vichaval.gestionriego.infraestructura.CorrelativoService;
+import pe.vichaval.gestionriego.tesoreria.dto.PagoForm;
+import pe.vichaval.gestionriego.tesoreria.service.PagoService;
+
+@Service
+@Transactional
+public class FinanzasService {
+    private final CuentaCobrarRepository cuentas;
+    private final ConceptoCobroRepository conceptos;
+    private final AgricultorRepository agricultores;
+    private final PagoService pagos;
+    private final CorrelativoService correlativos;
+
+    public FinanzasService(CuentaCobrarRepository c, ConceptoCobroRepository co, AgricultorRepository a, PagoService p, CorrelativoService r) {
+        cuentas = c;
+        conceptos = co;
+        agricultores = a;
+        pagos = p;
+        correlativos = r;
+    }
+
+    public List<CuentaCobrar> listar() {
+        var lista = cuentas.findAll();
+        lista.forEach(CuentaCobrar::actualizarVencida);
+        return lista;
+    }
+
+    @Transactional(readOnly = true)
+    public CuentaCobrar get(Long id) {
+        return cuentas.findById(id).orElseThrow(() -> new IllegalArgumentException("Cuenta no encontrada."));
+    }
+
+    public void crearCuenta(CuentaCobrarForm f) {
+        if (f.getFechaEmision() == null || f.getFechaVencimiento() == null)
+            throw new IllegalArgumentException("Las fechas son obligatorias.");
+        if (f.getFechaVencimiento().isBefore(f.getFechaEmision()))
+            throw new IllegalArgumentException("El vencimiento no puede ser anterior a la emisión.");
+        var a = agricultores.findById(f.getAgricultorId()).orElseThrow();
+        if (!"ACTIVO".equals(a.getEstado())) throw new IllegalStateException("Agricultor inactivo.");
+        var c = conceptos.findById(f.getConceptoId()).orElseThrow();
+        if (!c.isActivo()) throw new IllegalStateException("Concepto inactivo.");
+        cuentas.save(new CuentaCobrar(correlativos.siguiente("seq_cuenta_codigo", "CC"), f, a, c));
+    }
+
+    public void registrarPago(Long id, PagoCuentaForm f) {
+        CuentaCobrar c = get(id);
+        if ("ANULADA".equals(c.getEstado()) || "PAGADA".equals(c.getEstado()))
+            throw new IllegalStateException("La cuenta no admite pagos.");
+        if (f.getMonto() == null || f.getMonto().signum() <= 0)
+            throw new IllegalArgumentException("El monto debe ser mayor que cero.");
+        if (f.getMonto().compareTo(c.getSaldoPendiente()) > 0)
+            throw new IllegalStateException("El pago supera el saldo pendiente.");
+        PagoForm p = new PagoForm();
+        p.setAgricultorId(c.getAgricultor().getId());
+        p.setMonto(f.getMonto());
+        p.setFecha(f.getFecha());
+        p.setConcepto(c.getConcepto().getNombre() + " - " + c.getCodigo());
+        p.setComprobante(f.getComprobante());
+        p.setMetodo(f.getMetodo());
+        pagos.registrar(p, c);
+    }
+
+    public void anular(Long id, String motivo) {
+        get(id).anular(motivo);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ConceptoCobro> listarConceptos() {
+        return conceptos.findAllByOrderByNombre();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ConceptoCobro> conceptosActivos() {
+        return conceptos.findByActivoTrueOrderByNombre();
+    }
+
+    public void crearConcepto(ConceptoCobroForm f) {
+        String codigo = f.getCodigo() == null ? "" : f.getCodigo().trim().toUpperCase();
+        String nombre = f.getNombre() == null ? "" : f.getNombre().trim();
+        if (codigo.isBlank() || nombre.isBlank())
+            throw new IllegalArgumentException("Código y nombre son obligatorios.");
+        if (conceptos.existsByCodigoIgnoreCase(codigo))
+            throw new IllegalArgumentException("El código " + codigo + " ya está registrado.");
+        f.setCodigo(codigo);
+        f.setNombre(nombre);
+        conceptos.save(new ConceptoCobro(f));
+    }
+}
