@@ -3,8 +3,10 @@ package pe.vichaval.gestionriego.api.v1.error;
 import java.net.URI;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.bind.annotation.*;
 import pe.vichaval.gestionriego.auditoria.web.AuditoriaFilter;
 
@@ -14,6 +16,42 @@ public class ApiExceptionHandler {
     ResponseEntity<ProblemDetail> validacion(MethodArgumentNotValidException ex, HttpServletRequest r) {
         var p = problema(HttpStatus.BAD_REQUEST, "Solicitud inválida", "Uno o más campos no cumplen las reglas de validación.", r);
         p.setProperty("errores", ex.getBindingResult().getFieldErrors().stream().collect(java.util.stream.Collectors.toMap(e -> e.getField(), e -> e.getDefaultMessage() == null ? "inválido" : e.getDefaultMessage(), (a, b) -> a)));
+        return ResponseEntity.badRequest().body(p);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    ResponseEntity<ProblemDetail> validacionParametros(
+            HandlerMethodValidationException ex,
+            HttpServletRequest r) {
+        return ResponseEntity.badRequest().body(
+                problema(
+                        HttpStatus.BAD_REQUEST,
+                        "Solicitud invalida",
+                        "Uno o mas parametros no cumplen las reglas de validacion.",
+                        r
+                )
+        );
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    ResponseEntity<ProblemDetail> violacionRestricciones(
+            ConstraintViolationException ex,
+            HttpServletRequest r) {
+        var p = problema(
+                HttpStatus.BAD_REQUEST,
+                "Solicitud inválida",
+                "Uno o más parámetros no cumplen las reglas de validación.",
+                r
+        );
+        p.setProperty(
+                "errores",
+                ex.getConstraintViolations().stream()
+                        .collect(java.util.stream.Collectors.toMap(
+                                violation -> violation.getPropertyPath().toString(),
+                                jakarta.validation.ConstraintViolation::getMessage,
+                                (primero, segundo) -> primero
+                        ))
+        );
         return ResponseEntity.badRequest().body(p);
     }
 
