@@ -20,11 +20,11 @@ class FlywaySchemaIT extends PostgreSqlIntegrationBase {
     DataSource dataSource;
 
     @Test
-    void aplicaMigracionesV1aV9EnPostgreSqlVacio() throws Exception {
+    void aplicaMigracionesV1aV10EnPostgreSqlVacio() throws Exception {
         try (Connection c = dataSource.getConnection(); Statement s = c.createStatement()) {
             try (ResultSet rs = s.executeQuery("select count(*) from flyway_schema_history where success=true")) {
                 rs.next();
-                assertEquals(9, rs.getInt(1));
+                assertEquals(10, rs.getInt(1));
             }
             try (ResultSet rs = s.executeQuery("select to_regclass('public.auditoria_eventos'), to_regclass('public.cierres_caja'), to_regclass('public.cuentas_agricultor'), to_regclass('public.sesiones_agricultor')")) {
                 rs.next();
