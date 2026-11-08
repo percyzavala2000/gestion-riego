@@ -10,14 +10,14 @@ public class SecurityConfig {
   http.authorizeHttpRequests(a->a
    .requestMatchers("/login","/error","/error/**","/css/**","/js/**","/images/**","/icons/**","/favicon.ico","/actuator/health","/actuator/prometheus","/api/v1/auth/login","/api/v1/auth/refresh","/api/v1/auth/logout").permitAll()
    .requestMatchers("/api/v1/auth/me","/api/v1/agricultor/**").hasRole("AGRICULTOR")
-   .requestMatchers("/api/v1/cuentas-agricultor/**","/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html").hasRole("ADMINISTRADOR")
+   .requestMatchers("/api/v1/cuentas-agricultor/**","/api/v1/notificaciones/administrativas/**","/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html").hasRole("ADMINISTRADOR")
    .requestMatchers("/api/v1/agricultores/**","/api/v1/parcelas/**","/api/v1/turnos/**").hasAnyRole("ADMINISTRADOR","OPERADOR")
    .requestMatchers("/","/dashboard").hasAnyRole("ADMINISTRADOR","OPERADOR","TESORERIA")
    .requestMatchers("/agricultores/**","/parcelas/**","/turnos/**").hasAnyRole("ADMINISTRADOR","OPERADOR")
    .requestMatchers("/tesoreria/**","/reportes/financieros/**","/inteligencia/financiera/**").hasAnyRole("ADMINISTRADOR","TESORERIA")
    .requestMatchers("/reportes/**","/inteligencia/**").hasAnyRole("ADMINISTRADOR","OPERADOR")
    .requestMatchers("/auditoria/**","/usuarios/**","/roles/**").hasRole("ADMINISTRADOR").anyRequest().authenticated());
-  http.csrf(c->c.ignoringRequestMatchers("/api/v1/auth/**","/api/v1/agricultor/**"));
+  http.csrf(c->c.ignoringRequestMatchers("/api/v1/auth/**","/api/v1/agricultor/**","/api/v1/notificaciones/**"));
   http.addFilterBefore(tokenFilter,UsernamePasswordAuthenticationFilter.class);
   http.formLogin(f->f.loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/dashboard",true).failureUrl("/login?error").permitAll());
   http.logout(l->l.logoutUrl("/logout").logoutSuccessUrl("/login?logout").invalidateHttpSession(true).clearAuthentication(true).deleteCookies("VICHAYAL_SESSION").permitAll());

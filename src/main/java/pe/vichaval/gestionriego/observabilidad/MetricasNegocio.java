@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import pe.vichaval.gestionriego.caja.repository.DevolucionRepository;
 import pe.vichaval.gestionriego.finanzas.repository.CuentaCobrarRepository;
 import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
+import pe.vichaval.gestionriego.notificacion.repository.NotificacionRepository;
 
 @Component
 public class MetricasNegocio {
@@ -14,13 +15,15 @@ public class MetricasNegocio {
     private final PagoRepository pagos;
     private final CuentaCobrarRepository cuentas;
     private final DevolucionRepository devoluciones;
+      private final NotificacionRepository notificaciones;
 
     public MetricasNegocio(MeterRegistry registry, PagoRepository pagos,
-                           CuentaCobrarRepository cuentas, DevolucionRepository devoluciones) {
+                           CuentaCobrarRepository cuentas, DevolucionRepository devoluciones, NotificacionRepository notificaciones) {
         this.registry = registry;
         this.pagos = pagos;
         this.cuentas = cuentas;
         this.devoluciones = devoluciones;
+          this.notificaciones = notificaciones;
     }
 
     @PostConstruct
@@ -32,5 +35,7 @@ public class MetricasNegocio {
         Gauge.builder("vichayal_devoluciones_solicitadas", devoluciones,
                         d -> d.countByEstado("SOLICITADA"))
                 .description("Solicitudes de devolución pendientes").register(registry);
+          Gauge.builder("vichayal_notificaciones_no_leidas", notificaciones, n -> n.countByEstado("NO_LEIDA"))
+                  .description("Notificaciones persistentes no leídas").register(registry);
     }
 }

@@ -1045,3 +1045,5 @@ th, td {
   }
 }
 
+
+.notification-list{display:grid;gap:14px}.notification-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px}.notification-card.unread{border-left:5px solid #075d49}.notification-card h2{margin:10px 0 6px}.notification-card small{float:right;color:#66746e}.notification-button{display:grid;place-items:center;text-decoration:none}.notification-card .actions{display:flex;gap:12px;align-items:center;margin-top:16px}
