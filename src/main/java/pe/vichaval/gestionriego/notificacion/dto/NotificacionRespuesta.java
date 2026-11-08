@@ -1,0 +1,3 @@
+package pe.vichaval.gestionriego.notificacion.dto;
+import java.time.OffsetDateTime; import pe.vichaval.gestionriego.notificacion.entity.Notificacion;
+public record NotificacionRespuesta(Long id,String tipo,String titulo,String mensaje,String prioridad,String estado,String referenciaTipo,Long referenciaId,String referenciaUrl,OffsetDateTime fechaCreacion,OffsetDateTime fechaLectura){public static NotificacionRespuesta desde(Notificacion n){return new NotificacionRespuesta(n.getId(),n.getTipo(),n.getTitulo(),n.getMensaje(),n.getPrioridad(),n.getEstado(),n.getReferenciaTipo(),n.getReferenciaId(),n.getReferenciaUrl(),n.getFechaCreacion(),n.getFechaLectura());}}

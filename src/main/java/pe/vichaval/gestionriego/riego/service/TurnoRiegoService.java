@@ -25,21 +25,46 @@ public class TurnoRiegoService {
         return r.findById(id).orElseThrow(() -> new IllegalArgumentException("Turno no encontrado"));
     }
 
-    public void guardar(TurnoForm f, Long id) {
-        var parcela = p.findById(f.getParcelaId()).orElseThrow();
-        if (!"ACTIVA".equals(parcela.getEstado())) throw new IllegalStateException("Parcela no activa");
-        if (!"ACTIVO".equals(parcela.getAgricultor().getEstado()))
-            throw new IllegalStateException("Agricultor no activo");
-        LocalTime fin = f.getHoraInicio().plusMinutes(f.getDuracionMinutos());
-        if (r.hayCruce(f.getFecha(), f.getHoraInicio(), fin, id))
-            throw new IllegalStateException("Existe otro turno en ese horario");
-        if (id == null) r.save(new TurnoRiego("TR-%04d".formatted(r.count() + 1), f, fin, parcela));
-        else {
-            var x = get(id);
-            if (!"PROGRAMADO".equals(x.getEstado()) && !"PENDIENTE".equals(x.getEstado()))
-                throw new IllegalStateException("Solo se editan turnos pendientes o programados");
-            x.actualizar(f, fin, parcela);
+    public TurnoRiego guardar(TurnoForm f, Long id) {
+        var parcela = p.findById(f.getParcelaId())
+                .orElseThrow(() -> new IllegalArgumentException("Parcela no encontrada"));
+
+        if (!"ACTIVA".equals(parcela.getEstado())) {
+            throw new IllegalStateException("Parcela no activa");
         }
+        if (!"ACTIVO".equals(parcela.getAgricultor().getEstado())) {
+            throw new IllegalStateException("Agricultor no activo");
+        }
+
+        LocalTime fin = f.getHoraInicio()
+                .plusMinutes(f.getDuracionMinutos());
+
+        if (r.hayCruce(f.getFecha(), f.getHoraInicio(), fin, id)) {
+            throw new IllegalStateException(
+                    "Existe otro turno en ese horario"
+            );
+        }
+
+        if (id == null) {
+            TurnoRiego nuevo = new TurnoRiego(
+                    "TR-%04d".formatted(r.count() + 1),
+                    f,
+                    fin,
+                    parcela
+            );
+            return r.save(nuevo);
+        }
+
+        TurnoRiego existente = get(id);
+        if (!"PROGRAMADO".equals(existente.getEstado())
+                && !"PENDIENTE".equals(existente.getEstado())) {
+            throw new IllegalStateException(
+                    "Solo se editan turnos pendientes o programados"
+            );
+        }
+
+        existente.actualizar(f, fin, parcela);
+        return r.save(existente);
     }
 
     public void iniciar(Long id) {

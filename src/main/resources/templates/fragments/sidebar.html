@@ -213,6 +213,7 @@
 
         </a>
 
+        <a th:href="@{/notificaciones}" th:classappend="${active == 'notificaciones'} ? ' active' : ''"><span class="nav-icon">♧</span><span>Notificaciones</span></a>
         <!-- Auditoria: solo administrador -->
 
         <a sec:authorize="hasRole('ADMINISTRADOR')"
@@ -280,7 +281,7 @@
         </form>
 
         <small class="version">
-            Vichayal Riego Web · v9.2
+            Vichayal Riego Web · v10.2
         </small>
 
     </div>
