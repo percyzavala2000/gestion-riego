@@ -11,3 +11,6 @@ target/
 *.backup-*
 *.contaminado
 .DS_Store
+
+base-v*.txt
+.v10.1-backup-*

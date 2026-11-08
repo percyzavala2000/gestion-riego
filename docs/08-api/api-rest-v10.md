@@ -26,3 +26,9 @@ La API devuelve `application/problem+json` con `status`, `title`, `detail`, `ins
 ## Documentación interactiva
 - `/v3/api-docs`
 - `/swagger-ui.html`
+
+## Correcciones v10.1 de agricultores
+- `POST` devuelve directamente la entidad persistida, `201 Created` y `Location`.
+- `page` debe ser cero o positivo.
+- DNI duplicado devuelve `409 Conflict`.
+- El cambio de estado recibe `{ "estado": "ACTIVO|INACTIVO" }` y es idempotente.
