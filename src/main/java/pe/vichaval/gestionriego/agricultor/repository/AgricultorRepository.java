@@ -6,8 +6,8 @@ import org.springframework.data.repository.query.Param;
 import pe.vichaval.gestionriego.agricultor.entity.Agricultor;
 
 public interface AgricultorRepository extends JpaRepository<Agricultor, Long> {
-    @Query("select a from Agricultor a where :q='' or lower(concat(a.nombres,' ',a.apellidos)) like lower(concat('%',:q,'%')) or a.dni like concat('%',:q,'%')")
-    Page<Agricultor> buscar(@Param("q") String q, Pageable p);
+    @Query("select a from Agricultor a where (:q='' or lower(concat(a.nombres,' ',a.apellidos)) like lower(concat('%',:q,'%')) or a.dni like concat('%',:q,'%')) and (:estado='' or a.estado=:estado)")
+    Page<Agricultor> buscar(@Param("q") String q, @Param("estado") String estado, Pageable p);
 
     boolean existsByDni(String d);
 
