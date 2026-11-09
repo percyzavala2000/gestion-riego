@@ -1,4 +1,4 @@
-# Vichayal Riego Web v10.5
+# Vichayal Riego Web v10.7
 
 ## Guía de instalación y prueba en Windows
 
@@ -9,7 +9,7 @@ La evaluación contempla dos modalidades:
 1. **Demo local con seed:** recomendada para revisar rápidamente las funciones con datos ficticios.
 2. **Producción local con Docker:** recomendada para comprobar el despliegue contenedorizado, observabilidad y una base inicialmente vacía.
 
-> Versión documentada: `10.5.0`  
+> Versión documentada: `10.7.0`  
 > Sistema operativo de esta guía: Windows 10 u 11 de 64 bits  
 > Backend: Java 21 y Spring Boot 4.1.1  
 > Base de datos: PostgreSQL 18
@@ -774,3 +774,18 @@ MOBILE_CORS_ENABLED=false
 AUTH_RATE_LIMIT_MAX_REQUESTS=10
 AUTH_RATE_LIMIT_WINDOW_SECONDS=60
 ```
+
+
+## Paginación y filtros v10.7
+
+Los listados crecientes utilizan paginación en PostgreSQL y filtros conservados en la URL.
+
+- Agricultores: texto y estado.
+- Turnos: texto y estado.
+- Parcelas: texto, estado y sector.
+- Pagos: texto, estado y método.
+- Cuentas por cobrar: texto, estado y vencimiento.
+- Notificaciones: estado, prioridad y tipo.
+- Caja: paginadores independientes para egresos, devoluciones y cierres.
+
+Tamaños permitidos: 10, 20 y 50 registros. El tamaño predeterminado es 20.
