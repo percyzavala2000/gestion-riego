@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
-<head><meta charset="UTF-8"><title>Caja</title><link rel="stylesheet" th:href="@{/css/app.css}"><link rel="stylesheet" th:href="@{/css/v8.css}"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Caja</title><link rel="stylesheet" th:href="@{/css/app.css(v=1061)}"><link rel="stylesheet" th:href="@{/css/v8.css(v=1061)}"></head>
 <body><div th:replace="~{fragments/sidebar :: sidebar('caja')}"></div><section class="workspace"><div th:replace="~{fragments/header :: header('Caja, egresos y devoluciones')}"></div><main class="content">
 <div class="notice ok" th:if="${exito}" th:text="${exito}"></div><div class="notice bad" th:if="${error}" th:text="${error}"></div>
 <section class="cash-grid">
