@@ -1,1 +1,139 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><title>Cuentas por cobrar</title><link rel="stylesheet" th:href="@{/css/app.css}"><link rel="stylesheet" th:href="@{/css/v6.css}"></head><body><div th:replace="~{fragments/sidebar :: sidebar('tesoreria')}"></div><section class="workspace"><div th:replace="~{fragments/header :: header('Cuentas por cobrar')}"></div><main class="content"><header class="page-title"><div><h1>Cuentas por cobrar</h1><p>Controla obligaciones, pagos parciales y saldos pendientes.</p></div><div class="actions"><a class="btn secondary" th:href="@{/tesoreria/conceptos}">Conceptos</a><a class="btn primary" th:href="@{/tesoreria/cuentas/nueva}">Nueva cuenta</a></div></header><div class="notice ok" th:if="${exito}" th:text="${exito}"></div><div class="notice bad" th:if="${error}" th:text="${error}"></div><div class="table-responsive"><table><thead><tr><th>Código</th><th>Agricultor</th><th>Concepto</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Vencimiento</th><th>Estado</th><th>Acciones</th></tr></thead><tbody><tr th:each="c:${cuentas}"><td th:text="${c.codigo}"></td><td th:text="|${c.agricultor.nombres} ${c.agricultor.apellidos}|"></td><td th:text="${c.concepto.nombre}"></td><td th:text="|S/ ${c.montoTotal}|"></td><td th:text="|S/ ${c.montoPagado}|"></td><td th:text="|S/ ${c.saldoPendiente}|"></td><td th:text="${c.fechaVencimiento}"></td><td><span class="pill" th:text="${c.estado}"></span></td><td class="actions"><a th:href="@{/tesoreria/cuentas/{id}(id=${c.id})}">Ver y pagar</a><form th:if="${c.estado!='PAGADA' and c.estado!='ANULADA'}" th:action="@{/tesoreria/cuentas/{id}/anular(id=${c.id})}" method="post"><input name="motivo" placeholder="Motivo" required><button class="link danger">Anular</button></form></td></tr></tbody></table></div></main></section></body></html>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cuentas por cobrar</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v=1075)}">
+    <link rel="stylesheet" th:href="@{/css/v6.css}">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar :: sidebar('tesoreria')}"></div>
+<section class="workspace">
+    <div th:replace="~{fragments/header :: header('Cuentas por cobrar')}"></div>
+
+    <main class="content">
+        <header class="page-title">
+            <div>
+                <h1>Cuentas por cobrar</h1>
+                <p>Controla obligaciones, pagos parciales, vencimientos y saldos pendientes.</p>
+            </div>
+            <div class="actions">
+                <a class="btn secondary" th:href="@{/tesoreria/conceptos}">Conceptos</a>
+                <a class="btn primary" th:href="@{/tesoreria/cuentas/nueva}">Nueva cuenta</a>
+            </div>
+        </header>
+
+        <div class="notice ok" th:if="${exito}" th:text="${exito}"></div>
+        <div class="notice bad" th:if="${error}" th:text="${error}"></div>
+
+        <form class="list-filters accounts-filters"
+              method="get"
+              th:action="@{/tesoreria/cuentas}">
+            <input name="q"
+                   th:value="${q}"
+                   placeholder="Código, agricultor o concepto">
+
+            <select name="estado">
+                <option value="">Todos los estados</option>
+                <option value="PENDIENTE" th:selected="${estado == 'PENDIENTE'}">Pendiente</option>
+                <option value="PAGO_PARCIAL" th:selected="${estado == 'PAGO_PARCIAL'}">Pago parcial</option>
+                <option value="VENCIDA" th:selected="${estado == 'VENCIDA'}">Vencida</option>
+                <option value="PAGADA" th:selected="${estado == 'PAGADA'}">Pagada</option>
+                <option value="ANULADA" th:selected="${estado == 'ANULADA'}">Anulada</option>
+            </select>
+
+            <select name="vencimiento">
+                <option value="">Cualquier vencimiento</option>
+                <option value="VENCIDA" th:selected="${vencimiento == 'VENCIDA'}">Ya vencidas</option>
+                <option value="PROXIMA" th:selected="${vencimiento == 'PROXIMA'}">Vencen en 7 días</option>
+                <option value="VIGENTE" th:selected="${vencimiento == 'VIGENTE'}">Vigentes</option>
+            </select>
+
+            <select name="size">
+                <option value="10" th:selected="${size == 10}">10 por página</option>
+                <option value="20" th:selected="${size == 20}">20 por página</option>
+                <option value="50" th:selected="${size == 50}">50 por página</option>
+            </select>
+
+            <button class="btn primary" type="submit">Aplicar</button>
+            <a class="btn secondary" th:href="@{/tesoreria/cuentas}">Limpiar</a>
+        </form>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Agricultor</th>
+                    <th>Concepto</th>
+                    <th>Total</th>
+                    <th>Pagado</th>
+                    <th>Saldo</th>
+                    <th>Vencimiento</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${pagina.empty}">
+                    <td colspan="9" class="empty-state">
+                        No existen cuentas para los filtros aplicados.
+                    </td>
+                </tr>
+
+                <tr th:each="c : ${pagina.content}">
+                    <td th:text="${c.codigo}"></td>
+                    <td th:text="|${c.agricultor.nombres} ${c.agricultor.apellidos}|"></td>
+                    <td th:text="${c.concepto.nombre}"></td>
+                    <td th:text="|S/ ${c.montoTotal}|"></td>
+                    <td th:text="|S/ ${c.montoPagado}|"></td>
+                    <td th:text="|S/ ${c.saldoPendiente}|"></td>
+                    <td th:text="${c.fechaVencimiento}"></td>
+                    <td><span class="pill" th:text="${c.estado}"></span></td>
+                    <td class="actions">
+                        <a th:href="@{/tesoreria/cuentas/{id}(id=${c.id})}">Ver y pagar</a>
+
+                        <form th:if="${c.estado != 'PAGADA' and c.estado != 'ANULADA'}"
+                              th:action="@{/tesoreria/cuentas/{id}/anular(id=${c.id})}"
+                              method="post"
+                              class="action-form">
+                            <input name="motivo"
+                                   maxlength="500"
+                                   placeholder="Motivo"
+                                   required>
+                            <button class="link danger">Anular</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="pagination-bar"
+             th:if="${pagina.totalElements > 0}"
+             aria-label="Paginación de cuentas por cobrar">
+            <p class="pagination-summary"
+               th:text="|Mostrando ${pagina.number * pagina.size + 1}–${pagina.number * pagina.size + pagina.numberOfElements} de ${pagina.totalElements} registros|">
+            </p>
+
+            <div class="pagination-controls">
+                <a class="btn secondary"
+                   th:if="${!pagina.first}"
+                   th:href="@{/tesoreria/cuentas(q=${q},estado=${estado},vencimiento=${vencimiento},page=${pagina.number-1},size=${size})}">
+                    Anterior
+                </a>
+
+                <span th:text="|Página ${pagina.number + 1} de ${pagina.totalPages}|"></span>
+
+                <a class="btn secondary"
+                   th:if="${!pagina.last}"
+                   th:href="@{/tesoreria/cuentas(q=${q},estado=${estado},vencimiento=${vencimiento},page=${pagina.number+1},size=${size})}">
+                    Siguiente
+                </a>
+            </div>
+        </nav>
+    </main>
+</section>
+</body>
+</html>

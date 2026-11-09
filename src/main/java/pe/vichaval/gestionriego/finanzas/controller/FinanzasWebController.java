@@ -22,8 +22,26 @@ public class FinanzasWebController {
     }
 
     @GetMapping
-    String listar(Model m) {
-        m.addAttribute("cuentas", s.listar());
+    String listar(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "") String estado,
+            @RequestParam(defaultValue = "") String vencimiento,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            Model m
+    ) {
+        var pagina = s.listar(
+                q,
+                estado,
+                vencimiento,
+                page,
+                size
+        );
+        m.addAttribute("pagina", pagina);
+        m.addAttribute("q", q);
+        m.addAttribute("estado", estado);
+        m.addAttribute("vencimiento", vencimiento);
+        m.addAttribute("size", pagina.getSize());
         return "finanzas/cuentas";
     }
 

@@ -1169,3 +1169,6 @@ table { min-width: 680px; }
 
 /* ===== PAGOS PAGINADOS V10.7 FASE 2A ===== */
 .payment-filters{grid-template-columns:minmax(260px,2fr) repeat(3,minmax(145px,1fr)) auto auto}@media(max-width:1200px){.payment-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.payment-filters input{grid-column:1/-1}}@media(max-width:600px){.payment-filters{grid-template-columns:1fr}.payment-filters input{grid-column:auto}}
+
+/* ===== CUENTAS PAGINADAS V10.7 FASE 2B ===== */
+.accounts-filters{grid-template-columns:minmax(250px,2fr) repeat(3,minmax(150px,1fr)) auto auto}@media(max-width:1200px){.accounts-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.accounts-filters input{grid-column:1/-1}}@media(max-width:600px){.accounts-filters{grid-template-columns:1fr}.accounts-filters input{grid-column:auto}}

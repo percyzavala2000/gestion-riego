@@ -1,6 +1,10 @@
 package pe.vichaval.gestionriego.finanzas.service;
 
 import java.util.List;
+import java.time.LocalDate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +15,7 @@ import pe.vichaval.gestionriego.finanzas.repository.*;
 import pe.vichaval.gestionriego.infraestructura.CorrelativoService;
 import pe.vichaval.gestionriego.tesoreria.dto.PagoForm;
 import pe.vichaval.gestionriego.tesoreria.service.PagoService;
+import pe.vichaval.gestionriego.web.PaginacionWeb;
 
 @Service
 @Transactional
@@ -33,6 +38,32 @@ public class FinanzasService {
         var lista = cuentas.findAll();
         lista.forEach(CuentaCobrar::actualizarVencida);
         return lista;
+    }
+
+    public Page<CuentaCobrar> listar(
+            String q,
+            String estado,
+            String vencimiento,
+            int page,
+            int size
+    ) {
+        var pagina = cuentas.buscar(
+                PaginacionWeb.texto(q),
+                PaginacionWeb.estado(estado),
+                PaginacionWeb.estado(vencimiento),
+                LocalDate.now(),
+                LocalDate.now().plusDays(7),
+                PageRequest.of(
+                        PaginacionWeb.pagina(page),
+                        PaginacionWeb.tamanio(size),
+                        Sort.by(
+                                Sort.Order.asc("fechaVencimiento"),
+                                Sort.Order.desc("id")
+                        )
+                )
+        );
+        pagina.getContent().forEach(CuentaCobrar::actualizarVencida);
+        return pagina;
     }
 
     @Transactional(readOnly = true)
