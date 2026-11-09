@@ -13,7 +13,7 @@
     <title>Tesorería</title>
 
     <link rel="stylesheet"
-          th:href="@{/css/app.css}">
+          th:href="@{/css/app.css(v=1074)}">
 
     <link rel="stylesheet"
           th:href="@{/css/v4.css}">
@@ -280,6 +280,13 @@
 
             </div>
 
+            <form class="list-filters payment-filters" method="get" th:action="@{/tesoreria}">
+                <input name="q" th:value="${q}" placeholder="Código, comprobante, concepto o agricultor">
+                <select name="estado"><option value="">Todos los estados</option><option value="PENDIENTE" th:selected="${estado=='PENDIENTE'}">Pendiente</option><option value="CONFIRMADO" th:selected="${estado=='CONFIRMADO'}">Confirmado</option><option value="RECHAZADO" th:selected="${estado=='RECHAZADO'}">Rechazado</option><option value="ANULADO" th:selected="${estado=='ANULADO'}">Anulado</option></select>
+                <select name="metodo"><option value="">Todos los métodos</option><option value="EFECTIVO" th:selected="${metodo=='EFECTIVO'}">Efectivo</option><option value="TRANSFERENCIA" th:selected="${metodo=='TRANSFERENCIA'}">Transferencia</option><option value="YAPE" th:selected="${metodo=='YAPE'}">Yape</option><option value="PLIN" th:selected="${metodo=='PLIN'}">Plin</option></select>
+                <select name="size"><option value="10" th:selected="${size==10}">10 por página</option><option value="20" th:selected="${size==20}">20 por página</option><option value="50" th:selected="${size==50}">50 por página</option></select>
+                <button class="btn primary">Aplicar</button><a class="btn secondary" th:href="@{/tesoreria}">Limpiar</a>
+            </form>
             <div class="table-responsive">
 
                 <table>
@@ -303,7 +310,7 @@
 
                     <tbody>
 
-                    <tr th:if="${#lists.isEmpty(pagos)}">
+                    <tr th:if="${pagina.empty}">
 
                         <td colspan="8"
                             class="empty-state">
@@ -312,7 +319,7 @@
 
                     </tr>
 
-                    <tr th:each="pago : ${pagos}">
+                    <tr th:each="pago : ${pagina.content}">
 
                         <td th:text="${pago.codigo}">
                             PG-000001
@@ -422,6 +429,7 @@
 
             </div>
 
+        <nav class="pagination-bar" th:if="${pagina.totalElements > 0}"><p class="pagination-summary" th:text="|Mostrando ${pagina.number*pagina.size+1}–${pagina.number*pagina.size+pagina.numberOfElements} de ${pagina.totalElements} registros|"></p><div class="pagination-controls"><a class="btn secondary" th:if="${!pagina.first}" th:href="@{/tesoreria(q=${q},estado=${estado},metodo=${metodo},page=${pagina.number-1},size=${size})}">Anterior</a><span th:text="|Página ${pagina.number+1} de ${pagina.totalPages}|"></span><a class="btn secondary" th:if="${!pagina.last}" th:href="@{/tesoreria(q=${q},estado=${estado},metodo=${metodo},page=${pagina.number+1},size=${size})}">Siguiente</a></div></nav>
         </section>
 
     </main>

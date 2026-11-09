@@ -1,6 +1,9 @@
 package pe.vichaval.gestionriego.tesoreria.controller;
 
 import jakarta.validation.Valid;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,10 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;
 import pe.vichaval.gestionriego.tesoreria.dto.PagoForm;
 import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
 import pe.vichaval.gestionriego.tesoreria.service.PagoService;
+import pe.vichaval.gestionriego.web.PaginacionWeb;
 
 @Controller
 @RequestMapping("/tesoreria")
@@ -35,15 +40,18 @@ public class TesoreriaWebController {
     }
 
     @GetMapping
-    public String mostrarTesoreria(Model model) {
-
-        cargarDatos(model);
+    public String mostrarTesoreria(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "") String estado,
+            @RequestParam(defaultValue = "") String metodo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            Model model
+    ) {
+        cargarDatos(model, q, estado, metodo, page, size);
 
         if (!model.containsAttribute("form")) {
-            model.addAttribute(
-                    "form",
-                    new PagoForm()
-            );
+            model.addAttribute("form", new PagoForm());
         }
 
         return "tesoreria/index";
@@ -56,34 +64,24 @@ public class TesoreriaWebController {
             Model model,
             RedirectAttributes redirectAttributes
     ) {
-        /*
-         * Si existe algún error de validación, se vuelve a mostrar
-         * el formulario conservando los valores ingresados.
-         */
         if (bindingResult.hasErrors()) {
-            cargarDatos(model);
+            cargarDatos(model, "", "", "", 0, 20);
             return "tesoreria/index";
         }
 
         try {
             pagoService.registrar(form);
-
             redirectAttributes.addFlashAttribute(
                     "exito",
                     "Pago registrado correctamente."
             );
-
             return "redirect:/tesoreria";
-
         } catch (RuntimeException exception) {
-
             bindingResult.reject(
                     "errorNegocio",
                     exception.getMessage()
             );
-
-            cargarDatos(model);
-
+            cargarDatos(model, "", "", "", 0, 20);
             return "tesoreria/index";
         }
     }
@@ -133,14 +131,11 @@ public class TesoreriaWebController {
     ) {
         try {
             operacion.run();
-
             redirectAttributes.addFlashAttribute(
                     "exito",
                     mensajeExito
             );
-
         } catch (RuntimeException exception) {
-
             redirectAttributes.addFlashAttribute(
                     "error",
                     exception.getMessage()
@@ -150,29 +145,54 @@ public class TesoreriaWebController {
         return "redirect:/tesoreria";
     }
 
-    private void cargarDatos(Model model) {
+    private void cargarDatos(
+            Model model,
+            String q,
+            String estado,
+            String metodo,
+            int page,
+            int size
+    ) {
+        String consulta = PaginacionWeb.texto(q);
+        String estadoSeguro = PaginacionWeb.estado(estado);
+        String metodoSeguro = PaginacionWeb.estado(metodo);
 
-        model.addAttribute(
-                "pagos",
-                pagoRepository.findAll()
+        var pagina = pagoRepository.buscar(
+                consulta,
+                estadoSeguro,
+                metodoSeguro,
+                PageRequest.of(
+                        PaginacionWeb.pagina(page),
+                        PaginacionWeb.tamanio(size),
+                        Sort.by(
+                                Sort.Order.desc("fecha"),
+                                Sort.Order.desc("id")
+                        )
+                )
         );
 
-        model.addAttribute(
-                "total",
-                pagoRepository.total()
-        );
-
+        model.addAttribute("pagina", pagina);
+        model.addAttribute("q", consulta);
+        model.addAttribute("estado", estadoSeguro);
+        model.addAttribute("metodo", metodoSeguro);
+        model.addAttribute("size", pagina.getSize());
         model.addAttribute(
                 "agricultores",
-                agricultorRepository
-                        .findAll()
-                        .stream()
-                        .filter(agricultor ->
-                                "ACTIVO".equals(
-                                        agricultor.getEstado()
-                                )
+                agricultorRepository.findAll().stream()
+                        .filter(agricultor -> "ACTIVO".equals(agricultor.getEstado()))
+                        .sorted(
+                                java.util.Comparator
+                                        .comparing(
+                                                pe.vichaval.gestionriego.agricultor.entity.Agricultor::getApellidos,
+                                                String.CASE_INSENSITIVE_ORDER
+                                        )
+                                        .thenComparing(
+                                                pe.vichaval.gestionriego.agricultor.entity.Agricultor::getNombres,
+                                                String.CASE_INSENSITIVE_ORDER
+                                        )
                         )
                         .toList()
         );
+        model.addAttribute("total", pagoRepository.total());
     }
 }
