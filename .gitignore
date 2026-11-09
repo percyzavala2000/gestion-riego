@@ -21,3 +21,10 @@ base-v*.txt
 
 .v10.2-backup-*
 base-v10.2-notificaciones-persistentes.txt
+
+# Credenciales Firebase privadas
+firebase-service-account.json
+*-firebase-adminsdk-*.json
+secrets/
+.v10.3-fase1-backup-*
+base-v10.3-firebase-push.txt
