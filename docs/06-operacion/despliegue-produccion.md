@@ -5,7 +5,7 @@
 3. Valida con `docker compose --env-file .env.prod -f compose-prod.yaml config`.
 4. Ejecuta `docker compose --env-file .env.prod -f compose-prod.yaml up -d --build`.
 5. Comprueba `docker compose --env-file .env.prod -f compose-prod.yaml ps` y `scripts/verify-production.sh`.
-6. Confirma Flyway V1-V8 y crea el administrador inicial por un procedimiento controlado.
+6. Confirma Flyway V1-V14 y crea el administrador inicial por un procedimiento controlado.
 
 ## Actualización
 Crea respaldo, construye la nueva imagen, ejecuta `up -d --build`, valida salud y pruebas de humo. No edites migraciones ya aplicadas.

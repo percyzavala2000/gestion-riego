@@ -1,0 +1,30 @@
+{
+  "info": {
+    "name": "Vichayal Riego Mobile API v10.5",
+    "description": "Contrato congelado para React Native Android e iOS.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key":"baseUrl","value":"http://127.0.0.1:8080"},
+    {"key":"accessToken","value":""},
+    {"key":"refreshToken","value":""},
+    {"key":"installationId","value":"react-native-installation-id"}
+  ],
+  "item": [
+    {"name":"Autenticacion","item":[
+      {"name":"Login","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"usuario\": \"agricultor.01\",\n  \"password\": \"ClaveSegura-2026\"\n}"},"url":"{{baseUrl}}/api/v1/auth/login"}},
+      {"name":"Refresh","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"},"url":"{{baseUrl}}/api/v1/auth/refresh"}},
+      {"name":"Logout","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"},"url":"{{baseUrl}}/api/v1/auth/logout"}}
+    ]},
+    {"name":"Agricultor","item":[
+      {"name":"Perfil","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":"{{baseUrl}}/api/v1/agricultor/me"}},
+      {"name":"Parcelas","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":"{{baseUrl}}/api/v1/agricultor/me/parcelas"}},
+      {"name":"Turnos","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":"{{baseUrl}}/api/v1/agricultor/me/turnos"}},
+      {"name":"Notificaciones","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":"{{baseUrl}}/api/v1/agricultor/me/notificaciones"}}
+    ]},
+    {"name":"Dispositivos Push","item":[
+      {"name":"Registrar Android o iOS","request":{"method":"PUT","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"tokenRegistro\": \"TOKEN_FCM\",\n  \"plataforma\": \"ANDROID\",\n  \"nombreDispositivo\": \"Telefono principal\",\n  \"versionAplicacion\": \"1.0.0\",\n  \"versionSistema\": \"15\",\n  \"modeloDispositivo\": \"React Native Device\",\n  \"idioma\": \"es-PE\",\n  \"zonaHoraria\": \"America/Lima\"\n}"},"url":"{{baseUrl}}/api/v1/agricultor/me/dispositivos/{{installationId}}"}},
+      {"name":"Listar dispositivos","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":"{{baseUrl}}/api/v1/agricultor/me/dispositivos"}}
+    ]}
+  ]
+}

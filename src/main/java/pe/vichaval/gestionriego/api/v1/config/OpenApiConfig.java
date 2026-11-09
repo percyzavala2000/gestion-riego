@@ -8,6 +8,7 @@ import org.springframework.context.annotation.*;
 public class OpenApiConfig {
     @Bean
     OpenAPI vichayalOpenApi() {
-        return new OpenAPI().info(new Info().title("Vichayal Riego API").version("v1").description("API REST v10.1 con autenticación Bearer, rotación de refresh token y acceso privado del agricultor."));
+        return new OpenAPI().info(new Info().title("Vichayal Riego API").version("v1 estable para móvil")
+                .description("Contrato backend v10.5 para React Native Android e iOS: autenticación Bearer, refresh rotatorio, datos privados, notificaciones y dispositivos push."));
     }
 }
