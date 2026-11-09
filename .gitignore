@@ -35,3 +35,8 @@ base-v10.3-firebase-push.txt
 base-v10.5-estabilizacion-movil.txt
 
 .v10.5-fase2-backup-*
+
+.v10.6-ui-backup-*
+base-reparacion-ui-completa.txt
+
+.v10.6-dashboard-fase2-backup-*

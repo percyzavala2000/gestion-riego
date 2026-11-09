@@ -1,144 +1,158 @@
-<!doctype html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 <head>
-    <link rel="stylesheet" th:href="@{/css/app.css}">
-    <title>Dashboard</title></head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v=1061)}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css(v=1062)}">
+</head>
 <body>
-<div th:replace=
-             "~{fragments/sidebar :: sidebar('dashboard')}">
-</div>
+<div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
 <section class="workspace">
-    <div th:replace=
-                 "~{fragments/header :: header('Dashboard')}">
-    </div>
-<main><h1>Dashboard</h1>
-    <section sec:authorize="hasRole('ADMINISTRADOR')">
+    <div th:replace="~{fragments/header :: header('Dashboard')}"></div>
 
-        <div class="cards">
+    <main class="content dashboard-content">
+        <header class="dashboard-header">
+            <div>
+                <p class="dashboard-kicker">RESUMEN DEL SISTEMA</p>
+                <h1>Dashboard</h1>
+                <p>Indicadores operativos y financieros calculados con los registros actuales.</p>
+            </div>
+            <span class="dashboard-date"
+                  th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}">
+                08/11/2026 23:30
+            </span>
+        </header>
 
-            <article class="dashboard-card">
-                <span>Turnos de hoy</span>
-
-                <strong th:text="${resumen.turnosHoy}">
-                    0
-                </strong>
+        <section class="dashboard-kpis" aria-label="Indicadores principales">
+            <article class="dashboard-kpi kpi-turnos"
+                     sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')">
+                <span class="kpi-label">Turnos de hoy</span>
+                <strong th:text="${resumen.turnosHoy}">0</strong>
+                <small th:text="|${resumen.turnosProgramados} programado(s)|">0 programados</small>
             </article>
 
-            <article class="dashboard-card">
-                <span>Agricultores activos</span>
-
-                <strong th:text="${resumen.agricultoresActivos}">
-                    0
-                </strong>
+            <article class="dashboard-kpi kpi-agricultores"
+                     sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')">
+                <span class="kpi-label">Agricultores activos</span>
+                <strong th:text="${resumen.agricultoresActivos}">0</strong>
+                <small>Base operativa habilitada</small>
             </article>
 
-            <article class="dashboard-card">
-                <span>Parcelas registradas</span>
-
-                <strong th:text="${resumen.parcelasRegistradas}">
-                    0
-                </strong>
+            <article class="dashboard-kpi kpi-parcelas"
+                     sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')">
+                <span class="kpi-label">Parcelas registradas</span>
+                <strong th:text="${resumen.parcelasRegistradas}">0</strong>
+                <small>Unidades agrícolas</small>
             </article>
 
-            <article class="dashboard-card">
-                <span>Ingresos</span>
-
-                <strong>
-                    S/
-                    <span th:text="${resumen.totalIngresos}">
-                    0.00
-                </span>
+            <article class="dashboard-kpi kpi-ingresos"
+                     sec:authorize="hasAnyRole('ADMINISTRADOR','TESORERIA')">
+                <span class="kpi-label">Ingresos registrados</span>
+                <strong th:text="|S/ ${#numbers.formatDecimal(resumen.totalIngresos, 1, 'COMMA', 2, 'POINT')}|">
+                    S/ 0.00
                 </strong>
+                <small th:text="|${resumen.cantidadPagos} pago(s)|">0 pagos</small>
             </article>
 
-        </div>
-
-    </section>
-    <section sec:authorize="hasRole('OPERADOR')">
-
-        <div class="cards">
-
-            <article class="dashboard-card">
-                <span>Turnos de hoy</span>
-
-                <strong th:text="${resumen.turnosHoy}">
-                    0
+            <article class="dashboard-kpi kpi-deuda"
+                     sec:authorize="hasRole('TESORERIA')">
+                <span class="kpi-label">Deuda pendiente</span>
+                <strong th:text="|S/ ${#numbers.formatDecimal(resumen.totalDeuda, 1, 'COMMA', 2, 'POINT')}|">
+                    S/ 0.00
                 </strong>
+                <small th:text="|${resumen.agricultoresConDeuda} agricultor(es) con deuda|">
+                    0 agricultores con deuda
+                </small>
+            </article>
+        </section>
+
+        <section class="dashboard-analysis"
+                 sec:authorize="hasAnyRole('ADMINISTRADOR','OPERADOR')">
+            <article class="dashboard-panel">
+                <header class="panel-header">
+                    <div>
+                        <p class="panel-kicker">OPERACIÓN DIARIA</p>
+                        <h2>Turnos de hoy</h2>
+                    </div>
+                    <span class="panel-chip">Estado actual</span>
+                </header>
+                <div class="chart-area">
+                    <canvas id="turnosChart"
+                            role="img"
+                            aria-label="Distribución de turnos programados y otros turnos de hoy"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <span><i class="legend-programado"></i>Programados</span>
+                    <span><i class="legend-otros"></i>Otros estados</span>
+                </div>
             </article>
 
-            <article class="dashboard-card">
-                <span>Turnos programados</span>
+            <article class="dashboard-panel">
+                <header class="panel-header">
+                    <div>
+                        <p class="panel-kicker">COBERTURA OPERATIVA</p>
+                        <h2>Agricultores y parcelas</h2>
+                    </div>
+                    <span class="panel-chip">Registros</span>
+                </header>
+                <div class="chart-area">
+                    <canvas id="coberturaChart"
+                            role="img"
+                            aria-label="Comparación de agricultores activos y parcelas registradas"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <span><i class="legend-agricultores"></i>Agricultores</span>
+                    <span><i class="legend-parcelas"></i>Parcelas</span>
+                </div>
+            </article>
+        </section>
 
-                <strong th:text="${resumen.turnosProgramados}">
-                    0
-                </strong>
+        <section class="dashboard-analysis dashboard-financial"
+                 sec:authorize="hasAnyRole('ADMINISTRADOR','TESORERIA')">
+            <article class="dashboard-panel financial-panel">
+                <header class="panel-header">
+                    <div>
+                        <p class="panel-kicker">SITUACIÓN FINANCIERA</p>
+                        <h2>Ingresos y deuda pendiente</h2>
+                    </div>
+                    <span class="panel-chip">Soles</span>
+                </header>
+                <div class="chart-area chart-area-wide">
+                    <canvas id="finanzasChart"
+                            role="img"
+                            aria-label="Comparación entre ingresos registrados y deuda pendiente"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <span><i class="legend-ingresos"></i>Ingresos</span>
+                    <span><i class="legend-deuda"></i>Deuda pendiente</span>
+                </div>
             </article>
 
-            <article class="dashboard-card">
-                <span>Agricultores activos</span>
-
-                <strong th:text="${resumen.agricultoresActivos}">
-                    0
-                </strong>
+            <article class="dashboard-panel debt-panel">
+                <p class="panel-kicker">CARTERA</p>
+                <h2>Agricultores con deuda</h2>
+                <strong th:text="${resumen.agricultoresConDeuda}">0</strong>
+                <p>Personas que mantienen un saldo pendiente en cuentas por cobrar.</p>
+                <a class="dashboard-action" th:href="@{/tesoreria/cuentas}">
+                    Revisar cuentas por cobrar
+                </a>
             </article>
+        </section>
 
-            <article class="dashboard-card">
-                <span>Parcelas registradas</span>
-
-                <strong th:text="${resumen.parcelasRegistradas}">
-                    0
-                </strong>
-            </article>
-
-        </div>
-
-    </section>
-    <section sec:authorize="hasRole('TESORERIA')">
-
-        <div class="cards">
-
-            <article class="dashboard-card">
-                <span>Ingresos registrados</span>
-
-                <strong>
-                    S/
-                    <span th:text="${resumen.totalIngresos}">
-                    0.00
-                </span>
-                </strong>
-            </article>
-
-            <article class="dashboard-card">
-                <span>Pagos registrados</span>
-
-                <strong th:text="${resumen.cantidadPagos}">
-                    0
-                </strong>
-            </article>
-
-            <article class="dashboard-card">
-                <span>Deuda pendiente</span>
-
-                <strong>
-                    S/
-                    <span th:text="${resumen.totalDeuda}">
-                    0.00
-                </span>
-                </strong>
-            </article>
-
-            <article class="dashboard-card">
-                <span>Agricultores con deuda</span>
-
-                <strong th:text="${resumen.agricultoresConDeuda}">
-                    0
-                </strong>
-            </article>
-
-        </div>
-
-    </section>
-</main>
+        <div id="dashboardData"
+             hidden
+             th:attr="data-turnos-hoy=${resumen.turnosHoy},
+                      data-turnos-programados=${resumen.turnosProgramados},
+                      data-agricultores=${resumen.agricultoresActivos},
+                      data-parcelas=${resumen.parcelasRegistradas},
+                      data-ingresos=${resumen.totalIngresos},
+                      data-deuda=${resumen.totalDeuda}"></div>
+    </main>
 </section>
+<script th:src="@{/js/dashboard.js(v=1062)}" defer></script>
 </body>
 </html>
