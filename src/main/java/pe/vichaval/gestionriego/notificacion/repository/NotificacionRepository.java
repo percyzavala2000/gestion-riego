@@ -10,4 +10,22 @@ public interface NotificacionRepository extends JpaRepository<Notificacion,Long>
  @Modifying @Query("update Notificacion n set n.estado='LEIDA',n.fechaLectura=:ahora where n.usuario.id=:id and n.estado='NO_LEIDA'") int leerTodasUsuario(@Param("id")Long id,@Param("ahora")OffsetDateTime ahora);
  long deleteByEstadoAndFechaArchivadoBefore(String estado,OffsetDateTime limite); long deleteByEstadoAndFechaLecturaBefore(String estado,OffsetDateTime limite);
  long countByEstado(String estado);
+
+ @EntityGraph(attributePaths="usuario")
+ @Query("""
+        select n from Notificacion n
+        where n.usuario.id = :usuarioId
+          and n.estado <> 'ARCHIVADA'
+          and (:estado = '' or n.estado = :estado)
+          and (:prioridad = '' or n.prioridad = :prioridad)
+          and (:tipo = '' or n.tipo = :tipo)
+        order by n.fechaCreacion desc
+        """)
+ Page<Notificacion> buscarUsuario(
+        @Param("usuarioId") Long usuarioId,
+        @Param("estado") String estado,
+        @Param("prioridad") String prioridad,
+        @Param("tipo") String tipo,
+        Pageable pageable
+ );
 }
