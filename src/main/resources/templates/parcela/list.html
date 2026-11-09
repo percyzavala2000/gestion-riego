@@ -1,196 +1,78 @@
 <!DOCTYPE html>
-
-<html lang="es"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
-
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Parcelas</title>
-
-    <link rel="stylesheet"
-          th:href="@{/css/app.css}">
-
-    <link rel="stylesheet"
-          th:href="@{/css/v4.css}">
-
+    <link rel="stylesheet" th:href="@{/css/app.css(v=1076)}">
+    <link rel="stylesheet" th:href="@{/css/v4.css}">
 </head>
-
 <body>
-
-<div th:replace=
-             "~{fragments/sidebar :: sidebar('parcelas')}">
-</div>
-
+<div th:replace="~{fragments/sidebar :: sidebar('parcelas')}"></div>
 <section class="workspace">
-
-    <div th:replace=
-                 "~{fragments/header :: header('Parcelas')}">
-    </div>
-
+    <div th:replace="~{fragments/header :: header('Parcelas')}"></div>
     <main class="content">
-
         <header class="page-title">
-
-            <div>
-
-                <h1>Parcelas</h1>
-
-                <p>
-                    Administra las unidades agrícolas,
-                    su disponibilidad y su historial.
-                </p>
-
-            </div>
-
-            <a class="btn primary"
-               th:href="@{/parcelas/nueva}">
-                Nueva parcela
-            </a>
-
+            <div><h1>Parcelas</h1><p>Busca y filtra unidades agrícolas y su disponibilidad.</p></div>
+            <a class="btn primary" th:href="@{/parcelas/nueva}">Nueva parcela</a>
         </header>
+        <div class="notice ok" th:if="${exito}" th:text="${exito}"></div>
+        <div class="notice bad" th:if="${error}" th:text="${error}"></div>
 
-        <!-- Mensaje de éxito -->
+        <form class="list-filters parcel-filters" method="get" th:action="@{/parcelas}">
+            <input name="q" th:value="${q}" placeholder="Código, nombre, cultivo o agricultor">
+            <select name="estado">
+                <option value="">Todos los estados</option>
+                <option value="ACTIVA" th:selected="${estado == 'ACTIVA'}">Activa</option>
+                <option value="INACTIVA" th:selected="${estado == 'INACTIVA'}">Inactiva</option>
+                <option value="EN_MANTENIMIENTO" th:selected="${estado == 'EN_MANTENIMIENTO'}">En mantenimiento</option>
+            </select>
+            <select name="sector">
+                <option value="">Todos los sectores</option>
+                <option value="Norte" th:selected="${sector == 'Norte'}">Norte</option>
+                <option value="Centro" th:selected="${sector == 'Centro'}">Centro</option>
+                <option value="Sur" th:selected="${sector == 'Sur'}">Sur</option>
+            </select>
+            <select name="size">
+                <option value="10" th:selected="${size == 10}">10 por página</option>
+                <option value="20" th:selected="${size == 20}">20 por página</option>
+                <option value="50" th:selected="${size == 50}">50 por página</option>
+            </select>
+            <button class="btn primary">Aplicar</button>
+            <a class="btn secondary" th:href="@{/parcelas}">Limpiar</a>
+        </form>
 
-        <div class="notice ok"
-             th:if="${exito}"
-             th:text="${exito}">
-            Operación realizada correctamente.
+        <div class="table-responsive">
+            <table>
+                <thead><tr><th>Código</th><th>Nombre</th><th>Agricultor</th><th>Área</th><th>Cultivo</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody>
+                <tr th:if="${pagina.empty}"><td colspan="7" class="empty-state">No existen parcelas para los filtros aplicados.</td></tr>
+                <tr th:each="parcela : ${pagina.content}">
+                    <td th:text="${parcela.codigo}"></td>
+                    <td th:text="${parcela.nombre}"></td>
+                    <td th:text="|${parcela.agricultor.nombres} ${parcela.agricultor.apellidos}|"></td>
+                    <td th:text="|${parcela.hectareas} ha|"></td>
+                    <td th:text="${parcela.cultivo}"></td>
+                    <td><span class="pill" th:text="${parcela.estado}"></span></td>
+                    <td class="actions">
+                        <a th:href="@{/parcelas/{id}/editar(id=${parcela.id})}">Editar</a>
+                        <form sec:authorize="hasRole('ADMINISTRADOR')" th:if="${!parcelasConTurnos.contains(parcela.id)}" th:action="@{/parcelas/{id}/eliminar(id=${parcela.id})}" method="post" onsubmit="return confirm('¿Deseas eliminar definitivamente esta parcela?');"><button class="link danger">Eliminar</button></form>
+                        <span th:if="${parcelasConTurnos.contains(parcela.id)}" class="history-label">Con historial</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
 
-        <!-- Mensaje de error -->
-
-        <div class="notice bad"
-             th:if="${error}"
-             th:text="${error}">
-            No fue posible completar la operación.
-        </div>
-
-        <section class="table-section">
-
-            <div class="table-responsive">
-
-                <table>
-
-                    <thead>
-
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Agricultor</th>
-                        <th>Área</th>
-                        <th>Cultivo</th>
-                        <th>Estado</th>
-
-                        <th class="actions-column">
-                            Acciones
-                        </th>
-                    </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                    <tr th:if="${#lists.isEmpty(parcelas)}">
-
-                        <td colspan="7"
-                            class="empty-state">
-                            No existen parcelas registradas.
-                        </td>
-
-                    </tr>
-
-                    <tr th:each="parcela : ${parcelas}">
-
-                        <td th:text="${parcela.codigo}">
-                            P-001
-                        </td>
-
-                        <td th:text="${parcela.nombre}">
-                            Parcela
-                        </td>
-
-                        <td th:text="|${parcela.agricultor.nombres} ${parcela.agricultor.apellidos}|">
-                            Agricultor
-                        </td>
-
-                        <td th:text="|${parcela.hectareas} ha|">
-                            0.00 ha
-                        </td>
-
-                        <td th:text="${parcela.cultivo}">
-                            Cultivo
-                        </td>
-
-                        <td>
-
-                            <span class="pill"
-                                  th:text="${parcela.estado}">
-                                ACTIVA
-                            </span>
-
-                        </td>
-
-                        <td class="actions">
-
-                            <!-- Editar siempre disponible -->
-
-                            <a th:href="@{/parcelas/{id}/editar(id=${parcela.id})}">
-                                Editar
-                            </a>
-
-                            <!--
-                                Eliminar únicamente cuando:
-                                1. El usuario es administrador.
-                                2. La parcela no tiene turnos.
-                            -->
-
-                            <form sec:authorize="hasRole('ADMINISTRADOR')"
-                                  th:if="${!parcelasConTurnos.contains(parcela.id)}"
-                                  th:action="@{/parcelas/{id}/eliminar(id=${parcela.id})}"
-                                  method="post"
-                                  onsubmit="return confirm(
-                                    '¿Deseas eliminar definitivamente esta parcela?'
-                                  );">
-
-                                <button type="submit"
-                                        class="link danger">
-                                    Eliminar
-                                </button>
-
-                            </form>
-
-                            <!--
-                                Si posee turnos, se conserva como historial.
-                            -->
-
-                            <span th:if="${parcelasConTurnos.contains(parcela.id)}"
-                                  class="history-label"
-                                  title="La parcela tiene turnos históricos asociados">
-                                Con historial
-                            </span>
-
-                        </td>
-
-                    </tr>
-
-                    </tbody>
-
-                </table>
-
+        <nav class="pagination-bar" th:if="${pagina.totalElements > 0}">
+            <p class="pagination-summary" th:text="|Mostrando ${pagina.number*pagina.size+1}–${pagina.number*pagina.size+pagina.numberOfElements} de ${pagina.totalElements} registros|"></p>
+            <div class="pagination-controls">
+                <a class="btn secondary" th:if="${!pagina.first}" th:href="@{/parcelas(q=${q},estado=${estado},sector=${sector},page=${pagina.number-1},size=${size})}">Anterior</a>
+                <span th:text="|Página ${pagina.number+1} de ${pagina.totalPages}|"></span>
+                <a class="btn secondary" th:if="${!pagina.last}" th:href="@{/parcelas(q=${q},estado=${estado},sector=${sector},page=${pagina.number+1},size=${size})}">Siguiente</a>
             </div>
-
-        </section>
-
+        </nav>
     </main>
-
 </section>
-
 </body>
-
 </html>
