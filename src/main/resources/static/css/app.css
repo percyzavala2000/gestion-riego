@@ -1178,3 +1178,6 @@ table { min-width: 680px; }
 
 /* ===== EGRESOS PAGINADOS V10.7 FASE 3B1 ===== */
 .cash-history-section{margin-top:34px}.cash-filters{grid-template-columns:minmax(250px,2fr) repeat(2,minmax(150px,1fr)) auto auto}@media(max-width:900px){.cash-filters{grid-template-columns:1fr 1fr}.cash-filters input{grid-column:1/-1}}@media(max-width:560px){.cash-filters{grid-template-columns:1fr}.cash-filters input{grid-column:auto}}
+
+/* ===== CIERRES PAGINADOS V10.7 FASE 3B3 ===== */
+.close-filters{grid-template-columns:repeat(4,minmax(150px,1fr)) auto auto}@media(max-width:1000px){.close-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.close-filters{grid-template-columns:1fr}}

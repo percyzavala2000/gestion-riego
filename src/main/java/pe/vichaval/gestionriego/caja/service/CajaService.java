@@ -71,6 +71,27 @@ public class CajaService {
     public List<CierreCaja> cierres() {
         return cierres.findAllByOrderByFechaDesc();
     }
+    public Page<CierreCaja> cierres(
+            String estado,
+            LocalDate desde,
+            LocalDate hasta,
+            int page,
+            int size
+    ) {
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            throw new IllegalArgumentException("La fecha desde no puede ser posterior a la fecha hasta");
+        }
+        return cierres.buscar(
+                PaginacionWeb.estado(estado),
+                desde,
+                hasta,
+                PageRequest.of(
+                        PaginacionWeb.pagina(page),
+                        PaginacionWeb.tamanio(size),
+                        Sort.by(Sort.Order.desc("fecha"), Sort.Order.desc("id"))
+                )
+        );
+    }
 
     public void crearEgreso(EgresoForm f, Long uid) {
         control.validarFechaAbierta(f.getFecha());
