@@ -25,15 +25,21 @@ public class CajaWebController {
     }
 
     @GetMapping
-    String inicio(Model m) {
-        cargar(m);
+    String inicio(
+            @RequestParam(defaultValue = "") String eQ,
+            @RequestParam(defaultValue = "") String eEstado,
+            @RequestParam(defaultValue = "0") int ePage,
+            @RequestParam(defaultValue = "20") int eSize,
+            Model m
+    ) {
+        cargar(m, eQ, eEstado, ePage, eSize);
         return "caja/index";
     }
 
     @PostMapping("/egresos")
     String egreso(@Valid @ModelAttribute("egresoForm") EgresoForm f, BindingResult b, @AuthenticationPrincipal UsuarioPrincipal u, Model m, RedirectAttributes r) {
         if (b.hasErrors()) {
-            cargar(m);
+            cargar(m, "", "", 0, 20);
             return "caja/index";
         }
         return ejecutar(() -> s.crearEgreso(f, u.getId()), r, "Egreso registrado");
@@ -47,7 +53,7 @@ public class CajaWebController {
     @PostMapping("/devoluciones")
     String devolver(@Valid @ModelAttribute("devolucionForm") DevolucionForm f, BindingResult b, @AuthenticationPrincipal UsuarioPrincipal u, Model m, RedirectAttributes r) {
         if (b.hasErrors()) {
-            cargar(m);
+            cargar(m, "", "", 0, 20);
             return "caja/index";
         }
         return ejecutar(() -> s.solicitar(f, u.getId()), r, "Devolución solicitada");
@@ -68,7 +74,7 @@ public class CajaWebController {
     @PostMapping("/cierres")
     String cerrar(@Valid @ModelAttribute("cierreForm") CierreCajaForm f, BindingResult b, @AuthenticationPrincipal UsuarioPrincipal u, Model m, RedirectAttributes r) {
         if (b.hasErrors()) {
-            cargar(m);
+            cargar(m, "", "", 0, 20);
             return "caja/index";
         }
         return ejecutar(() -> s.cerrar(f, u.getId()), r, "Caja cerrada");
@@ -90,11 +96,19 @@ public class CajaWebController {
         return "redirect:/tesoreria/caja";
     }
 
-    private void cargar(Model m) {
+    private void cargar(Model m, String eQ, String eEstado, int ePage, int eSize) {
+        cargarBase(m);
+        var egresosPagina = s.egresos(eQ, eEstado, ePage, eSize);
+        m.addAttribute("egresosPagina", egresosPagina);
+        m.addAttribute("eQ", eQ);
+        m.addAttribute("eEstado", eEstado);
+        m.addAttribute("eSize", egresosPagina.getSize());
+    }
+
+    private void cargarBase(Model m) {
         m.addAttribute("egresoForm", new EgresoForm());
         m.addAttribute("devolucionForm", new DevolucionForm());
         m.addAttribute("cierreForm", new CierreCajaForm());
-        m.addAttribute("egresos", s.egresos());
         m.addAttribute("devoluciones", s.devoluciones());
         m.addAttribute("cierres", s.cierres());
         m.addAttribute("pagos", pagos.findAll().stream().filter(p -> "CONFIRMADO".equals(p.getEstado())).toList());
