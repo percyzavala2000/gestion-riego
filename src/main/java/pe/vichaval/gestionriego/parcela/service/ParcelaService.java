@@ -1,5 +1,8 @@
 package pe.vichaval.gestionriego.parcela.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,6 +11,7 @@ import pe.vichaval.gestionriego.parcela.dto.ParcelaForm;
 import pe.vichaval.gestionriego.parcela.entity.Parcela;
 import pe.vichaval.gestionriego.parcela.repository.ParcelaRepository;
 import pe.vichaval.gestionriego.riego.repository.TurnoRiegoRepository;
+import pe.vichaval.gestionriego.web.PaginacionWeb;
 
 @Service
 @Transactional
@@ -25,6 +29,26 @@ public class ParcelaService {
         this.parcelaRepository = parcelaRepository;
         this.agricultorRepository = agricultorRepository;
         this.turnoRiegoRepository = turnoRiegoRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Parcela> listar(
+            String q,
+            String estado,
+            String sector,
+            int page,
+            int size
+    ) {
+        return parcelaRepository.buscar(
+                PaginacionWeb.texto(q),
+                PaginacionWeb.estado(estado),
+                PaginacionWeb.texto(sector),
+                PageRequest.of(
+                        PaginacionWeb.pagina(page),
+                        PaginacionWeb.tamanio(size),
+                        Sort.by("codigo").ascending()
+                )
+        );
     }
 
     @Transactional(readOnly = true)

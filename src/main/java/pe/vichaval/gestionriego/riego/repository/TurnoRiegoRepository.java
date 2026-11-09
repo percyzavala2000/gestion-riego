@@ -5,6 +5,8 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -70,4 +72,23 @@ public interface TurnoRiegoRepository
             }
     )
     Optional<TurnoRiego> findById(Long id);
+
+    @EntityGraph(attributePaths = {"parcela", "parcela.agricultor"})
+    @Query("""
+            select t from TurnoRiego t
+            where (:q = ''
+                or lower(t.codigo) like lower(concat('%', :q, '%'))
+                or lower(t.parcela.nombre) like lower(concat('%', :q, '%'))
+                or lower(concat(
+                    t.parcela.agricultor.nombres,
+                    ' ',
+                    t.parcela.agricultor.apellidos
+                )) like lower(concat('%', :q, '%')))
+              and (:estado = '' or t.estado = :estado)
+            """)
+    Page<TurnoRiego> buscar(
+            @Param("q") String q,
+            @Param("estado") String estado,
+            Pageable pageable
+    );
 }

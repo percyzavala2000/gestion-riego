@@ -10,6 +10,7 @@ import pe.vichaval.gestionriego.agricultor.entity.Agricultor;
 import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;
 import pe.vichaval.gestionriego.parcela.repository.ParcelaRepository;
 import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
+import pe.vichaval.gestionriego.web.PaginacionWeb;
 
 @Service
 @Transactional
@@ -29,10 +30,24 @@ public class AgricultorService {
 
     @Transactional(readOnly = true)
     public Page<Agricultor> listar(String q, int page) {
-        String consulta = q == null ? "" : q.trim();
+        return listar(q, "", page, PaginacionWeb.TAMANIO_PREDETERMINADO);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Agricultor> listar(
+            String q,
+            String estado,
+            int page,
+            int size
+    ) {
         return agricultores.buscar(
-                consulta,
-                PageRequest.of(page, 6, Sort.by("apellidos", "nombres"))
+                PaginacionWeb.texto(q),
+                PaginacionWeb.estado(estado),
+                PageRequest.of(
+                        PaginacionWeb.pagina(page),
+                        PaginacionWeb.tamanio(size),
+                        Sort.by("apellidos", "nombres").ascending()
+                )
         );
     }
 

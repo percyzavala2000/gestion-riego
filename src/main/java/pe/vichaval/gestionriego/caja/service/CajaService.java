@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.vichaval.gestionriego.caja.dto.*;
@@ -12,6 +15,7 @@ import pe.vichaval.gestionriego.caja.repository.*;
 import pe.vichaval.gestionriego.infraestructura.CorrelativoService;
 import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
 import pe.vichaval.gestionriego.usuario.repository.UsuarioRepository;
+import pe.vichaval.gestionriego.web.PaginacionWeb;
 
 @Service
 @Transactional
@@ -37,13 +41,56 @@ public class CajaService {
     public List<Egreso> egresos() {
         return egresos.findAllByOrderByFechaDescIdDesc();
     }
+    public Page<Egreso> egresos(String q, String estado, int page, int size) {
+        return egresos.buscar(
+                PaginacionWeb.texto(q),
+                PaginacionWeb.estado(estado),
+                PageRequest.of(
+                        PaginacionWeb.pagina(page),
+                        PaginacionWeb.tamanio(size),
+                        Sort.by(Sort.Order.desc("fecha"), Sort.Order.desc("id"))
+                )
+        );
+    }
 
     public List<Devolucion> devoluciones() {
         return devoluciones.findAllByOrderByFechaDescIdDesc();
     }
+    public Page<Devolucion> devoluciones(String q, String estado, int page, int size) {
+        return devoluciones.buscar(
+                PaginacionWeb.texto(q),
+                PaginacionWeb.estado(estado),
+                PageRequest.of(
+                        PaginacionWeb.pagina(page),
+                        PaginacionWeb.tamanio(size),
+                        Sort.by(Sort.Order.desc("fecha"), Sort.Order.desc("id"))
+                )
+        );
+    }
 
     public List<CierreCaja> cierres() {
         return cierres.findAllByOrderByFechaDesc();
+    }
+    public Page<CierreCaja> cierres(
+            String estado,
+            LocalDate desde,
+            LocalDate hasta,
+            int page,
+            int size
+    ) {
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            throw new IllegalArgumentException("La fecha desde no puede ser posterior a la fecha hasta");
+        }
+        return cierres.buscar(
+                PaginacionWeb.estado(estado),
+                desde,
+                hasta,
+                PageRequest.of(
+                        PaginacionWeb.pagina(page),
+                        PaginacionWeb.tamanio(size),
+                        Sort.by(Sort.Order.desc("fecha"), Sort.Order.desc("id"))
+                )
+        );
     }
 
     public void crearEgreso(EgresoForm f, Long uid) {

@@ -1160,3 +1160,24 @@ table { min-width: 680px; }
     .search { display: flex; width: 100%; margin: 12px 0 0; }
     .search input { flex: 1; min-width: 0; }
 }
+
+/* ===== PAGINACION V10.7 FASE 1A ===== */
+.list-filters{display:grid;grid-template-columns:minmax(220px,2fr) minmax(150px,1fr) minmax(150px,1fr) auto auto;gap:10px;align-items:center;margin:20px 0}.list-filters input,.list-filters select{width:100%;min-height:42px;background:#fff}.pagination-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:18px 0 4px;padding:14px 16px;border:1px solid var(--line);border-radius:9px;background:#fff}.pagination-summary{margin:0;color:#66746e;font-size:13px}.pagination-controls{display:flex;align-items:center;gap:12px}.pagination-controls span{font-size:13px;font-weight:700;white-space:nowrap}@media(max-width:900px){.list-filters{grid-template-columns:1fr 1fr}.list-filters input{grid-column:1/-1}.pagination-bar{align-items:flex-start;flex-direction:column}}@media(max-width:560px){.list-filters{grid-template-columns:1fr}.list-filters input{grid-column:auto}.pagination-controls{width:100%;justify-content:space-between;flex-wrap:wrap}}
+
+/* ===== NOTIFICACIONES PAGINADAS V10.7 FASE 1C ===== */
+.notification-filters{grid-template-columns:repeat(4,minmax(150px,1fr)) auto auto}.notification-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.notification-meta small{margin-left:auto}.secondary-pill{background:#edf2f0;color:#45564f}@media(max-width:1100px){.notification-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.notification-filters{grid-template-columns:1fr}.notification-meta small{width:100%;margin-left:0}}
+
+/* ===== PAGOS PAGINADOS V10.7 FASE 2A ===== */
+.payment-filters{grid-template-columns:minmax(260px,2fr) repeat(3,minmax(145px,1fr)) auto auto}@media(max-width:1200px){.payment-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.payment-filters input{grid-column:1/-1}}@media(max-width:600px){.payment-filters{grid-template-columns:1fr}.payment-filters input{grid-column:auto}}
+
+/* ===== CUENTAS PAGINADAS V10.7 FASE 2B ===== */
+.accounts-filters{grid-template-columns:minmax(250px,2fr) repeat(3,minmax(150px,1fr)) auto auto}@media(max-width:1200px){.accounts-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.accounts-filters input{grid-column:1/-1}}@media(max-width:600px){.accounts-filters{grid-template-columns:1fr}.accounts-filters input{grid-column:auto}}
+
+/* ===== PARCELAS PAGINADAS V10.7 FASE 3A ===== */
+.parcel-filters{grid-template-columns:minmax(260px,2fr) repeat(3,minmax(145px,1fr)) auto auto}@media(max-width:1200px){.parcel-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.parcel-filters input{grid-column:1/-1}}@media(max-width:600px){.parcel-filters{grid-template-columns:1fr}.parcel-filters input{grid-column:auto}}
+
+/* ===== EGRESOS PAGINADOS V10.7 FASE 3B1 ===== */
+.cash-history-section{margin-top:34px}.cash-filters{grid-template-columns:minmax(250px,2fr) repeat(2,minmax(150px,1fr)) auto auto}@media(max-width:900px){.cash-filters{grid-template-columns:1fr 1fr}.cash-filters input{grid-column:1/-1}}@media(max-width:560px){.cash-filters{grid-template-columns:1fr}.cash-filters input{grid-column:auto}}
+
+/* ===== CIERRES PAGINADOS V10.7 FASE 3B3 ===== */
+.close-filters{grid-template-columns:repeat(4,minmax(150px,1fr)) auto auto}@media(max-width:1000px){.close-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.close-filters{grid-template-columns:1fr}}

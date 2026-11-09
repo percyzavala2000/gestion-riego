@@ -25,7 +25,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: vichayal-riego:${APP_VERSION:-10.5.0}
+    image: vichayal-riego:${APP_VERSION:-10.7.0}
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: prod

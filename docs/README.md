@@ -2,7 +2,7 @@
 
 Sistema web para la gestión operativa, financiera y administrativa de la Comisión de Regantes de Vichayal. La aplicación permite administrar agricultores, parcelas, turnos de riego, cuentas por cobrar, pagos, tesorería, caja, auditoría, reportes, inteligencia basada en reglas, observabilidad y una API REST inicial.
 
-> **Versión documentada:** 10.5.0  
+> **Versión documentada:** 10.7.0  
 > **Estado:** API REST operativa inicial, login responsive, despliegue Docker, observabilidad con Prometheus y Grafana.  
 > **Ubicación institucional:** Vichayal, Piura, Perú.
 
@@ -1037,3 +1037,7 @@ Proyecto académico y administrativo orientado a la gestión de riego de Vichaya
 
 ## Cliente móvil
 Backend congelado para React Native Android e iOS desde v10.5.
+
+
+## v10.7
+Paginación y filtros de listados administrativos y financieros.

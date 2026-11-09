@@ -1,1 +1,126 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Notificaciones</title><link rel="stylesheet" th:href="@{/css/app.css}"></head><body><div th:replace="~{fragments/sidebar :: sidebar('notificaciones')}"></div><section class="workspace"><div th:replace="~{fragments/header :: header('Notificaciones')}"></div><main class="content"><header class="page-title"><div><h1>Centro de notificaciones</h1><p>Revisa avisos operativos, financieros y administrativos.</p></div><form th:if="${noLeidas > 0}" th:action="@{/notificaciones/leer-todas}" method="post"><button class="btn secondary">Marcar todas como leídas</button></form></header><div class="notice ok" th:if="${exito}" th:text="${exito}"></div><section class="notification-list"><article th:each="n:${pagina.content}" class="notification-card" th:classappend="${n.estado=='NO_LEIDA'}?' unread':''"><div><span class="pill" th:text="${n.prioridad}"></span><small th:text="${#temporals.format(n.fechaCreacion,'dd/MM/yyyy HH:mm')}"></small></div><h2 th:text="${n.titulo}"></h2><p th:text="${n.mensaje}"></p><div class="actions"><a class="btn secondary" th:if="${n.referenciaUrl!=null}" th:href="${n.referenciaUrl}">Revisar</a><form th:if="${n.estado=='NO_LEIDA'}" th:action="@{/notificaciones/{id}/leer(id=${n.id})}" method="post"><button class="link">Marcar leída</button></form><form th:action="@{/notificaciones/{id}/archivar(id=${n.id})}" method="post"><button class="link danger">Archivar</button></form></div></article><p th:if="${#lists.isEmpty(pagina.content)}">No existen notificaciones.</p></section></main></section></body></html>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notificaciones</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v=1073)}">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar :: sidebar('notificaciones')}"></div>
+<section class="workspace">
+    <div th:replace="~{fragments/header :: header('Notificaciones')}"></div>
+
+    <main class="content">
+        <header class="page-title">
+            <div>
+                <h1>Centro de notificaciones</h1>
+                <p>Filtra avisos por estado, prioridad y tipo.</p>
+            </div>
+            <form th:if="${noLeidas > 0}"
+                  th:action="@{/notificaciones/leer-todas}"
+                  method="post">
+                <button class="btn secondary">Marcar todas como leídas</button>
+            </form>
+        </header>
+
+        <div class="notice ok" th:if="${exito}" th:text="${exito}"></div>
+
+        <form class="list-filters notification-filters"
+              method="get"
+              th:action="@{/notificaciones}">
+            <select name="estado">
+                <option value="">Todos los estados</option>
+                <option value="NO_LEIDA" th:selected="${estado == 'NO_LEIDA'}">No leídas</option>
+                <option value="LEIDA" th:selected="${estado == 'LEIDA'}">Leídas</option>
+            </select>
+
+            <select name="prioridad">
+                <option value="">Todas las prioridades</option>
+                <option value="BAJA" th:selected="${prioridad == 'BAJA'}">Baja</option>
+                <option value="MEDIA" th:selected="${prioridad == 'MEDIA'}">Media</option>
+                <option value="ALTA" th:selected="${prioridad == 'ALTA'}">Alta</option>
+                <option value="CRITICA" th:selected="${prioridad == 'CRITICA'}">Crítica</option>
+            </select>
+
+            <select name="tipo">
+                <option value="">Todos los tipos</option>
+                <option value="TURNO_PROXIMO" th:selected="${tipo == 'TURNO_PROXIMO'}">Turno próximo</option>
+                <option value="CUENTA_PROXIMA_VENCER" th:selected="${tipo == 'CUENTA_PROXIMA_VENCER'}">Cuenta próxima a vencer</option>
+                <option value="CUENTA_VENCIDA" th:selected="${tipo == 'CUENTA_VENCIDA'}">Cuenta vencida</option>
+                <option value="AVISO_ADMINISTRATIVO" th:selected="${tipo == 'AVISO_ADMINISTRATIVO'}">Aviso administrativo</option>
+            </select>
+
+            <select name="size">
+                <option value="10" th:selected="${size == 10}">10 por página</option>
+                <option value="20" th:selected="${size == 20}">20 por página</option>
+                <option value="50" th:selected="${size == 50}">50 por página</option>
+            </select>
+
+            <button class="btn primary" type="submit">Aplicar</button>
+            <a class="btn secondary" th:href="@{/notificaciones}">Limpiar</a>
+        </form>
+
+        <section class="notification-list">
+            <article th:each="n : ${pagina.content}"
+                     class="notification-card"
+                     th:classappend="${n.estado == 'NO_LEIDA'} ? ' unread' : ''">
+                <div class="notification-meta">
+                    <span class="pill" th:text="${n.prioridad}"></span>
+                    <span class="pill secondary-pill" th:text="${n.tipo}"></span>
+                    <small th:text="${#temporals.format(n.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></small>
+                </div>
+
+                <h2 th:text="${n.titulo}"></h2>
+                <p th:text="${n.mensaje}"></p>
+
+                <div class="actions">
+                    <a class="btn secondary"
+                       th:if="${n.referenciaUrl != null}"
+                       th:href="${n.referenciaUrl}">Revisar</a>
+
+                    <form th:if="${n.estado == 'NO_LEIDA'}"
+                          th:action="@{/notificaciones/{id}/leer(id=${n.id})}"
+                          method="post">
+                        <button class="link">Marcar leída</button>
+                    </form>
+
+                    <form th:action="@{/notificaciones/{id}/archivar(id=${n.id})}"
+                          method="post">
+                        <button class="link danger">Archivar</button>
+                    </form>
+                </div>
+            </article>
+
+            <p th:if="${pagina.empty}" class="empty-state">
+                No existen notificaciones para los filtros aplicados.
+            </p>
+        </section>
+
+        <nav class="pagination-bar"
+             th:if="${pagina.totalElements > 0}"
+             aria-label="Paginación de notificaciones">
+            <p class="pagination-summary"
+               th:text="|Mostrando ${pagina.number * pagina.size + 1}–${pagina.number * pagina.size + pagina.numberOfElements} de ${pagina.totalElements} registros|">
+            </p>
+
+            <div class="pagination-controls">
+                <a class="btn secondary"
+                   th:if="${!pagina.first}"
+                   th:href="@{/notificaciones(estado=${estado},prioridad=${prioridad},tipo=${tipo},page=${pagina.number-1},size=${size})}">
+                    Anterior
+                </a>
+
+                <span th:text="|Página ${pagina.number + 1} de ${pagina.totalPages}|"></span>
+
+                <a class="btn secondary"
+                   th:if="${!pagina.last}"
+                   th:href="@{/notificaciones(estado=${estado},prioridad=${prioridad},tipo=${tipo},page=${pagina.number+1},size=${size})}">
+                    Siguiente
+                </a>
+            </div>
+        </nav>
+    </main>
+</section>
+</body>
+</html>

@@ -45,39 +45,26 @@ public class ParcelaWebController {
     }
 
     @GetMapping
-    public String listar(Model model) {
-
-        var parcelas = parcelaRepository.findAll();
-
-        /*
-         * Se identifican las parcelas que poseen uno o más
-         * turnos de riego asociados.
-         *
-         * Estas parcelas deben conservarse porque forman
-         * parte del historial operativo.
-         */
-        Set<Long> parcelasConTurnos = parcelas
-                .stream()
-                .filter(parcela ->
-                        turnoRiegoRepository.existsByParcelaId(
-                                parcela.getId()
-                        )
-                )
-                .map(parcela ->
-                        parcela.getId()
-                )
+    public String listar(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "") String estado,
+            @RequestParam(defaultValue = "") String sector,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            Model model
+    ) {
+        var pagina = parcelaService.listar(q, estado, sector, page, size);
+        Set<Long> parcelasConTurnos = pagina.getContent().stream()
+                .filter(parcela -> turnoRiegoRepository.existsByParcelaId(parcela.getId()))
+                .map(parcela -> parcela.getId())
                 .collect(Collectors.toSet());
 
-        model.addAttribute(
-                "parcelas",
-                parcelas
-        );
-
-        model.addAttribute(
-                "parcelasConTurnos",
-                parcelasConTurnos
-        );
-
+        model.addAttribute("pagina", pagina);
+        model.addAttribute("parcelasConTurnos", parcelasConTurnos);
+        model.addAttribute("q", q);
+        model.addAttribute("estado", estado);
+        model.addAttribute("sector", sector);
+        model.addAttribute("size", pagina.getSize());
         return "parcela/list";
     }
 
