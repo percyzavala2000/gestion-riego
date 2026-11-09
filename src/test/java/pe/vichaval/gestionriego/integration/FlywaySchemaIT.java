@@ -20,19 +20,21 @@ class FlywaySchemaIT extends PostgreSqlIntegrationBase {
     DataSource dataSource;
 
     @Test
-    void aplicaMigracionesV1aV12EnPostgreSqlVacio() throws Exception {
+    void aplicaMigracionesV1aV14EnPostgreSqlVacio() throws Exception {
         try (Connection c = dataSource.getConnection(); Statement s = c.createStatement()) {
             try (ResultSet rs = s.executeQuery("select count(*) from flyway_schema_history where success=true")) {
                 rs.next();
-                assertEquals(12, rs.getInt(1));
+                assertEquals(14, rs.getInt(1));
             }
-            try (ResultSet rs = s.executeQuery("select to_regclass('public.auditoria_eventos'), to_regclass('public.cierres_caja'), to_regclass('public.cuentas_agricultor'), to_regclass('public.sesiones_agricultor'), to_regclass('public.notificaciones')")) {
+            try (ResultSet rs = s.executeQuery("select to_regclass('public.auditoria_eventos'), to_regclass('public.cierres_caja'), to_regclass('public.cuentas_agricultor'), to_regclass('public.sesiones_agricultor'), to_regclass('public.notificaciones'), to_regclass('public.dispositivos_push'), to_regclass('public.entregas_push')")) {
                 rs.next();
                 assertNotNull(rs.getString(1));
                 assertNotNull(rs.getString(2));
                 assertNotNull(rs.getString(3));
                 assertNotNull(rs.getString(4));
                 assertNotNull(rs.getString(5));
+                assertNotNull(rs.getString(6));
+                assertNotNull(rs.getString(7));
             }
             try (ResultSet rs = s.executeQuery("select count(*) from pg_class where relkind='S' and relname in ('seq_pago_codigo','seq_cuenta_codigo','seq_egreso_codigo','seq_devolucion_codigo')")) {
                 rs.next();

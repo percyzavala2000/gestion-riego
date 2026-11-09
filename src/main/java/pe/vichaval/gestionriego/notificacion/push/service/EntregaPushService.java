@@ -1,0 +1,14 @@
+package pe.vichaval.gestionriego.notificacion.push.service;
+import java.time.*; import java.util.*;
+import org.springframework.beans.factory.annotation.Value; import org.springframework.data.domain.PageRequest; import org.springframework.scheduling.annotation.Scheduled; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional;
+import pe.vichaval.gestionriego.notificacion.entity.Notificacion; import pe.vichaval.gestionriego.notificacion.firebase.PushGateway; import pe.vichaval.gestionriego.notificacion.push.entity.EntregaPush; import pe.vichaval.gestionriego.notificacion.push.repository.*;
+@Service
+public class EntregaPushService {
+ private final EntregaPushRepository entregas; private final DispositivoPushRepository dispositivos; private final PushGateway gateway; private final int maxIntentos,batch;
+ public EntregaPushService(EntregaPushRepository e,DispositivoPushRepository d,PushGateway g,@Value("${vichayal.firebase.max-attempts:5}")int max,@Value("${vichayal.firebase.batch-size:100}")int batch){entregas=e;dispositivos=d;gateway=g;maxIntentos=max;this.batch=batch;}
+ @Transactional public int preparar(Notificacion n){if(n.getAgricultor()==null)return 0;int[] total={0};dispositivos.findByCuentaAgricultorIdAndActivoTrue(n.getAgricultor().getId()).forEach(d->{if(!entregas.existsByNotificacionIdAndDispositivoId(n.getId(),d.getId())){entregas.save(new EntregaPush(n,d));total[0]++;}});return total[0];}
+ @Scheduled(fixedDelayString="${vichayal.firebase.delivery-delay-ms:30000}") @Transactional public int procesar(){int total=0;for(EntregaPush e:entregas.pendientes(OffsetDateTime.now(),PageRequest.of(0,batch))){PushGateway.Resultado r=gateway.enviar(e.getDispositivo().getTokenRegistro(),e.getNotificacion().getTitulo(),e.getNotificacion().getMensaje(),datos(e.getNotificacion()));if(r.enviado())e.enviada(r.mensajeId());else if(r.definitivo()||e.getIntentos()+1>=maxIntentos){e.errorDefinitivo(r.codigo(),r.detalle());if(r.definitivo())e.getDispositivo().desactivar();}else e.errorTemporal(r.codigo(),r.detalle(),OffsetDateTime.now().plus(retraso(e.getIntentos()+1)));total++;}return total;}
+ private Duration retraso(int intento){return switch(intento){case 1->Duration.ofMinutes(1);case 2->Duration.ofMinutes(5);case 3->Duration.ofMinutes(30);default->Duration.ofHours(2);};}
+ private Map<String,String> datos(Notificacion n){Map<String,String> d=new HashMap<>();d.put("notificacionId",String.valueOf(n.getId()));d.put("tipo",n.getTipo());d.put("screen",pantalla(n.getTipo()));if(n.getReferenciaId()!=null)d.put("entityId",String.valueOf(n.getReferenciaId()));return d;}
+ private String pantalla(String tipo){if(tipo.startsWith("TURNO"))return "TurnoDetalle";if(tipo.startsWith("CUENTA"))return "CuentaDetalle";if(tipo.startsWith("PAGO"))return "PagoDetalle";return "NotificacionDetalle";}
+}
