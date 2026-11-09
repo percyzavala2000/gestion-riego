@@ -30,3 +30,6 @@ secrets/
 base-v10.3-firebase-push.txt
 
 .v10.3-fase2-backup-*
+
+.v10.5-fase1-backup-*
+base-v10.5-estabilizacion-movil.txt

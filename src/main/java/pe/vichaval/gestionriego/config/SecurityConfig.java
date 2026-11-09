@@ -4,9 +4,14 @@ import org.springframework.context.annotation.*; import org.springframework.http
 import org.springframework.security.config.annotation.web.builders.HttpSecurity; import org.springframework.security.crypto.factory.PasswordEncoderFactories; import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain; import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint; import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; import org.springframework.security.web.util.matcher.RequestMatcher;
 import pe.vichaval.gestionriego.security.agricultor.auth.AccessTokenFilter;
+import pe.vichaval.gestionriego.security.mobile.RateLimitLoginFilter;
 @Configuration @EnableMethodSecurity
 public class SecurityConfig {
- @Bean public SecurityFilterChain securityFilterChain(HttpSecurity http,AccessTokenFilter tokenFilter)throws Exception{
+ @Bean public SecurityFilterChain securityFilterChain(
+        HttpSecurity http,
+        AccessTokenFilter tokenFilter,
+        RateLimitLoginFilter rateLimitLoginFilter
+) throws Exception {
   http.authorizeHttpRequests(a->a
    .requestMatchers("/login","/error","/error/**","/css/**","/js/**","/images/**","/icons/**","/favicon.ico","/actuator/health","/actuator/prometheus","/api/v1/auth/login","/api/v1/auth/refresh","/api/v1/auth/logout").permitAll()
    .requestMatchers("/api/v1/auth/me","/api/v1/agricultor/**").hasRole("AGRICULTOR")
@@ -18,7 +23,9 @@ public class SecurityConfig {
    .requestMatchers("/reportes/**","/inteligencia/**").hasAnyRole("ADMINISTRADOR","OPERADOR")
    .requestMatchers("/auditoria/**","/usuarios/**","/roles/**").hasRole("ADMINISTRADOR").anyRequest().authenticated());
   http.csrf(c->c.ignoringRequestMatchers("/api/v1/auth/**","/api/v1/agricultor/**","/api/v1/notificaciones/**"));
-  http.addFilterBefore(tokenFilter,UsernamePasswordAuthenticationFilter.class);
+  http.cors(cors -> {});
+    http.addFilterBefore(rateLimitLoginFilter, UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
   http.formLogin(f->f.loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/dashboard",true).failureUrl("/login?error").permitAll());
   http.logout(l->l.logoutUrl("/logout").logoutSuccessUrl("/login?logout").invalidateHttpSession(true).clearAuthentication(true).deleteCookies("VICHAYAL_SESSION").permitAll());
   http.sessionManagement(s->s.sessionFixation(x->x.migrateSession()).maximumSessions(3));
