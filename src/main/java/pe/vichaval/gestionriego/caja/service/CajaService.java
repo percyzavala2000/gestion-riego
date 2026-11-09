@@ -56,6 +56,17 @@ public class CajaService {
     public List<Devolucion> devoluciones() {
         return devoluciones.findAllByOrderByFechaDescIdDesc();
     }
+    public Page<Devolucion> devoluciones(String q, String estado, int page, int size) {
+        return devoluciones.buscar(
+                PaginacionWeb.texto(q),
+                PaginacionWeb.estado(estado),
+                PageRequest.of(
+                        PaginacionWeb.pagina(page),
+                        PaginacionWeb.tamanio(size),
+                        Sort.by(Sort.Order.desc("fecha"), Sort.Order.desc("id"))
+                )
+        );
+    }
 
     public List<CierreCaja> cierres() {
         return cierres.findAllByOrderByFechaDesc();
