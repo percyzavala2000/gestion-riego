@@ -1,4 +1,4 @@
-# Vichayal Riego Web v10.0
+# Vichayal Riego Web v10.5
 
 ## Guía de instalación y prueba en Windows
 
@@ -9,7 +9,7 @@ La evaluación contempla dos modalidades:
 1. **Demo local con seed:** recomendada para revisar rápidamente las funciones con datos ficticios.
 2. **Producción local con Docker:** recomendada para comprobar el despliegue contenedorizado, observabilidad y una base inicialmente vacía.
 
-> Versión documentada: `10.0.0`  
+> Versión documentada: `10.5.0`  
 > Sistema operativo de esta guía: Windows 10 u 11 de 64 bits  
 > Backend: Java 21 y Spring Boot 4.1.1  
 > Base de datos: PostgreSQL 18
@@ -758,3 +758,19 @@ Clave: 7pcv4bG68Ox10i1hFHhG+KqthbIQoyz1WVXZWC143U4w/UkVe9LefDUd8GDjksTh
 ```
 
 No utilizar claves de producción real para la evaluación.
+
+
+## Backend móvil React Native
+
+El contrato `/api/v1` está estabilizado para una aplicación React Native Android e iOS. Incluye autenticación Bearer, refresh token rotatorio, perfil, parcelas, turnos, notificaciones persistentes y registro de dispositivos Firebase.
+
+Colección Postman: `docs/08-api/postman/Vichayal-Riego-Mobile-v10.5.postman_collection.json`.
+
+Configuración segura predeterminada:
+
+```dotenv
+FIREBASE_ENABLED=false
+MOBILE_CORS_ENABLED=false
+AUTH_RATE_LIMIT_MAX_REQUESTS=10
+AUTH_RATE_LIMIT_WINDOW_SECONDS=60
+```

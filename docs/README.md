@@ -2,7 +2,7 @@
 
 Sistema web para la gestión operativa, financiera y administrativa de la Comisión de Regantes de Vichayal. La aplicación permite administrar agricultores, parcelas, turnos de riego, cuentas por cobrar, pagos, tesorería, caja, auditoría, reportes, inteligencia basada en reglas, observabilidad y una API REST inicial.
 
-> **Versión documentada:** 10.0.0  
+> **Versión documentada:** 10.5.0  
 > **Estado:** API REST operativa inicial, login responsive, despliegue Docker, observabilidad con Prometheus y Grafana.  
 > **Ubicación institucional:** Vichayal, Piura, Perú.
 
@@ -39,7 +39,7 @@ Vichayal Riego Web centraliza procesos que normalmente se ejecutan mediante regi
 | Persistencia | Spring Data JPA | Repositorios y acceso a datos |
 | ORM | Hibernate ORM | Mapeo objeto-relacional |
 | Base de datos | PostgreSQL 18 | Almacenamiento transaccional |
-| Migraciones | Flyway | Versionado del esquema V1 a V8 |
+| Migraciones | Flyway | Versionado del esquema V1 a V14 |
 | API | REST JSON y ProblemDetail | Integración con clientes futuros |
 | Documentación API | Springdoc OpenAPI y Swagger UI | Exploración de endpoints |
 | Validación | Jakarta Bean Validation | Validación de DTO y formularios |
@@ -1033,3 +1033,7 @@ v12.0  Inteligencia predictiva
 ## 27. Licencia y uso
 
 Proyecto académico y administrativo orientado a la gestión de riego de Vichayal. Antes de un despliegue institucional definitivo deben revisarse licenciamiento, protección de datos personales, continuidad operativa, respaldo, recuperación y responsabilidades de administración.
+
+
+## Cliente móvil
+Backend congelado para React Native Android e iOS desde v10.5.
