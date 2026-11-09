@@ -36,14 +36,26 @@ public class TurnoRiegoWebController {
     }
 
     @GetMapping
-    public String listar(Model model) {
-
+    public String listar(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "") String estado,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            Model model
+    ) {
         turnoService.actualizarVencidos();
 
-        model.addAttribute(
-                "turnos",
-                turnoRepository.findAll()
+        var pagina = turnoService.listar(
+                q,
+                estado,
+                page,
+                size
         );
+
+        model.addAttribute("pagina", pagina);
+        model.addAttribute("q", q);
+        model.addAttribute("estado", estado);
+        model.addAttribute("size", pagina.getSize());
 
         return "riego/list";
     }

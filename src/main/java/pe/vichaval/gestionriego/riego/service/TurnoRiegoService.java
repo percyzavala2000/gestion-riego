@@ -2,12 +2,16 @@ package pe.vichaval.gestionriego.riego.service;
 
 import java.time.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.vichaval.gestionriego.parcela.repository.ParcelaRepository;
 import pe.vichaval.gestionriego.riego.dto.TurnoForm;
 import pe.vichaval.gestionriego.riego.entity.TurnoRiego;
 import pe.vichaval.gestionriego.riego.repository.TurnoRiegoRepository;
+import pe.vichaval.gestionriego.web.PaginacionWeb;
 
 @Service
 @Transactional
@@ -18,6 +22,27 @@ public class TurnoRiegoService {
     public TurnoRiegoService(TurnoRiegoRepository r, ParcelaRepository p) {
         this.r = r;
         this.p = p;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TurnoRiego> listar(
+            String q,
+            String estado,
+            int page,
+            int size
+    ) {
+        return r.buscar(
+                PaginacionWeb.texto(q),
+                PaginacionWeb.estado(estado),
+                PageRequest.of(
+                        PaginacionWeb.pagina(page),
+                        PaginacionWeb.tamanio(size),
+                        Sort.by(
+                                Sort.Order.desc("fecha"),
+                                Sort.Order.desc("horaInicio")
+                        )
+                )
+        );
     }
 
     @Transactional(readOnly = true)
