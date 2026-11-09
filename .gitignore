@@ -28,3 +28,5 @@ firebase-service-account.json
 secrets/
 .v10.3-fase1-backup-*
 base-v10.3-firebase-push.txt
+
+.v10.3-fase2-backup-*

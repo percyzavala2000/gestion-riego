@@ -1,0 +1,3 @@
+package pe.vichaval.gestionriego.notificacion.push.service;
+import org.springframework.scheduling.annotation.Scheduled; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import pe.vichaval.gestionriego.notificacion.repository.NotificacionRepository;
+@Service public class PreparadorEntregaPushService {private final NotificacionRepository notificaciones;private final EntregaPushService entregas;public PreparadorEntregaPushService(NotificacionRepository n,EntregaPushService e){notificaciones=n;entregas=e;}@Scheduled(fixedDelayString="${vichayal.firebase.preparation-delay-ms:30000}")@Transactional public int preparar(){int total=0;for(var n:notificaciones.findAll())total+=entregas.preparar(n);return total;}}
