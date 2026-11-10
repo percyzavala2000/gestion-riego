@@ -2,64 +2,112 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Reportes operativos</title>
-    <link rel="stylesheet" th:href="@{/css/app.css}">
-    <link rel="stylesheet" th:href="@{/css/v7.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css(v=1081)}">
+    <link rel="stylesheet" th:href="@{/css/v7.css(v=1081)}">
 </head>
 <body>
 <div th:replace="~{fragments/sidebar :: sidebar('reportes')}"></div>
 <section class="workspace">
     <div th:replace="~{fragments/header :: header('Reportes operativos')}"></div>
-    <main class="content"><a class="btn secondary" th:href="@{/reportes}">Volver</a>
+    <main class="content">
+        <header class="page-title">
+            <div>
+                <h1>Reportes operativos</h1>
+                <p>Filtra agricultores, parcelas y turnos con criterios comunes.</p>
+            </div>
+            <a class="btn secondary" th:href="@{/reportes}">Volver</a>
+        </header>
+
+        <div class="notice bad" th:if="${error}" th:text="${error}"></div>
+
+        <form class="report-filter operational-report-filter"
+              th:object="${filtro}"
+              method="get"
+              th:action="@{/reportes/operativos}">
+            <label>Texto
+                <input th:field="*{q}" placeholder="DNI, código, nombre o cultivo">
+            </label>
+            <label>Estado
+                <select th:field="*{estado}">
+                    <option value="">Todos</option>
+                    <option value="ACTIVO">Agricultor activo</option>
+                    <option value="INACTIVO">Agricultor inactivo</option>
+                    <option value="ACTIVA">Parcela activa</option>
+                    <option value="INACTIVA">Parcela inactiva</option>
+                    <option value="EN_MANTENIMIENTO">Parcela en mantenimiento</option>
+                    <option value="PROGRAMADO">Turno programado</option>
+                    <option value="EN_CURSO">Turno en curso</option>
+                    <option value="COMPLETADO">Turno completado</option>
+                    <option value="CANCELADO">Turno cancelado</option>
+                    <option value="VENCIDO">Turno vencido</option>
+                </select>
+            </label>
+            <label>Sector
+                <input th:field="*{sector}" placeholder="Norte, Centro o Sur">
+            </label>
+            <label>Cultivo
+                <input th:field="*{cultivo}" placeholder="Arroz, maíz...">
+            </label>
+            <label>Agricultor
+                <select th:field="*{agricultorId}">
+                    <option value="">Todos</option>
+                    <option th:each="a : ${agricultoresSelector}"
+                            th:value="${a.id}"
+                            th:text="|${a.nombres} ${a.apellidos}|"></option>
+                </select>
+            </label>
+            <label>Parcela
+                <select th:field="*{parcelaId}">
+                    <option value="">Todas</option>
+                    <option th:each="p : ${parcelasSelector}"
+                            th:value="${p.id}"
+                            th:text="|${p.codigo} - ${p.nombre}|"></option>
+                </select>
+            </label>
+            <label>Desde
+                <input type="date" th:field="*{desde}">
+            </label>
+            <label>Hasta
+                <input type="date" th:field="*{hasta}">
+            </label>
+            <button class="btn primary" type="submit">Aplicar filtros</button>
+            <a class="btn secondary" th:href="@{/reportes/operativos}">Limpiar</a>
+        </form>
+
+        <section class="report-summary-row">
+            <article><span>Agricultores</span><strong th:text="${#lists.size(agricultores)}">0</strong></article>
+            <article><span>Parcelas</span><strong th:text="${#lists.size(parcelas)}">0</strong></article>
+            <article><span>Turnos</span><strong th:text="${#lists.size(turnos)}">0</strong></article>
+        </section>
+
         <h2>Agricultores</h2>
-        <table>
-            <tr>
-                <th>DNI</th>
-                <th>Nombre</th>
-                <th>Sector</th>
-                <th>Estado</th>
-            </tr>
-            <tr th:each="a:${agricultores}">
-                <td th:text="${a.dni}"></td>
-                <td th:text="|${a.nombres} ${a.apellidos}|"></td>
-                <td th:text="${a.sector}"></td>
-                <td th:text="${a.estado}"></td>
-            </tr>
-        </table>
+        <div class="table-responsive"><table>
+            <thead><tr><th>DNI</th><th>Nombre</th><th>Sector</th><th>Estado</th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(agricultores)}"><td colspan="4" class="empty-state">No existen agricultores para los filtros aplicados.</td></tr>
+            <tr th:each="a : ${agricultores}"><td th:text="${a.dni}"></td><td th:text="|${a.nombres} ${a.apellidos}|"></td><td th:text="${a.sector}"></td><td><span class="pill" th:text="${a.estado}"></span></td></tr>
+            </tbody>
+        </table></div>
+
         <h2>Parcelas</h2>
-        <table>
-            <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Agricultor</th>
-                <th>Cultivo</th>
-                <th>Estado</th>
-            </tr>
-            <tr th:each="p:${parcelas}">
-                <td th:text="${p.codigo}"></td>
-                <td th:text="${p.nombre}"></td>
-                <td th:text="|${p.agricultor.nombres} ${p.agricultor.apellidos}|"></td>
-                <td th:text="${p.cultivo}"></td>
-                <td th:text="${p.estado}"></td>
-            </tr>
-        </table>
+        <div class="table-responsive"><table>
+            <thead><tr><th>Código</th><th>Nombre</th><th>Agricultor</th><th>Cultivo</th><th>Estado</th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(parcelas)}"><td colspan="5" class="empty-state">No existen parcelas para los filtros aplicados.</td></tr>
+            <tr th:each="p : ${parcelas}"><td th:text="${p.codigo}"></td><td th:text="${p.nombre}"></td><td th:text="|${p.agricultor.nombres} ${p.agricultor.apellidos}|"></td><td th:text="${p.cultivo}"></td><td><span class="pill" th:text="${p.estado}"></span></td></tr>
+            </tbody>
+        </table></div>
+
         <h2>Turnos</h2>
-        <table>
-            <tr>
-                <th>Código</th>
-                <th>Fecha</th>
-                <th>Parcela</th>
-                <th>Horario</th>
-                <th>Estado</th>
-            </tr>
-            <tr th:each="t:${turnos}">
-                <td th:text="${t.codigo}"></td>
-                <td th:text="${t.fecha}"></td>
-                <td th:text="${t.parcela.nombre}"></td>
-                <td th:text="|${t.horaInicio} - ${t.horaFin}|"></td>
-                <td th:text="${t.estado}"></td>
-            </tr>
-        </table>
+        <div class="table-responsive"><table>
+            <thead><tr><th>Código</th><th>Fecha</th><th>Agricultor</th><th>Parcela</th><th>Horario</th><th>Estado</th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(turnos)}"><td colspan="6" class="empty-state">No existen turnos para los filtros aplicados.</td></tr>
+            <tr th:each="t : ${turnos}"><td th:text="${t.codigo}"></td><td th:text="${t.fecha}"></td><td th:text="|${t.parcela.agricultor.nombres} ${t.parcela.agricultor.apellidos}|"></td><td th:text="${t.parcela.nombre}"></td><td th:text="|${t.horaInicio} - ${t.horaFin}|"></td><td><span class="pill" th:text="${t.estado}"></span></td></tr>
+            </tbody>
+        </table></div>
     </main>
 </section>
 </body>

@@ -1,10 +1,12 @@
 package pe.vichaval.gestionriego.reporte.service;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import pe.vichaval.gestionriego.agricultor.entity.Agricultor;
 import pe.vichaval.gestionriego.agricultor.repository.AgricultorRepository;
 import pe.vichaval.gestionriego.finanzas.entity.CuentaCobrar;
@@ -21,14 +23,20 @@ import pe.vichaval.gestionriego.tesoreria.repository.PagoRepository;
 @Service
 @Transactional(readOnly = true)
 public class ReporteService {
+
     private final AgricultorRepository agricultores;
     private final ParcelaRepository parcelas;
     private final TurnoRiegoRepository turnos;
     private final PagoRepository pagos;
     private final CuentaCobrarRepository cuentas;
 
-    public ReporteService(AgricultorRepository agricultores, ParcelaRepository parcelas,
-                          TurnoRiegoRepository turnos, PagoRepository pagos, CuentaCobrarRepository cuentas) {
+    public ReporteService(
+            AgricultorRepository agricultores,
+            ParcelaRepository parcelas,
+            TurnoRiegoRepository turnos,
+            PagoRepository pagos,
+            CuentaCobrarRepository cuentas
+    ) {
         this.agricultores = agricultores;
         this.parcelas = parcelas;
         this.turnos = turnos;
@@ -39,51 +47,148 @@ public class ReporteService {
     public ResumenReportes resumen() {
         List<CuentaCobrar> lista = cuentas.findAll();
         lista.forEach(CuentaCobrar::actualizarVencida);
-        long pendientes = lista.stream().filter(c -> "PENDIENTE".equals(c.getEstado()) || "PAGO_PARCIAL".equals(c.getEstado())).count();
-        long vencidas = lista.stream().filter(c -> "VENCIDA".equals(c.getEstado())).count();
-        BigDecimal ingresos = pagos.total() == null ? BigDecimal.ZERO : pagos.total();
-        BigDecimal deuda = cuentas.totalDeuda() == null ? BigDecimal.ZERO : cuentas.totalDeuda();
-        return new ResumenReportes(agricultores.count(), parcelas.count(), turnos.count(), pagos.count(), ingresos, deuda, pendientes, vencidas);
+        long pendientes = lista.stream()
+                .filter(c -> "PENDIENTE".equals(c.getEstado())
+                        || "PAGO_PARCIAL".equals(c.getEstado()))
+                .count();
+        long vencidas = lista.stream()
+                .filter(c -> "VENCIDA".equals(c.getEstado()))
+                .count();
+        BigDecimal ingresos = pagos.total() == null
+                ? BigDecimal.ZERO : pagos.total();
+        BigDecimal deuda = cuentas.totalDeuda() == null
+                ? BigDecimal.ZERO : cuentas.totalDeuda();
+        return new ResumenReportes(
+                agricultores.count(), parcelas.count(), turnos.count(),
+                pagos.count(), ingresos, deuda, pendientes, vencidas
+        );
     }
 
     public List<Agricultor> agricultores() {
         return agricultores.findAll();
     }
 
+    public List<Agricultor> agricultores(ReporteFiltro filtro) {
+        filtro.validarRango();
+        String q = filtro.textoNormalizado();
+        String estado = filtro.estadoNormalizado();
+        String sector = filtro.sectorNormalizado();
+
+        return agricultores.findAll().stream()
+                .filter(a -> q.isBlank()
+                        || contiene(a.getDni(), q)
+                        || contiene(a.getNombres(), q)
+                        || contiene(a.getApellidos(), q))
+                .filter(a -> estado.isBlank() || estado.equals(a.getEstado()))
+                .filter(a -> sector.isBlank()
+                        || normalizar(a.getSector()).equals(sector))
+                .sorted(Comparator.comparing(Agricultor::getApellidos,
+                                String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Agricultor::getNombres,
+                                String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
     public List<Parcela> parcelas() {
         return parcelas.findAll();
     }
 
-    public List<TurnoRiego> turnos(ReporteFiltro f) {
+    public List<Parcela> parcelas(ReporteFiltro filtro) {
+        filtro.validarRango();
+        String q = filtro.textoNormalizado();
+        String estado = filtro.estadoNormalizado();
+        String sector = filtro.sectorNormalizado();
+        String cultivo = filtro.cultivoNormalizado();
+
+        return parcelas.findAll().stream()
+                .filter(p -> q.isBlank()
+                        || contiene(p.getCodigo(), q)
+                        || contiene(p.getNombre(), q)
+                        || contiene(p.getCultivo(), q)
+                        || contiene(p.getAgricultor().getNombres(), q)
+                        || contiene(p.getAgricultor().getApellidos(), q))
+                .filter(p -> estado.isBlank() || estado.equals(p.getEstado()))
+                .filter(p -> sector.isBlank()
+                        || normalizar(p.getAgricultor().getSector()).equals(sector))
+                .filter(p -> cultivo.isBlank()
+                        || contiene(p.getCultivo(), cultivo))
+                .filter(p -> filtro.getAgricultorId() == null
+                        || filtro.getAgricultorId().equals(
+                                p.getAgricultor().getId()))
+                .sorted(Comparator.comparing(Parcela::getCodigo,
+                        String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    public List<TurnoRiego> turnos(ReporteFiltro filtro) {
+        filtro.validarRango();
+        String q = filtro.textoNormalizado();
+        String estado = filtro.estadoNormalizado();
+        String sector = filtro.sectorNormalizado();
+
         return turnos.findAll().stream()
-                .filter(t -> f.getDesde() == null || !t.getFecha().isBefore(f.getDesde()))
-                .filter(t -> f.getHasta() == null || !t.getFecha().isAfter(f.getHasta()))
-                .filter(t -> vacio(f.getEstado()) || f.getEstado().equals(t.getEstado()))
-                .filter(t -> f.getAgricultorId() == null || f.getAgricultorId().equals(t.getParcela().getAgricultor().getId()))
+                .filter(t -> filtro.getDesde() == null
+                        || !t.getFecha().isBefore(filtro.getDesde()))
+                .filter(t -> filtro.getHasta() == null
+                        || !t.getFecha().isAfter(filtro.getHasta()))
+                .filter(t -> estado.isBlank() || estado.equals(t.getEstado()))
+                .filter(t -> filtro.getAgricultorId() == null
+                        || filtro.getAgricultorId().equals(
+                                t.getParcela().getAgricultor().getId()))
+                .filter(t -> filtro.getParcelaId() == null
+                        || filtro.getParcelaId().equals(t.getParcela().getId()))
+                .filter(t -> sector.isBlank()
+                        || normalizar(t.getParcela().getAgricultor().getSector())
+                                .equals(sector))
+                .filter(t -> q.isBlank()
+                        || contiene(t.getCodigo(), q)
+                        || contiene(t.getParcela().getNombre(), q)
+                        || contiene(t.getParcela().getAgricultor().getNombres(), q)
+                        || contiene(t.getParcela().getAgricultor().getApellidos(), q))
+                .sorted(Comparator.comparing(TurnoRiego::getFecha).reversed()
+                        .thenComparing(TurnoRiego::getHoraInicio).reversed())
                 .toList();
     }
 
-    public List<Pago> pagos(ReporteFiltro f) {
+    public List<Pago> pagos(ReporteFiltro filtro) {
+        filtro.validarRango();
         return pagos.findAll().stream()
-                .filter(p -> f.getDesde() == null || !p.getFecha().isBefore(f.getDesde()))
-                .filter(p -> f.getHasta() == null || !p.getFecha().isAfter(f.getHasta()))
-                .filter(p -> vacio(f.getEstado()) || f.getEstado().equals(p.getEstado()))
-                .filter(p -> f.getAgricultorId() == null || f.getAgricultorId().equals(p.getAgricultor().getId()))
+                .filter(p -> filtro.getDesde() == null
+                        || !p.getFecha().isBefore(filtro.getDesde()))
+                .filter(p -> filtro.getHasta() == null
+                        || !p.getFecha().isAfter(filtro.getHasta()))
+                .filter(p -> filtro.estadoNormalizado().isBlank()
+                        || filtro.estadoNormalizado().equals(p.getEstado()))
+                .filter(p -> filtro.metodoNormalizado().isBlank()
+                        || filtro.metodoNormalizado().equals(p.getMetodo()))
+                .filter(p -> filtro.getAgricultorId() == null
+                        || filtro.getAgricultorId().equals(
+                                p.getAgricultor().getId()))
                 .toList();
     }
 
-    public List<CuentaCobrar> cuentas(ReporteFiltro f) {
+    public List<CuentaCobrar> cuentas(ReporteFiltro filtro) {
+        filtro.validarRango();
         List<CuentaCobrar> lista = cuentas.findAll();
         lista.forEach(CuentaCobrar::actualizarVencida);
         return lista.stream()
-                .filter(c -> f.getDesde() == null || !c.getFechaEmision().isBefore(f.getDesde()))
-                .filter(c -> f.getHasta() == null || !c.getFechaEmision().isAfter(f.getHasta()))
-                .filter(c -> vacio(f.getEstado()) || f.getEstado().equals(c.getEstado()))
-                .filter(c -> f.getAgricultorId() == null || f.getAgricultorId().equals(c.getAgricultor().getId()))
+                .filter(c -> filtro.getDesde() == null
+                        || !c.getFechaEmision().isBefore(filtro.getDesde()))
+                .filter(c -> filtro.getHasta() == null
+                        || !c.getFechaEmision().isAfter(filtro.getHasta()))
+                .filter(c -> filtro.estadoNormalizado().isBlank()
+                        || filtro.estadoNormalizado().equals(c.getEstado()))
+                .filter(c -> filtro.getAgricultorId() == null
+                        || filtro.getAgricultorId().equals(
+                                c.getAgricultor().getId()))
                 .toList();
     }
 
-    private boolean vacio(String s) {
-        return s == null || s.isBlank();
+    private boolean contiene(String valor, String buscado) {
+        return normalizar(valor).contains(buscado);
+    }
+
+    private String normalizar(String valor) {
+        return valor == null ? "" : valor.trim().toLowerCase();
     }
 }
