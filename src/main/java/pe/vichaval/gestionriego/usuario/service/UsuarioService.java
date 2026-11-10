@@ -3,6 +3,9 @@ package pe.vichaval.gestionriego.usuario.service;
 import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +16,7 @@ import pe.vichaval.gestionriego.usuario.entity.Usuario;
 import pe.vichaval.gestionriego.usuario.enums.CodigoRol;
 import pe.vichaval.gestionriego.usuario.repository.RolRepository;
 import pe.vichaval.gestionriego.usuario.repository.UsuarioRepository;
+import pe.vichaval.gestionriego.web.PaginacionWeb;
 
 @Service
 @Transactional
@@ -32,6 +36,26 @@ public class UsuarioService {
         return usuarios.findAll().stream()
                 .sorted(Comparator.comparing(Usuario::getApellidos).thenComparing(Usuario::getNombres))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Usuario> listar(
+            String q,
+            CodigoRol rol,
+            String estado,
+            int page,
+            int size
+    ) {
+        return usuarios.buscar(
+                PaginacionWeb.texto(q),
+                rol,
+                PaginacionWeb.estado(estado),
+                PageRequest.of(
+                        PaginacionWeb.pagina(page),
+                        PaginacionWeb.tamanio(size),
+                        Sort.by("apellidos", "nombres").ascending()
+                )
+        );
     }
 
     @Transactional(readOnly = true)

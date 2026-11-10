@@ -1183,3 +1183,5 @@ table { min-width: 680px; }
 .close-filters{grid-template-columns:repeat(4,minmax(150px,1fr)) auto auto}@media(max-width:1000px){.close-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.close-filters{grid-template-columns:1fr}}
 /* ===== AUDITORIA AVANZADA V10.8 ===== */
 .audit-filters{grid-template-columns:repeat(4,minmax(150px,1fr))}.audit-filters .btn{align-self:center}.table-responsive code{font-size:11px;overflow-wrap:anywhere}@media(max-width:1100px){.audit-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.audit-filters{grid-template-columns:1fr}}
+/* ===== USUARIOS PAGINADOS V10.8 ===== */
+.user-filters{grid-template-columns:minmax(240px,2fr) repeat(3,minmax(150px,1fr)) auto auto}.current-account{color:#66746e;font-size:12px;font-weight:700}@media(max-width:1100px){.user-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.user-filters input{grid-column:1/-1}}@media(max-width:600px){.user-filters{grid-template-columns:1fr}.user-filters input{grid-column:auto}}

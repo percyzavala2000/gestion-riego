@@ -1,1 +1,85 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Usuarios y roles</title><link rel="stylesheet" th:href="@{/css/app.css}"><link rel="stylesheet" th:href="@{/css/v5.css}"></head><body><div th:replace="~{fragments/sidebar :: sidebar('usuarios')}"></div><section class="workspace"><div th:replace="~{fragments/header :: header('Usuarios y roles')}"></div><main class="content"><header class="page-title"><div><h1>Usuarios y roles</h1><p>Administra cuentas, permisos y estados de acceso.</p></div><a class="btn primary" th:href="@{/usuarios/nuevo}">Nuevo usuario</a></header><div class="notice ok" th:if="${exito}" th:text="${exito}"></div><div class="notice bad" th:if="${error}" th:text="${error}"></div><div class="table-responsive"><table><thead><tr><th>Usuario</th><th>Nombre completo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody><tr th:if="${#lists.isEmpty(usuarios)}"><td colspan="5" class="empty-state">No existen usuarios.</td></tr><tr th:each="u : ${usuarios}"><td th:text="${u.username}"></td><td th:text="|${u.nombres} ${u.apellidos}|"></td><td th:text="${u.rol.nombre}"></td><td><span class="pill" th:classappend="${u.activo} ? ' active-pill' : ' inactive-pill'" th:text="${u.activo} ? 'ACTIVO' : 'INACTIVO'"></span></td><td class="actions"><a th:href="@{/usuarios/{id}/editar(id=${u.id})}">Editar</a><a th:href="@{/usuarios/{id}/password(id=${u.id})}">Contraseña</a><form th:if="${u.id != usuarioActualId}" th:action="@{/usuarios/{id}/estado(id=${u.id})}" method="post"><button class="link" th:classappend="${u.activo} ? ' danger' : ' positive'" th:text="${u.activo} ? 'Desactivar' : 'Activar'"></button></form><span th:if="${u.id == usuarioActualId}" class="current-account">Cuenta actual</span></td></tr></tbody></table></div></main></section></body></html>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usuarios y roles</title>
+    <link rel="stylesheet" th:href="@{/css/app.css(v=1084)}">
+    <link rel="stylesheet" th:href="@{/css/v5.css}">
+</head>
+<body>
+<div th:replace="~{fragments/sidebar :: sidebar('usuarios')}"></div>
+<section class="workspace">
+    <div th:replace="~{fragments/header :: header('Usuarios y roles')}"></div>
+    <main class="content">
+        <header class="page-title">
+            <div>
+                <h1>Usuarios y roles</h1>
+                <p>Busca cuentas internas y filtra por rol o estado de acceso.</p>
+            </div>
+            <a class="btn primary" th:href="@{/usuarios/nuevo}">Nuevo usuario</a>
+        </header>
+
+        <div class="notice ok" th:if="${exito}" th:text="${exito}"></div>
+        <div class="notice bad" th:if="${error}" th:text="${error}"></div>
+
+        <form class="list-filters user-filters" method="get" th:action="@{/usuarios}">
+            <input name="q" th:value="${q}" placeholder="Usuario, nombres o apellidos">
+            <select name="rol">
+                <option value="">Todos los roles</option>
+                <option value="ADMINISTRADOR" th:selected="${rol != null and rol.name() == 'ADMINISTRADOR'}">Administrador</option>
+                <option value="TESORERIA" th:selected="${rol != null and rol.name() == 'TESORERIA'}">Tesorería</option>
+                <option value="OPERADOR" th:selected="${rol != null and rol.name() == 'OPERADOR'}">Operador</option>
+            </select>
+            <select name="estado">
+                <option value="">Todos los estados</option>
+                <option value="ACTIVO" th:selected="${estado == 'ACTIVO'}">Activo</option>
+                <option value="INACTIVO" th:selected="${estado == 'INACTIVO'}">Inactivo</option>
+            </select>
+            <select name="size">
+                <option value="10" th:selected="${size == 10}">10 por página</option>
+                <option value="20" th:selected="${size == 20}">20 por página</option>
+                <option value="50" th:selected="${size == 50}">50 por página</option>
+            </select>
+            <button class="btn primary" type="submit">Aplicar</button>
+            <a class="btn secondary" th:href="@{/usuarios}">Limpiar</a>
+        </form>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                <tr><th>Usuario</th><th>Nombre completo</th><th>Rol</th><th>Estado</th><th>Creación</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                <tr th:if="${pagina.empty}"><td colspan="6" class="empty-state">No existen usuarios para los filtros aplicados.</td></tr>
+                <tr th:each="u : ${pagina.content}">
+                    <td th:text="${u.username}"></td>
+                    <td th:text="|${u.nombres} ${u.apellidos}|"></td>
+                    <td th:text="${u.rol.nombre}"></td>
+                    <td><span class="pill" th:classappend="${u.activo} ? ' active-pill' : ' inactive-pill'" th:text="${u.activo} ? 'ACTIVO' : 'INACTIVO'"></span></td>
+                    <td th:text="${#temporals.format(u.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td class="actions">
+                        <a th:href="@{/usuarios/{id}/editar(id=${u.id})}">Editar</a>
+                        <a th:href="@{/usuarios/{id}/password(id=${u.id})}">Contraseña</a>
+                        <form th:if="${u.id != usuarioActualId}" th:action="@{/usuarios/{id}/estado(id=${u.id})}" method="post">
+                            <button class="link" th:classappend="${u.activo} ? ' danger' : ' positive'" th:text="${u.activo} ? 'Desactivar' : 'Activar'"></button>
+                        </form>
+                        <span th:if="${u.id == usuarioActualId}" class="current-account">Cuenta actual</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="pagination-bar" th:if="${pagina.totalElements > 0}" aria-label="Paginación de usuarios">
+            <p class="pagination-summary" th:text="|Mostrando ${pagina.number * pagina.size + 1}–${pagina.number * pagina.size + pagina.numberOfElements} de ${pagina.totalElements} usuarios|"></p>
+            <div class="pagination-controls">
+                <a class="btn secondary" th:if="${!pagina.first}" th:href="@{/usuarios(q=${q},rol=${rol},estado=${estado},page=${pagina.number-1},size=${size})}">Anterior</a>
+                <span th:text="|Página ${pagina.number + 1} de ${pagina.totalPages}|"></span>
+                <a class="btn secondary" th:if="${!pagina.last}" th:href="@{/usuarios(q=${q},rol=${rol},estado=${estado},page=${pagina.number+1},size=${size})}">Siguiente</a>
+            </div>
+        </nav>
+    </main>
+</section>
+</body>
+</html>
