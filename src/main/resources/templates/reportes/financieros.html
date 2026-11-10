@@ -1,76 +1,9 @@
-<!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Reportes financieros</title>
-    <link rel="stylesheet" th:href="@{/css/app.css}">
-    <link rel="stylesheet" th:href="@{/css/v7.css}">
-</head>
-<body>
-<div th:replace="~{fragments/sidebar :: sidebar('reportes')}"></div>
-<section class="workspace">
-    <div th:replace="~{fragments/header :: header('Reportes financieros')}"></div>
-    <main class="content">
-        <header class="page-title">
-            <div><h1>Reportes financieros</h1>
-                <p>Filtra pagos y cuentas por cobrar.</p></div>
-            <a class="btn secondary" th:href="@{/reportes}">Volver</a></header>
-        <form class="report-filter" th:object="${filtro}" method="get"><label>Desde<input type="date"
-                                                                                          th:field="*{desde}"></label><label>Hasta<input
-                type="date" th:field="*{hasta}"></label><label>Agricultor<select th:field="*{agricultorId}">
-            <option value="">Todos</option>
-            <option th:each="a:${agricultores}" th:value="${a.id}" th:text="|${a.nombres} ${a.apellidos}|"></option>
-        </select></label><label>Estado<input th:field="*{estado}" placeholder="CONFIRMADO, VENCIDA..."></label>
-            <button class="btn primary">Filtrar</button>
-        </form>
-        <div class="export-bar"><a class="btn secondary"
-                                   th:href="@{/reportes/financieros/pagos.xlsx(desde=${filtro.desde},hasta=${filtro.hasta},estado=${filtro.estado},agricultorId=${filtro.agricultorId})}">Pagos
-            Excel</a><a class="btn secondary"
-                        th:href="@{/reportes/financieros/pagos.pdf(desde=${filtro.desde},hasta=${filtro.hasta},estado=${filtro.estado},agricultorId=${filtro.agricultorId})}">Pagos
-            PDF</a><a class="btn secondary"
-                      th:href="@{/reportes/financieros/cuentas.xlsx(desde=${filtro.desde},hasta=${filtro.hasta},estado=${filtro.estado},agricultorId=${filtro.agricultorId})}">Cuentas
-            Excel</a><a class="btn secondary"
-                        th:href="@{/reportes/financieros/cuentas.pdf(desde=${filtro.desde},hasta=${filtro.hasta},estado=${filtro.estado},agricultorId=${filtro.agricultorId})}">Cuentas
-            PDF</a></div>
-        <h2>Pagos</h2>
-        <table>
-            <tr>
-                <th>Código</th>
-                <th>Fecha</th>
-                <th>Agricultor</th>
-                <th>Monto</th>
-                <th>Método</th>
-                <th>Estado</th>
-            </tr>
-            <tr th:each="p:${pagos}">
-                <td th:text="${p.codigo}"></td>
-                <td th:text="${p.fecha}"></td>
-                <td th:text="|${p.agricultor.nombres} ${p.agricultor.apellidos}|"></td>
-                <td th:text="|S/ ${p.monto}|"></td>
-                <td th:text="${p.metodo}"></td>
-                <td th:text="${p.estado}"></td>
-            </tr>
-        </table>
-        <h2>Cuentas por cobrar</h2>
-        <table>
-            <tr>
-                <th>Código</th>
-                <th>Agricultor</th>
-                <th>Total</th>
-                <th>Pagado</th>
-                <th>Saldo</th>
-                <th>Estado</th>
-            </tr>
-            <tr th:each="c:${cuentas}">
-                <td th:text="${c.codigo}"></td>
-                <td th:text="|${c.agricultor.nombres} ${c.agricultor.apellidos}|"></td>
-                <td th:text="|S/ ${c.montoTotal}|"></td>
-                <td th:text="|S/ ${c.montoPagado}|"></td>
-                <td th:text="|S/ ${c.saldoPendiente}|"></td>
-                <td th:text="${c.estado}"></td>
-            </tr>
-        </table>
-    </main>
-</section>
-</body>
-</html>
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reportes financieros</title><link rel="stylesheet" th:href="@{/css/app.css(v=1082)}"><link rel="stylesheet" th:href="@{/css/v7.css(v=1082)}"></head><body><div th:replace="~{fragments/sidebar :: sidebar('reportes')}"></div><section class="workspace"><div th:replace="~{fragments/header :: header('Reportes financieros')}"></div><main class="content"><header class="page-title"><div><h1>Reportes financieros</h1><p>Pagos y cuentas con filtros y paginadores independientes.</p></div><a class="btn secondary" th:href="@{/reportes}">Volver</a></header><div class="notice bad" th:if="${error}" th:text="${error}"></div>
+<form class="report-filter financial-report-filter" th:object="${filtro}" method="get" th:action="@{/reportes/financieros}"><label>Texto<input th:field="*{q}" placeholder="Código, concepto o agricultor"></label><label>Desde<input type="date" th:field="*{desde}"></label><label>Hasta<input type="date" th:field="*{hasta}"></label><label>Agricultor<select th:field="*{agricultorId}"><option value="">Todos</option><option th:each="a:${agricultores}" th:value="${a.id}" th:text="|${a.nombres} ${a.apellidos}|"></option></select></label><label>Estado de pago<select th:field="*{estadoPago}"><option value="">Todos</option><option value="PENDIENTE">Pendiente</option><option value="CONFIRMADO">Confirmado</option><option value="RECHAZADO">Rechazado</option><option value="ANULADO">Anulado</option></select></label><label>Método<select th:field="*{metodo}"><option value="">Todos</option><option value="EFECTIVO">Efectivo</option><option value="TRANSFERENCIA">Transferencia</option><option value="YAPE">Yape</option><option value="PLIN">Plin</option></select></label><label>Estado de cuenta<select th:field="*{estadoCuenta}"><option value="">Todos</option><option value="PENDIENTE">Pendiente</option><option value="PAGO_PARCIAL">Pago parcial</option><option value="VENCIDA">Vencida</option><option value="PAGADA">Pagada</option><option value="ANULADA">Anulada</option></select></label><label>Vencimiento<select th:field="*{vencimiento}"><option value="">Cualquiera</option><option value="VENCIDA">Vencida</option><option value="PROXIMA">Próximos 7 días</option><option value="VIGENTE">Vigente</option></select></label><label>Pagos/página<select name="pgSize"><option value="10" th:selected="${pgSize==10}">10</option><option value="20" th:selected="${pgSize==20}">20</option><option value="50" th:selected="${pgSize==50}">50</option></select></label><label>Cuentas/página<select name="ccSize"><option value="10" th:selected="${ccSize==10}">10</option><option value="20" th:selected="${ccSize==20}">20</option><option value="50" th:selected="${ccSize==50}">50</option></select></label><button class="btn primary">Aplicar</button><a class="btn secondary" th:href="@{/reportes/financieros}">Limpiar</a></form>
+<div class="export-bar"><a class="btn secondary" th:href="@{/reportes/financieros/pagos.xlsx(q=${filtro.q},desde=${filtro.desde},hasta=${filtro.hasta},agricultorId=${filtro.agricultorId},estadoPago=${filtro.estadoPago},metodo=${filtro.metodo})}">Pagos Excel</a><a class="btn secondary" th:href="@{/reportes/financieros/pagos.pdf(q=${filtro.q},desde=${filtro.desde},hasta=${filtro.hasta},agricultorId=${filtro.agricultorId},estadoPago=${filtro.estadoPago},metodo=${filtro.metodo})}">Pagos PDF</a><a class="btn secondary" th:href="@{/reportes/financieros/cuentas.xlsx(q=${filtro.q},desde=${filtro.desde},hasta=${filtro.hasta},agricultorId=${filtro.agricultorId},estadoCuenta=${filtro.estadoCuenta},vencimiento=${filtro.vencimiento})}">Cuentas Excel</a><a class="btn secondary" th:href="@{/reportes/financieros/cuentas.pdf(q=${filtro.q},desde=${filtro.desde},hasta=${filtro.hasta},agricultorId=${filtro.agricultorId},estadoCuenta=${filtro.estadoCuenta},vencimiento=${filtro.vencimiento})}">Cuentas PDF</a></div>
+<section class="report-summary-row"><article><span>Pagos de esta página</span><strong th:text="|S/ ${totalPagosFiltrados}|"></strong></article><article><span>Saldo de esta página</span><strong th:text="|S/ ${saldoCuentasFiltrado}|"></strong></article></section>
+<h2>Pagos</h2><div class="table-responsive"><table><thead><tr><th>Código</th><th>Fecha</th><th>Agricultor</th><th>Monto</th><th>Método</th><th>Estado</th></tr></thead><tbody><tr th:if="${pagosPagina.empty}"><td colspan="6" class="empty-state">Sin pagos para los filtros aplicados.</td></tr><tr th:each="p:${pagosPagina.content}"><td th:text="${p.codigo}"></td><td th:text="${p.fecha}"></td><td th:text="|${p.agricultor.nombres} ${p.agricultor.apellidos}|"></td><td th:text="|S/ ${p.monto}|"></td><td th:text="${p.metodo}"></td><td th:text="${p.estado}"></td></tr></tbody></table></div>
+<nav class="pagination-bar" th:if="${pagosPagina.totalElements>0}"><p class="pagination-summary" th:text="|Página ${pagosPagina.number+1} de ${pagosPagina.totalPages} · ${pagosPagina.totalElements} pagos|"></p><div class="pagination-controls"><a class="btn secondary" th:if="${!pagosPagina.first}" th:href="@{/reportes/financieros(q=${filtro.q},desde=${filtro.desde},hasta=${filtro.hasta},agricultorId=${filtro.agricultorId},estadoPago=${filtro.estadoPago},metodo=${filtro.metodo},estadoCuenta=${filtro.estadoCuenta},vencimiento=${filtro.vencimiento},pgPage=${pagosPagina.number-1},pgSize=${pgSize},ccPage=${cuentasPagina.number},ccSize=${ccSize})}">Anterior</a><a class="btn secondary" th:if="${!pagosPagina.last}" th:href="@{/reportes/financieros(q=${filtro.q},desde=${filtro.desde},hasta=${filtro.hasta},agricultorId=${filtro.agricultorId},estadoPago=${filtro.estadoPago},metodo=${filtro.metodo},estadoCuenta=${filtro.estadoCuenta},vencimiento=${filtro.vencimiento},pgPage=${pagosPagina.number+1},pgSize=${pgSize},ccPage=${cuentasPagina.number},ccSize=${ccSize})}">Siguiente</a></div></nav>
+<h2>Cuentas por cobrar</h2><div class="table-responsive"><table><thead><tr><th>Código</th><th>Agricultor</th><th>Emisión</th><th>Vencimiento</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Estado</th></tr></thead><tbody><tr th:if="${cuentasPagina.empty}"><td colspan="8" class="empty-state">Sin cuentas para los filtros aplicados.</td></tr><tr th:each="c:${cuentasPagina.content}"><td th:text="${c.codigo}"></td><td th:text="|${c.agricultor.nombres} ${c.agricultor.apellidos}|"></td><td th:text="${c.fechaEmision}"></td><td th:text="${c.fechaVencimiento}"></td><td th:text="|S/ ${c.montoTotal}|"></td><td th:text="|S/ ${c.montoPagado}|"></td><td th:text="|S/ ${c.saldoPendiente}|"></td><td th:text="${c.estado}"></td></tr></tbody></table></div>
+<nav class="pagination-bar" th:if="${cuentasPagina.totalElements>0}"><p class="pagination-summary" th:text="|Página ${cuentasPagina.number+1} de ${cuentasPagina.totalPages} · ${cuentasPagina.totalElements} cuentas|"></p><div class="pagination-controls"><a class="btn secondary" th:if="${!cuentasPagina.first}" th:href="@{/reportes/financieros(q=${filtro.q},desde=${filtro.desde},hasta=${filtro.hasta},agricultorId=${filtro.agricultorId},estadoPago=${filtro.estadoPago},metodo=${filtro.metodo},estadoCuenta=${filtro.estadoCuenta},vencimiento=${filtro.vencimiento},pgPage=${pagosPagina.number},pgSize=${pgSize},ccPage=${cuentasPagina.number-1},ccSize=${ccSize})}">Anterior</a><a class="btn secondary" th:if="${!cuentasPagina.last}" th:href="@{/reportes/financieros(q=${filtro.q},desde=${filtro.desde},hasta=${filtro.hasta},agricultorId=${filtro.agricultorId},estadoPago=${filtro.estadoPago},metodo=${filtro.metodo},estadoCuenta=${filtro.estadoCuenta},vencimiento=${filtro.vencimiento},pgPage=${pagosPagina.number},pgSize=${pgSize},ccPage=${cuentasPagina.number+1},ccSize=${ccSize})}">Siguiente</a></div></nav>
+</main></section></body></html>
