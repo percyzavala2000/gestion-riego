@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.vichaval.gestionriego.security.service.UsuarioPrincipal;
 import pe.vichaval.gestionriego.usuario.dto.CambioPasswordForm;
 import pe.vichaval.gestionriego.usuario.dto.UsuarioForm;
+import pe.vichaval.gestionriego.usuario.enums.CodigoRol;
 import pe.vichaval.gestionriego.usuario.service.UsuarioService;
 
 @Controller
@@ -29,8 +30,21 @@ public class UsuarioWebController {
     }
 
     @GetMapping
-    public String listar(Model model, @AuthenticationPrincipal UsuarioPrincipal principal) {
-        model.addAttribute("usuarios", service.listar());
+    public String listar(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(required = false) CodigoRol rol,
+            @RequestParam(defaultValue = "") String estado,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            Model model,
+            @AuthenticationPrincipal UsuarioPrincipal principal
+    ) {
+        var pagina = service.listar(q, rol, estado, page, size);
+        model.addAttribute("pagina", pagina);
+        model.addAttribute("q", q);
+        model.addAttribute("rol", rol);
+        model.addAttribute("estado", estado);
+        model.addAttribute("size", pagina.getSize());
         model.addAttribute("usuarioActualId", principal.getId());
         return "usuario/list";
     }

@@ -48,4 +48,16 @@ public interface CuentaCobrarRepository extends JpaRepository<CuentaCobrar, Long
             @Param("proxima") LocalDate proxima,
             Pageable pageable
     );
+
+    @EntityGraph(attributePaths = {"agricultor", "concepto"})
+    @Query("""
+            select c from CuentaCobrar c
+            where (:q='' or lower(c.codigo) like lower(concat('%',:q,'%')) or lower(c.concepto.nombre) like lower(concat('%',:q,'%')) or lower(concat(c.agricultor.nombres,' ',c.agricultor.apellidos)) like lower(concat('%',:q,'%')))
+              and (:estado='' or c.estado=:estado)
+              and (:agricultorId is null or c.agricultor.id=:agricultorId)
+              and (:desde is null or c.fechaEmision>=:desde)
+              and (:hasta is null or c.fechaEmision<=:hasta)
+              and (:vencimiento='' or (:vencimiento='VENCIDA' and c.fechaVencimiento<:hoy and c.estado not in ('PAGADA','ANULADA')) or (:vencimiento='PROXIMA' and c.fechaVencimiento between :hoy and :proxima and c.estado not in ('PAGADA','ANULADA')) or (:vencimiento='VIGENTE' and c.fechaVencimiento>=:hoy and c.estado not in ('PAGADA','ANULADA')))
+            """)
+    Page<CuentaCobrar> buscarReporte(@Param("q") String q,@Param("estado") String estado,@Param("vencimiento") String vencimiento,@Param("agricultorId") Long agricultorId,@Param("desde") LocalDate desde,@Param("hasta") LocalDate hasta,@Param("hoy") LocalDate hoy,@Param("proxima") LocalDate proxima,Pageable pageable);
 }

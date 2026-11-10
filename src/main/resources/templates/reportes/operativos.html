@@ -1,66 +1,27 @@
-<!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Reportes operativos</title>
-    <link rel="stylesheet" th:href="@{/css/app.css}">
-    <link rel="stylesheet" th:href="@{/css/v7.css}">
-</head>
-<body>
-<div th:replace="~{fragments/sidebar :: sidebar('reportes')}"></div>
-<section class="workspace">
-    <div th:replace="~{fragments/header :: header('Reportes operativos')}"></div>
-    <main class="content"><a class="btn secondary" th:href="@{/reportes}">Volver</a>
-        <h2>Agricultores</h2>
-        <table>
-            <tr>
-                <th>DNI</th>
-                <th>Nombre</th>
-                <th>Sector</th>
-                <th>Estado</th>
-            </tr>
-            <tr th:each="a:${agricultores}">
-                <td th:text="${a.dni}"></td>
-                <td th:text="|${a.nombres} ${a.apellidos}|"></td>
-                <td th:text="${a.sector}"></td>
-                <td th:text="${a.estado}"></td>
-            </tr>
-        </table>
-        <h2>Parcelas</h2>
-        <table>
-            <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Agricultor</th>
-                <th>Cultivo</th>
-                <th>Estado</th>
-            </tr>
-            <tr th:each="p:${parcelas}">
-                <td th:text="${p.codigo}"></td>
-                <td th:text="${p.nombre}"></td>
-                <td th:text="|${p.agricultor.nombres} ${p.agricultor.apellidos}|"></td>
-                <td th:text="${p.cultivo}"></td>
-                <td th:text="${p.estado}"></td>
-            </tr>
-        </table>
-        <h2>Turnos</h2>
-        <table>
-            <tr>
-                <th>Código</th>
-                <th>Fecha</th>
-                <th>Parcela</th>
-                <th>Horario</th>
-                <th>Estado</th>
-            </tr>
-            <tr th:each="t:${turnos}">
-                <td th:text="${t.codigo}"></td>
-                <td th:text="${t.fecha}"></td>
-                <td th:text="${t.parcela.nombre}"></td>
-                <td th:text="|${t.horaInicio} - ${t.horaFin}|"></td>
-                <td th:text="${t.estado}"></td>
-            </tr>
-        </table>
-    </main>
-</section>
-</body>
-</html>
+<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reportes operativos</title><link rel="stylesheet" th:href="@{/css/app.css(v=1081)}"><link rel="stylesheet" th:href="@{/css/v7.css(v=1081)}"></head><body><div th:replace="~{fragments/sidebar :: sidebar('reportes')}"></div><section class="workspace"><div th:replace="~{fragments/header :: header('Reportes operativos')}"></div><main class="content"><header class="page-title"><div><h1>Reportes operativos</h1><p>Vista HTML paginada con filtros comunes.</p></div><a class="btn secondary" th:href="@{/reportes}">Volver</a></header><div class="notice bad" th:if="${error}" th:text="${error}"></div>
+<form class="report-filter operational-report-filter" th:object="${filtro}" method="get" th:action="@{/reportes/operativos}"><label>Texto<input th:field="*{q}" placeholder="DNI, código, nombre o cultivo"></label><label>Estado<input th:field="*{estado}" placeholder="ACTIVO, ACTIVA, PROGRAMADO..."></label><label>Sector<input th:field="*{sector}"></label><label>Cultivo<input th:field="*{cultivo}"></label><label>Agricultor<select th:field="*{agricultorId}"><option value="">Todos</option><option th:each="a:${agricultoresSelector}" th:value="${a.id}" th:text="|${a.nombres} ${a.apellidos}|"></option></select></label><label>Parcela<select th:field="*{parcelaId}"><option value="">Todas</option><option th:each="p:${parcelasSelector}" th:value="${p.id}" th:text="|${p.codigo} - ${p.nombre}|"></option></select></label><label>Desde<input type="date" th:field="*{desde}"></label><label>Hasta<input type="date" th:field="*{hasta}"></label><label>Agricultores/página<select name="aSize">
+<option value="10" th:selected="${aSize == 10}">10</option>
+<option value="20" th:selected="${aSize == 20}">20</option>
+<option value="50" th:selected="${aSize == 50}">50</option>
+</select></label><label>Parcelas/página<select name="pSize">
+<option value="10" th:selected="${pSize == 10}">10</option>
+<option value="20" th:selected="${pSize == 20}">20</option>
+<option value="50" th:selected="${pSize == 50}">50</option>
+</select></label><label>Turnos/página<select name="tSize">
+<option value="10" th:selected="${tSize == 10}">10</option>
+<option value="20" th:selected="${tSize == 20}">20</option>
+<option value="50" th:selected="${tSize == 50}">50</option>
+</select></label><button class="btn primary">Aplicar</button><a class="btn secondary" th:href="@{/reportes/operativos}">Limpiar</a></form>
+<h2>Agricultores</h2><div class="table-responsive"><table><thead><tr><th>DNI</th><th>Nombre</th><th>Sector</th><th>Estado</th></tr></thead><tbody><tr th:if="${agricultoresPagina.empty}"><td colspan="4" class="empty-state">Sin resultados.</td></tr><tr th:each="a:${agricultoresPagina.content}"><td th:text="${a.dni}"></td><td th:text="|${a.nombres} ${a.apellidos}|"></td><td th:text="${a.sector}"></td><td th:text="${a.estado}"></td></tr></tbody></table></div><nav class="pagination-bar" th:if="${agricultoresPagina.totalElements > 0}" aria-label="Paginación de agricultores">
+<p class="pagination-summary" th:text="|Mostrando ${agricultoresPagina.number * agricultoresPagina.size + 1}–${agricultoresPagina.number * agricultoresPagina.size + agricultoresPagina.numberOfElements} de ${agricultoresPagina.totalElements} registros|"></p>
+<div class="pagination-controls">
+<a class="btn secondary" th:if="${!agricultoresPagina.first}" th:href="@{/reportes/operativos(q=${filtro.q},estado=${filtro.estado},sector=${filtro.sector},cultivo=${filtro.cultivo},agricultorId=${filtro.agricultorId},parcelaId=${filtro.parcelaId},desde=${filtro.desde},hasta=${filtro.hasta},aPage=${agricultoresPagina.number-1},aSize=${aSize},pPage=${parcelasPagina.number},pSize=${pSize},tPage=${turnosPagina.number},tSize=${tSize})}">Anterior</a>
+<span th:text="|Página ${agricultoresPagina.number + 1} de ${agricultoresPagina.totalPages}|"></span>
+<a class="btn secondary" th:if="${!agricultoresPagina.last}" th:href="@{/reportes/operativos(q=${filtro.q},estado=${filtro.estado},sector=${filtro.sector},cultivo=${filtro.cultivo},agricultorId=${filtro.agricultorId},parcelaId=${filtro.parcelaId},desde=${filtro.desde},hasta=${filtro.hasta},aPage=${agricultoresPagina.number+1},aSize=${aSize},pPage=${parcelasPagina.number},pSize=${pSize},tPage=${turnosPagina.number},tSize=${tSize})}">Siguiente</a>
+</div>
+</nav>
+<h2>Parcelas</h2><div class="table-responsive"><table><thead><tr><th>Código</th><th>Nombre</th><th>Agricultor</th><th>Cultivo</th><th>Estado</th></tr></thead><tbody><tr th:if="${parcelasPagina.empty}"><td colspan="5" class="empty-state">Sin resultados.</td></tr><tr th:each="p:${parcelasPagina.content}"><td th:text="${p.codigo}"></td><td th:text="${p.nombre}"></td><td th:text="|${p.agricultor.nombres} ${p.agricultor.apellidos}|"></td><td th:text="${p.cultivo}"></td><td th:text="${p.estado}"></td></tr></tbody></table></div>
+<nav class="pagination-bar" th:if="${parcelasPagina.totalElements>0}"><p class="pagination-summary" th:text="|Página ${parcelasPagina.number+1} de ${parcelasPagina.totalPages} · ${parcelasPagina.totalElements} parcelas|"></p><div class="pagination-controls"><a class="btn secondary" th:if="${!parcelasPagina.first}" th:href="@{/reportes/operativos(q=${filtro.q},estado=${filtro.estado},sector=${filtro.sector},cultivo=${filtro.cultivo},agricultorId=${filtro.agricultorId},parcelaId=${filtro.parcelaId},desde=${filtro.desde},hasta=${filtro.hasta},aPage=${agricultoresPagina.number},aSize=${aSize},pPage=${parcelasPagina.number-1},pSize=${pSize},tPage=${turnosPagina.number},tSize=${tSize})}">Anterior</a><a class="btn secondary" th:if="${!parcelasPagina.last}" th:href="@{/reportes/operativos(q=${filtro.q},estado=${filtro.estado},sector=${filtro.sector},cultivo=${filtro.cultivo},agricultorId=${filtro.agricultorId},parcelaId=${filtro.parcelaId},desde=${filtro.desde},hasta=${filtro.hasta},aPage=${agricultoresPagina.number},aSize=${aSize},pPage=${parcelasPagina.number+1},pSize=${pSize},tPage=${turnosPagina.number},tSize=${tSize})}">Siguiente</a></div></nav>
+<h2>Turnos</h2><div class="table-responsive"><table><thead><tr><th>Código</th><th>Fecha</th><th>Agricultor</th><th>Parcela</th><th>Horario</th><th>Estado</th></tr></thead><tbody><tr th:if="${turnosPagina.empty}"><td colspan="6" class="empty-state">Sin resultados.</td></tr><tr th:each="t:${turnosPagina.content}"><td th:text="${t.codigo}"></td><td th:text="${t.fecha}"></td><td th:text="|${t.parcela.agricultor.nombres} ${t.parcela.agricultor.apellidos}|"></td><td th:text="${t.parcela.nombre}"></td><td th:text="|${t.horaInicio} - ${t.horaFin}|"></td><td th:text="${t.estado}"></td></tr></tbody></table></div>
+<nav class="pagination-bar" th:if="${turnosPagina.totalElements>0}"><p class="pagination-summary" th:text="|Página ${turnosPagina.number+1} de ${turnosPagina.totalPages} · ${turnosPagina.totalElements} turnos|"></p><div class="pagination-controls"><a class="btn secondary" th:if="${!turnosPagina.first}" th:href="@{/reportes/operativos(q=${filtro.q},estado=${filtro.estado},sector=${filtro.sector},cultivo=${filtro.cultivo},agricultorId=${filtro.agricultorId},parcelaId=${filtro.parcelaId},desde=${filtro.desde},hasta=${filtro.hasta},aPage=${agricultoresPagina.number},aSize=${aSize},pPage=${parcelasPagina.number},pSize=${pSize},tPage=${turnosPagina.number-1},tSize=${tSize})}">Anterior</a><a class="btn secondary" th:if="${!turnosPagina.last}" th:href="@{/reportes/operativos(q=${filtro.q},estado=${filtro.estado},sector=${filtro.sector},cultivo=${filtro.cultivo},agricultorId=${filtro.agricultorId},parcelaId=${filtro.parcelaId},desde=${filtro.desde},hasta=${filtro.hasta},aPage=${agricultoresPagina.number},aSize=${aSize},pPage=${parcelasPagina.number},pSize=${pSize},tPage=${turnosPagina.number+1},tSize=${tSize})}">Siguiente</a></div></nav>
+</main></section></body></html>

@@ -61,3 +61,23 @@ base-reparacion-ui-completa.txt
 
 .v10.7-fase4-backup-*
 reporte-cierre-v10.7.txt
+
+.v10.8-fase1b-backup-*
+
+.v10.8-fase1b-paginada-backup-*
+
+.v10.8-fase1c-backup-*
+
+.v10.8-fase1d-backup-*
+
+.v10.8-fase2-backup-*
+
+.v10.8-auditoria-parametros-backup-*
+
+.v10.8-fase3-backup-*
+
+.v10.8-fase4-backup-*
+
+reporte-cierre-v10.8.txt
+
+base-v10.8-*.txt
