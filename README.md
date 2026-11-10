@@ -9,7 +9,7 @@ La evaluación contempla dos modalidades:
 1. **Demo local con seed:** recomendada para revisar rápidamente las funciones con datos ficticios.
 2. **Producción local con Docker:** recomendada para comprobar el despliegue contenedorizado, observabilidad y una base inicialmente vacía.
 
-> Versión documentada: `10.7.0`  
+> Versión documentada: `10.8.0`  
 > Sistema operativo de esta guía: Windows 10 u 11 de 64 bits  
 > Backend: Java 21 y Spring Boot 4.1.1  
 > Base de datos: PostgreSQL 18
@@ -789,3 +789,14 @@ Los listados crecientes utilizan paginación en PostgreSQL y filtros conservados
 - Caja: paginadores independientes para egresos, devoluciones y cierres.
 
 Tamaños permitidos: 10, 20 y 50 registros. El tamaño predeterminado es 20.
+
+
+## Filtros administrativos y reportes v10.8
+
+- Reportes operativos con filtros y paginadores independientes para agricultores, parcelas y turnos.
+- Reportes financieros con paginadores independientes para pagos y cuentas por cobrar.
+- Exportaciones PDF y Excel completas según los filtros seleccionados.
+- Archivos Excel con hojas de criterios y datos, formato monetario compatible con Microsoft Excel.
+- Auditoría con filtros por usuario, método HTTP, familia HTTP, ruta, correlación y fechas.
+- Usuarios internos con búsqueda, filtros por rol y estado, y paginación.
+- Tamaños normalizados: 10, 20 y 50; Auditoría utiliza 10, 25 y 50.
