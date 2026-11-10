@@ -91,4 +91,17 @@ public interface TurnoRiegoRepository
             @Param("estado") String estado,
             Pageable pageable
     );
+
+    @EntityGraph(attributePaths = {"parcela", "parcela.agricultor"})
+    @Query("""
+            select t from TurnoRiego t
+            where (:q='' or lower(t.codigo) like lower(concat('%',:q,'%')) or lower(t.parcela.nombre) like lower(concat('%',:q,'%')) or lower(concat(t.parcela.agricultor.nombres,' ',t.parcela.agricultor.apellidos)) like lower(concat('%',:q,'%')))
+              and (:estado='' or t.estado=:estado)
+              and (:sector='' or lower(t.parcela.agricultor.sector)=lower(:sector))
+              and (:agricultorId is null or t.parcela.agricultor.id=:agricultorId)
+              and (:parcelaId is null or t.parcela.id=:parcelaId)
+              and (:desde is null or t.fecha>=:desde)
+              and (:hasta is null or t.fecha<=:hasta)
+            """)
+    Page<TurnoRiego> buscarReporte(@Param("q") String q,@Param("estado") String estado,@Param("sector") String sector,@Param("agricultorId") Long agricultorId,@Param("parcelaId") Long parcelaId,@Param("desde") LocalDate desde,@Param("hasta") LocalDate hasta,Pageable pageable);
 }

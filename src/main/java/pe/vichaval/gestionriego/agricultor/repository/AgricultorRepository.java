@@ -14,4 +14,12 @@ public interface AgricultorRepository extends JpaRepository<Agricultor, Long> {
     boolean existsByDniAndIdNot(String d, Long id);
 
     long countByEstado(String e);
+
+    @Query("""
+            select a from Agricultor a
+            where (:q='' or lower(concat(a.nombres,' ',a.apellidos)) like lower(concat('%',:q,'%')) or a.dni like concat('%',:q,'%'))
+              and (:estado='' or a.estado=:estado)
+              and (:sector='' or lower(a.sector)=lower(:sector))
+            """)
+    Page<Agricultor> buscarReporte(@Param("q") String q,@Param("estado") String estado,@Param("sector") String sector,Pageable pageable);
 }

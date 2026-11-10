@@ -44,4 +44,15 @@ public interface ParcelaRepository extends JpaRepository<Parcela, Long> {
             @Param("sector") String sector,
             Pageable pageable
     );
+
+    @EntityGraph(attributePaths = "agricultor")
+    @Query("""
+            select p from Parcela p
+            where (:q='' or lower(p.codigo) like lower(concat('%',:q,'%')) or lower(p.nombre) like lower(concat('%',:q,'%')) or lower(coalesce(p.cultivo,'')) like lower(concat('%',:q,'%')) or lower(concat(p.agricultor.nombres,' ',p.agricultor.apellidos)) like lower(concat('%',:q,'%')))
+              and (:estado='' or p.estado=:estado)
+              and (:sector='' or lower(p.agricultor.sector)=lower(:sector))
+              and (:cultivo='' or lower(coalesce(p.cultivo,'')) like lower(concat('%',:cultivo,'%')))
+              and (:agricultorId is null or p.agricultor.id=:agricultorId)
+            """)
+    Page<Parcela> buscarReporte(@Param("q") String q,@Param("estado") String estado,@Param("sector") String sector,@Param("cultivo") String cultivo,@Param("agricultorId") Long agricultorId,Pageable pageable);
 }
