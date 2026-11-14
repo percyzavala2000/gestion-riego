@@ -9,7 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,23 +18,35 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Profile("demo")
+@ConditionalOnProperty(
+        name = "vichayal.demo.enabled",
+        havingValue = "true",
+        matchIfMissing = false
+)
 public class DemoDataSeeder implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(DemoDataSeeder.class);
     private final JdbcTemplate jdbc;
     private final PasswordEncoder encoder;
     private final Environment environment;
+    private final String usersPassword;
 
-    public DemoDataSeeder(JdbcTemplate jdbc, PasswordEncoder encoder, Environment environment) {
+    public DemoDataSeeder(
+            JdbcTemplate jdbc,
+            PasswordEncoder encoder,
+            Environment environment,
+            @Value("${vichayal.demo.users-password:}") String usersPassword
+    ) {
         this.jdbc = jdbc;
         this.encoder = encoder;
         this.environment = environment;
+        this.usersPassword = usersPassword;
     }
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
         DemoSeedGuard.validar(environment.getActiveProfiles());
+        validarPasswordDemo();
         Integer existentes = jdbc.queryForObject("select count(*) from usuarios where username='demo_admin'", Integer.class);
         if (existentes != null && existentes > 0) {
             log.info("Los datos demo ya existen; no se insertaron duplicados");
@@ -90,8 +103,23 @@ public class DemoDataSeeder implements ApplicationRunner {
         log.info("Datos demo cargados. Usuarios: demo_admin, demo_operador y demo_tesoreria");
     }
 
+    private void validarPasswordDemo() {
+        if (usersPassword == null || usersPassword.isBlank()) {
+            throw new IllegalStateException(
+                    "DEMO_USERS_PASSWORD es obligatorio cuando "
+                            + "DEMO_SEED_ENABLED=true"
+            );
+        }
+        if (usersPassword.length() < 12) {
+            throw new IllegalStateException(
+                    "DEMO_USERS_PASSWORD debe tener al menos "
+                            + "12 caracteres"
+            );
+        }
+    }
+
     private Long usuario(String username, String nombres, String apellidos, String rol) {
-        return jdbc.queryForObject("insert into usuarios(username,password_hash,nombres,apellidos,activo,rol_id) values(?,?,?,?,true,(select id from roles where codigo=?)) returning id", Long.class, username, encoder.encode("Demo2026!"), nombres, apellidos, rol);
+        return jdbc.queryForObject("insert into usuarios(username,password_hash,nombres,apellidos,activo,rol_id) values(?,?,?,?,true,(select id from roles where codigo=?)) returning id", Long.class, username, encoder.encode(usersPassword), nombres, apellidos, rol);
     }
 
     private Long agricultor(String dni, String nombres, String apellidos, String telefono, String sector) {
