@@ -3,122 +3,146 @@ name: Publicar imagen en GHCR
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
   workflow_dispatch:
-    *nputs:
+    inputs:
       image_tag:
-        de*cription: 'Etiqueta de imagen, por*ejemplo 10.8.0'
-        required: *rue
-        default: '10.8.0'
+        description: "Etiqueta de imagen, por ejemplo 10.8.0"
+        required: true
+        default: "10.8.0"
+        type: string
 
-per*issions:
+permissions:
   contents: read
-  packag*s: write
+  packages: write
   attestations: write
-  i*-token: write
+  id-token: write
 
 concurrency:
-  grou*: publish-ghcr-${{ github.ref }}
- *cancel-in-progress: false
+  group: publish-ghcr-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
- *verify:
-    name: Verificar proyec*o
+  verify:
+    name: Verificar proyecto
     runs-on: ubuntu-latest
-    t*meout-minutes: 20
+    timeout-minutes: 20
 
     steps:
-    * - name: Obtener código
-        us*s: actions/checkout@v4
+      - name: Obtener codigo
+        uses: actions/checkout@v4
 
-      - na*e: Configurar Java 21
-        uses* actions/setup-java@v4
-        wit*:
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
           distribution: temurin
-*         java-version: '21'
-      *   cache: maven
+          java-version: "21"
+          cache: maven
 
-      - name: Eje*utar pruebas unitarias e integraci*n
-        run: mvn --batch-mode --*o-transfer-progress clean verify
+      - name: Ejecutar pruebas unitarias e integracion
+        run: mvn --batch-mode --no-transfer-progress clean verify
 
-*     - name: Publicar informes
-   *    if: always()
-        uses: act*ons/upload-artifact@v4
-        wit*:
-          name: informes-publica*ion-ghcr
-          if-no-files-fou*d: warn
+      - name: Publicar informes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informes-publicacion-ghcr
+          if-no-files-found: warn
           path: |
-        *   target/surefire-reports/**
-    *       target/failsafe-reports/**
-*           target/site/jacoco/**
+            target/surefire-reports/**
+            target/failsafe-reports/**
+            target/site/jacoco/**
 
-* publish:
-    name: Construir y pu*licar imagen
-    runs-on: ubuntu-l*test
+  publish:
+    name: Construir y publicar imagen
+    runs-on: ubuntu-latest
     timeout-minutes: 25
-    n*eds: verify
+    needs: verify
 
     steps:
-      - na*e: Obtener código
-        uses: ac*ions/checkout@v4
+      - name: Obtener codigo
+        uses: actions/checkout@v4
 
-      - name: No*malizar nombre de imagen
-        i*: image
+      - name: Normalizar nombre de imagen
+        id: image
         shell: bash
-      * run: |
-          echo "name=ghcr.*o/${GITHUB_REPOSITORY,,}" >> "$GIT*UB_OUTPUT"
+        run: |
+          echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
-      - name: Configur*r Docker Buildx
-        uses: dock*r/setup-buildx-action@v3
+      - name: Resolver etiqueta solicitada
+        id: version
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          MANUAL_TAG: ${{ github.event.inputs.image_tag }}
+          GIT_REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            IMAGE_TAG="$MANUAL_TAG"
+          else
+            IMAGE_TAG="${GIT_REF_NAME#v}"
+          fi
 
-      - *ame: Iniciar sesión en GHCR
-      * uses: docker/login-action@v3
-    *   with:
-          registry: ghcr.*o
-          username: ${{ github.a*tor }}
-          password: ${{ sec*ets.GITHUB_TOKEN }}
+          if [[ ! "$IMAGE_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Etiqueta invalida: $IMAGE_TAG"
+            exit 1
+          fi
 
-      - name:*Calcular etiquetas y metadatos
-   *    id: meta
-        uses: docker/*etadata-action@v5
+          echo "tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Iniciar sesion en GHCR
+        uses: docker/login-action@v3
         with:
-  *       images: ${{ steps.image.out*uts.name }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Calcular etiquetas y metadatos
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.image.outputs.name }}
           tags: |
-    *       type=semver,pattern={{versi*n}}
-            type=semver,patter*={{major}}.{{minor}}
-            t*pe=sha,prefix=sha-
-            typ*=raw,value=${{ inputs.image_tag }}*enable=${{ github.event_name == 'w*rkflow_dispatch' }}
-          labe*s: |
-            org.opencontainer*.image.title=Vichayal Riego Web
-  *         org.opencontainers.image.*escription=Sistema de gestión de r*ego
-            org.opencontainers*image.source=${{ github.server_url*}}/${{ github.repository }}
-      *     org.opencontainers.image.revi*ion=${{ github.sha }}
-            *rg.opencontainers.image.version=${* github.ref_name }}
+            type=raw,value=${{ steps.version.outputs.tag }}
+            type=sha,prefix=sha-
+          labels: |
+            org.opencontainers.image.title=Vichayal Riego Web
+            org.opencontainers.image.description=Sistema de gestion de riego
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.version.outputs.tag }}
 
-      - name:*Construir y publicar imagen
-      * id: build
-        uses: docker/bu*ld-push-action@v6
+      - name: Construir y publicar imagen
+        id: build
+        uses: docker/build-push-action@v6
         with:
-  *       context: .
-          file: */Dockerfile
+          context: .
+          file: ./Dockerfile
           push: true
- *        platforms: linux/amd64
-   *      tags: ${{ steps.meta.outputs*tags }}
-          labels: ${{ step*.meta.outputs.labels }}
-          *ache-from: type=gha
-          cach*-to: type=gha,mode=max
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - na*e: Atestar procedencia de la image*
-        uses: actions/attest-buil*-provenance@v2
+      - name: Atestar procedencia de la imagen
+        uses: actions/attest-build-provenance@v2
         with:
-     *    subject-name: ${{ steps.image.*utputs.name }}
-          subject-d*gest: ${{ steps.build.outputs.dige*t }}
-          push-to-registry: t*ue
+          subject-name: ${{ steps.image.outputs.name }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
 
-      - name: Publicar resumen*        shell: bash
-        run: |*          echo "### Imagen publica*a en GHCR" >> "$GITHUB_STEP_SUMMAR*"
-          echo "" >> "$GITHUB_ST*P_SUMMARY"
-          echo "- Image*: ${{ steps.image.outputs.name }}"*>> "$GITHUB_STEP_SUMMARY"
-        * echo "- Etiqueta solicitada: ${{ *nputs.image_tag || github.ref_name*}}" >> "$GITHUB_STEP_SUMMARY"
-    *     echo "- Commit: ${{ github.sh* }}" >> "$GITHUB_STEP_SUMMARY"
-   *      echo "- Digest: ${{ steps.bu*ld.outputs.digest }}" >> "$GITHUB_*TEP_SUMMARY"
+      - name: Publicar resumen
+        shell: bash
+        run: |
+          {
+            echo "### Imagen publicada en GHCR"
+            echo
+            echo "- Imagen: ${{ steps.image.outputs.name }}"
+            echo "- Etiqueta: ${{ steps.version.outputs.tag }}"
+            echo "- Commit: ${{ github.sha }}"
+            echo "- Digest: ${{ steps.build.outputs.digest }}"
+          } >> "$GITHUB_STEP_SUMMARY"
